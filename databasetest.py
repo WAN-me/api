@@ -1,6 +1,9 @@
 
 from sqlite3 import Error, connect
 
+from api.methods import db, dropdatabase, userget
+from api.routes import dropdb
+
 
 def create_connection(path):
     """
@@ -85,9 +88,7 @@ crtbl = '''CREATE TABLE users(
 useradd = '''insert into users (name,token)
 values ('user','testokentipohesh')'''
 
-
-#db.execute_query(c,crtbl)
-#db.execute_query(c,useradd)
-D = execute_query(c,'''select * from users where token = "testokentipohesh" ''')
+#db(useradd)
+D = dropdatabase('yes')
 
 print(D)
