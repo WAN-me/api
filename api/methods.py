@@ -7,7 +7,7 @@ NEW_BD = '''CREATE TABLE users(
             token TEXT NOT NULL,
             email,
             password,
-            online_state TEXT;
+            online_state TEXT);
             '''
 
 
