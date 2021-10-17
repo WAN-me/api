@@ -3,9 +3,6 @@ import methods
 from flask import request,redirect
 api = Flask(__name__)
 
-@api.route('/dropdb', methods=['GET',"POST"])
-def dropdb():
-    return methods.dropdatabase(request.args)
 @api.route('/', methods=['GET',"POST"])
 def m():
     return {'message':'welcome to the WAN-m api!'}

@@ -1,7 +1,7 @@
 from sqlite3 import Error, connect
 import hashlib,time
 
-NEW_BD = '''CREATE TABLE users(
+NEW_TBL_USERS = '''CREATE TABLE users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             token TEXT NOT NULL,
@@ -9,6 +9,9 @@ NEW_BD = '''CREATE TABLE users(
             password,
             online_state TEXT);
             '''
+
+INIT_ADMIN='''insert into users (id,name,token)
+        values (0,'admin','admin')'''
 
 
 ############################
@@ -52,23 +55,10 @@ def db(query):
     return res
 
 
-def dropdatabase(args):
-    user = userget(args)
-    print(user)
-    if not 'error' in user:
-        if user['id'] == 1:
-            db('''DROP table users ''')
-            db(NEW_BD)
-            return {'state':'done'}
-        else:
-            return error(4,"access denided for this method")
-    else: return user
-
 def dropdatabase(yes:str):
     db('''DROP TABLE IF EXISTS users;''')
-    db(NEW_BD)
-    db(f'''insert into users (id,name,token)
-        values (0,'admin','admin')''')
+    db(NEW_TBL_USERS)
+    db(INIT_ADMIN)
     return {'state':'done'}
 
 
