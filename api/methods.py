@@ -40,7 +40,7 @@ def reg(args):
 def db(query):
     print(query)
     res = ""
-    cn = connect('db.sqlite3')
+    cn = connect('/databases/db.sqlite3')
     c=cn.cursor()
     c.execute(query)
     cn.commit()
