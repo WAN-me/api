@@ -21,7 +21,7 @@ def userget(args):
     ss = notempty(args,['accesstoken'])
     if ss == True: 
         token = args['accesstoken']
-        user = (db(f'''select id,name,token,online_state from users where token = "{token}" '''))
+        user = (db(f'''select id,name,token,online_state from users where token = %s ''',token))
         if not user or len(user)!=1:
             return error(2,"'accesstoken' is invalid")
         else:
@@ -35,7 +35,8 @@ def reg(args):
         token = hashlib.sha256(f'{name}_{time.time()}'.encode()).hexdigest()
         password = hashlib.sha256(f"{args['password']}".encode()).hexdigest()
         db(f'''insert into users (name,token,email,password)
-        values ('{name}','{token}','{args['email']}','{password}')''')
+        values (%(name)s,%(token)s,%(email)s,%(password)s)''',
+        {'name': name,'token':token,'email':args['email'],'password':password})
         return userget({'accesstoken':token})
     else: return ss
 
@@ -43,12 +44,14 @@ def reg(args):
 ############################
 ###database
 ############################
-def db(query):
+def db(query,s=""):
     print(query)
     res = ""
     cn = connect('/databases/db.sqlite3')
     c=cn.cursor()
-    c.execute(query)
+    if s == "":
+        c.execute(query)
+    else: c.execute(query,s)
     cn.commit()
     res = c.fetchall()
     c.close
