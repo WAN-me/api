@@ -3,9 +3,12 @@ import hashlib,time
 
 NEW_BD = '''CREATE TABLE users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL);
             token TEXT NOT NULL,
+            email,
+            password,
             online_state TEXT,
-            name TEXT NOT NULL);'''
+            '''
 
 
 ############################
@@ -16,7 +19,6 @@ def userget(args):
     if ss == True: 
         token = args['accesstoken']
         user = (db(f'''select id,name,token,online_state from users where token = "{token}" '''))
-        print(user)
         if not user or len(user)!=1:
             return error(2,"'accesstoken' is invalid")
         else:
@@ -24,12 +26,13 @@ def userget(args):
     else:
         return ss
 def reg(args):
-    ss = notempty(args,['name'])
+    ss = notempty(args,['name','email','password'])
     if ss == True:
         name = args['name']
         token = hashlib.sha256(f'{name}_{time.time()}'.encode()).hexdigest()
-        db(f'''insert into users (name,token)
-        values ('{name}','{token}')''')
+        password = hashlib.sha256(f"{args['password']}".encode()).hexdigest()
+        db(f'''insert into users (name,token,email,password)
+        values ('{name}','{token}','{args['email']}','{password}')''')
         return userget({'accesstoken':token})
     else: return ss
 
@@ -78,6 +81,7 @@ def error(code,text):
 
 
 def notempty(args,need):
+    print(args)
     empty=[]
     for key in need:
         name = args.get(key)

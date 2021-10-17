@@ -20,7 +20,7 @@ def user():
     return methods.userget(request.args)
 @api.route('/reg', methods=['GET',"POST"])
 def register():
-    return methods.reg(request.args)
+    return methods.reg(request.args.to_dict())
 
 if __name__ == '__main__':
     api.run(host="0.0.0.0")
