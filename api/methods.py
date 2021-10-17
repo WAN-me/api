@@ -3,11 +3,11 @@ import hashlib,time
 
 NEW_BD = '''CREATE TABLE users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL);
+            name TEXT NOT NULL)
             token TEXT NOT NULL,
             email,
             password,
-            online_state TEXT,
+            online_state TEXT;
             '''
 
 
