@@ -4,7 +4,7 @@ import hashlib,time
 NEW_BD = '''CREATE TABLE users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             token TEXT NOT NULL,
-            online_state TEXT NOT NULL,
+            online_state TEXT,
             name TEXT NOT NULL);'''
 
 
@@ -13,16 +13,16 @@ NEW_BD = '''CREATE TABLE users(
 ############################
 def userget(args):
     ss = notempty(args,['accesstoken'])
-    token = args['accesstoken']
-    if ss!=True:#токена нет
-        return ss
-    else: 
+    if ss == True: 
+        token = args['accesstoken']
         user = (db(f'''select id,name,token,online_state from users where token = "{token}" '''))
+        print(user)
         if not user or len(user)!=1:
             return error(2,"'accesstoken' is invalid")
         else:
             return {'id':user[0][0],'name':user[0][1],'token':user[0][2],'online_state':user[0][3]}
-
+    else:
+        return ss
 def reg(args):
     ss = notempty(args,['name'])
     if ss == True:
@@ -63,10 +63,7 @@ def dropdatabase(args):
 
 def dropdatabase(yes:str):
     db('''DROP TABLE IF EXISTS users;''')
-    db('''CREATE TABLE users(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    token TEXT NOT NULL,
-    name TEXT NOT NULL);''')
+    db(NEW_BD)
     db(f'''insert into users (id,name,token)
         values (0,'admin','admin')''')
     return {'state':'done'}
