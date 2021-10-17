@@ -28,8 +28,8 @@ def reg(args):
     if ss == True:
         name = args['name']
         token = hashlib.sha256(f'{name}_{time.time()}'.encode()).hexdigest()
-        print(db(f'''insert into users (name,token)
-        values ('{name}','{token}')'''))
+        db(f'''insert into users (name,token)
+        values ('{name}','{token}')''')
         return userget({'accesstoken':token})
     else: return ss
 
@@ -62,11 +62,13 @@ def dropdatabase(args):
     else: return user
 
 def dropdatabase(yes:str):
-    db('''DROP table users ''')
+    db('''DROP TABLE IF EXISTS users;''')
     db('''CREATE TABLE users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     token TEXT NOT NULL,
     name TEXT NOT NULL);''')
+    db(f'''insert into users (id,name,token)
+        values (0,'admin','admin')''')
     return {'state':'done'}
 
 
