@@ -1,6 +1,0 @@
-[
-    {"code":1,"text":"'accesstoken' is empty"},
-    {"code":2,"text":"'accesstoken' is invalid"},
-    {"code":3,"text":"'name' is empty"},
-    {"code":4,"text":"access denided for this method"}
-]
