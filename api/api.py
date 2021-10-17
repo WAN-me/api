@@ -1,5 +1,5 @@
 from flask import Flask
-from api import methods
+import methods
 from flask import request
 api = Flask(__name__)
 
