@@ -14,10 +14,10 @@ def index():
     return "You in index"
 @api.route('/user', methods=['GET',"POST"])
 def user():
-    return methods.userget(request.args)
+    return methods.users.get(request.args)
 @api.route('/reg', methods=['GET',"POST"])
 def register():
-    return methods.reg(request.args.to_dict())
+    return methods.users.reg(request.args.to_dict())
 
 if __name__ == '__main__':
     api.run(host="0.0.0.0")
