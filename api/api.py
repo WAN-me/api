@@ -12,6 +12,9 @@ def favicon():
 @api.route('/index', methods=['GET',"POST"])
 def index():
     return "You in index"
+@api.route('/webpwnchat', methods=['GET',"POST"])
+def webpwn():
+    return "ООО, да вы программист на html"
 @api.route('/user', methods=['GET',"POST"])
 def user():
     return methods.users.get(request.args)
