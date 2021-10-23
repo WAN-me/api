@@ -1,12 +1,9 @@
-from os import error
-from flask import Flask
+from api import api
 import methods.messages
 import methods.utils
 import methods.users
 import methods.updates
 from flask import request,redirect
-api = Flask(__name__)
-
 
 @api.errorhandler(404)
 def pageNotFound(error):
@@ -57,4 +54,3 @@ def methodhandler():
 
         else: return methods.utils.error(5,'unknown method passed')
     else: return ss
-api.run(host="0.0.0.0")
