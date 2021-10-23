@@ -1,2 +1,3 @@
 api/__p*
 .git/*
+__pycache__/*
