@@ -34,7 +34,7 @@ def getupdates(tokens):
 def delete(tokens):
     for token in tokens:
         users.delete(token)
-def startt(count=2):
+def startt(count=10):
     tokens,ids = initusers(count)
     print(tokens,ids)
     genmessages(tokens,ids)
@@ -42,7 +42,4 @@ def startt(count=2):
     delete(tokens)
 if __name__ == "__main__":
     for i in range(10):
-        th = Thread(name=startt,args=(10))
-        print(th.name)
-        th.start()
-    startt()
+        th = Thread(target=startt).start()

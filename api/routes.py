@@ -6,6 +6,12 @@ import methods.updates
 from flask import request,redirect
 
 
+@api.errorhandler(404)
+def pageNotFound(error):
+    return methods.utils.error(404,'page not found'),404
+@api.errorhandler(500)
+def ISE(error):
+    return methods.utils.error(500,'internal server error'),500
 @api.route('/favicon.ico')
 def favicon():
     return redirect("https://wan-group.ru/favicon.svg", code=302)
