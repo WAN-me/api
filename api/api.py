@@ -1,6 +1,9 @@
 from os import error
 from flask import Flask
-import methods
+import methods.messages
+import methods.utils
+import methods.users
+import methods.updates
 from flask import request,redirect
 api = Flask(__name__)
 
@@ -40,11 +43,17 @@ def methodhandler():
         elif method == 'user.auth':
             return methods.users.auth(args)
 
+        elif method == 'user.del':
+            return methods.users.delete(args)
+
         elif method == 'message.send':
             return methods.messages.send(args)
 
         elif method == 'message.get':
             return methods.messages.get(args)
+
+        elif method == 'updates.get':
+            return methods.updates.get(args)
 
         else: return methods.utils.error(5,'unknown method passed')
     else: return ss

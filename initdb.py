@@ -1,2 +1,2 @@
-from api import methods
-methods.db.drop('yes')
+from api.methods import db
+db.drop('yes')
