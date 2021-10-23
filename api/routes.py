@@ -5,12 +5,6 @@ import api.methods.users
 import api.methods.updates
 from flask import request,redirect
 
-@api.errorhandler(404)
-def pageNotFound(error):
-    return api.methods.utils.error(404,'page not found')
-@api.errorhandler(500)
-def pageNotFound(error):
-    return api.methods.utils.error(500,'internal server error')
 @api.route('/', methods=['GET',"POST"])
 def m():
     return {'message':'welcome to the WAN-m api!'}
