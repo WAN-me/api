@@ -1,4 +1,4 @@
-from methods import utils,db,messages
+from api.methods import utils,db,messages
 import json
 def set(type:int,user,id:int=None,object:dict=None):
     db.exec('''insert into updates(type,object_id,user_id,object) 
