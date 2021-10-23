@@ -7,6 +7,6 @@ class session():
     def rget(self,method,params):
         params['method'] = method
         params['accesstoken'] = self.token
-        r = requests.get("http://localhost:5000/method",params)
+        r = requests.get("https://api.wan-group.ru/method",params)
 
         return json.loads(r.content.decode('utf-8'))

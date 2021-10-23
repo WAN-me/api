@@ -57,6 +57,4 @@ def methodhandler():
 
         else: return methods.utils.error(5,'unknown method passed')
     else: return ss
-
-if __name__ == '__main__':
-    api.run(host="0.0.0.0")
+api.run(host="0.0.0.0")

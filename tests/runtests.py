@@ -1,3 +1,4 @@
+from threading import Thread
 import messages,updates,users
 import time,uuid
 
@@ -33,9 +34,15 @@ def getupdates(tokens):
 def delete(tokens):
     for token in tokens:
         users.delete(token)
-if __name__ == "__main__":
-    tokens,ids = initusers(10)
+def startt(count=2):
+    tokens,ids = initusers(count)
     print(tokens,ids)
     genmessages(tokens,ids)
     print(getupdates(tokens))
     delete(tokens)
+if __name__ == "__main__":
+    for i in range(10):
+        th = Thread(name=startt,args=(10))
+        print(th.name)
+        th.start()
+    startt()
