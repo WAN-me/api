@@ -1,4 +1,4 @@
-from api.methods import utils,db,updates
+from methods import utils,db,updates
 def send(args):
     ss = utils.notempty(args,['accesstoken','text','to_id'])
     if ss == True: 
