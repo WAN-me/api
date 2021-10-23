@@ -1,4 +1,4 @@
-import messages,updates,user
+import messages,updates,users
 import time,uuid
 
 def initusers(count=2):#Регистрирует пару пользователей и возвращает токены
@@ -6,11 +6,11 @@ def initusers(count=2):#Регистрирует пару пользовател
     for d in range(count):
         passw = uuid.uuid4()
         email = uuid.uuid4()
-        user = user.reg(f'user{d}',email,passw)
+        user = users.reg(f'user{d}',email,passw)
         if 'id' in user:
             print(f'Зарегистрировано: {user}')
             auth = (
-                user.auth(email,passw))
+                users.auth(email,passw))
             if 'token' in auth:
                 print(f'Авторизовано!: {user}')
                 tokens.append(auth['token'])
@@ -32,9 +32,9 @@ def getupdates(tokens):
 
 def delete(tokens):
     for token in tokens:
-        user.delete(token)
+        users.delete(token)
 if __name__ == "__main__":
-    tokens,ids = initusers()
+    tokens,ids = initusers(10)
     print(tokens,ids)
     genmessages(tokens,ids)
     print(getupdates(tokens))

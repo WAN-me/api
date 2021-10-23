@@ -37,8 +37,9 @@ def auth(args):
 
 def delete(args):
     db.exec('''DELETE FROM users
-    WHERE accesstoken = ?;''',
-    args.get('accesstoken','null'))
+    WHERE token = ?;''',(
+    args.get('accesstoken','null'),))
+    return {'state':'ok'}
 
 def reg(args):
     ss = utils.notempty(args,['name','email','password'])

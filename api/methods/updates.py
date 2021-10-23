@@ -1,7 +1,8 @@
-from methods import utils,db
-def set(type,user,id=None):
-    db.exec('''insert into updates(type,object_id,user_id) 
-            values(?,?,?)''',(type,id,user,))
+from methods import utils,db,messages
+import json
+def set(type:int,user,id:int=None,object:dict=None):
+    db.exec('''insert into updates(type,object_id,user_id,object) 
+            values(?,?,?,?)''',(type,id,user,json.dumps(object),))
 
 def get(args):
     ss = utils.notempty(args,['accesstoken'])
@@ -15,12 +16,14 @@ def get(args):
         else:
             thisuser = thisuser[0]
             updates = []
-            raw_updates = db.exec('''select type,object_id,time from updates where user_id=:userId 
-                    order by id desc limit :count,:ofset''',
+            raw_updates = db.exec('''select type,object_id,time,object from updates where user_id=:userId 
+                    order by id desc limit :ofset,:count''',
                     {'userId':thisuser[0],'count':count,'ofset':ofset})
-            for i in len(raw_updates):
-                updates.append({'type':i[0],'object_id':i[1],'time':i[2]})
+            if len(raw_updates)<1:
+                return {'count':len(raw_updates),'items':raw_updates}
+            for i in raw_updates:
+                updates.append({'type':i[0],'object_id':i[1],'time':i[2],'object':json.loads(i[3])})
 
-            return updates
+            return {'count':len(updates),'items':updates}
     else:
         return ss

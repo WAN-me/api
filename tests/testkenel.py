@@ -7,6 +7,6 @@ class session():
     def rget(self,method,params):
         params['method'] = method
         params['accesstoken'] = self.token
-        r = requests.get("http://192.168.43.188:5000/method",params)
+        r = requests.get("http://localhost:5000/method",params)
 
         return json.loads(r.content.decode('utf-8'))

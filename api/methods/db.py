@@ -21,6 +21,7 @@ NEW_TBL_UPDATES = '''CREATE TABLE updates(
         user_id INT NOT NULL,
         type INT NOT NULL,
         time integer(6) not null default (strftime('%s','now')),
+        object JSON,
         object_id INT);
         '''
 
@@ -29,7 +30,7 @@ INIT_ADMIN='''insert into users (id,name,token)
 
 def exec(query,s=""):
     res = ""
-    cn = connect('/databases/sqlite3')
+    cn = connect('/databases/db.sqlite3')
     c=cn.cursor()
     if s == "":
         c.execute(query)
