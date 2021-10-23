@@ -1,16 +1,16 @@
 from api import api
-import methods.messages
-import methods.utils
-import methods.users
-import methods.updates
+import api.methods.messages
+import api.methods.utils
+import api.methods.users
+import api.methods.updates
 from flask import request,redirect
 
 @api.errorhandler(404)
 def pageNotFound(error):
-    return methods.utils.error(404,'page not found')
+    return api.methods.utils.error(404,'page not found')
 @api.errorhandler(500)
 def pageNotFound(error):
-    return methods.utils.error(500,'internal server error')
+    return api.methods.utils.error(500,'internal server error')
 @api.route('/', methods=['GET',"POST"])
 def m():
     return {'message':'welcome to the WAN-m api!'}
@@ -27,30 +27,30 @@ def webpwn():
 @api.route('/method', methods=['GET',"POST"])
 def methodhandler():
     args = request.args.to_dict()
-    ss = methods.utils.notempty(args,['method'])
+    ss = api.methods.utils.notempty(args,['method'])
     if ss == True:
         method = args['method'].lower()
 
         if method == 'user.get':
-            return methods.users.get(args)
+            return api.methods.users.get(args)
 
         elif method == 'user.reg':
-            return methods.users.reg(args)
+            return api.methods.users.reg(args)
 
         elif method == 'user.auth':
-            return methods.users.auth(args)
+            return api.methods.users.auth(args)
 
         elif method == 'user.del':
-            return methods.users.delete(args)
+            return api.methods.users.delete(args)
 
         elif method == 'message.send':
-            return methods.messages.send(args)
+            return api.methods.messages.send(args)
 
         elif method == 'message.get':
-            return methods.messages.get(args)
+            return api.methods.messages.get(args)
 
         elif method == 'updates.get':
-            return methods.updates.get(args)
+            return api.methods.updates.get(args)
 
-        else: return methods.utils.error(5,'unknown method passed')
+        else: return api.methods.utils.error(5,'unknown method passed')
     else: return ss
