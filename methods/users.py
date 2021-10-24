@@ -49,6 +49,6 @@ def reg(args):
         token = utils.dohash(f'{name}_{time.time()}_{password}')
         db.exec(f'''insert into users (name,token,email,password,image)
         values (:name,:token,:email,:password,:image)''',
-        {'name': name,'token':token,'email':args['email'],'password':password,'image':args.get('image','default')})
+        {'name': name,'token':token,'email':args['email'],'password':password,'image':args.get('image','default.png')})
         return get({'accesstoken':token})
     else: return ss
