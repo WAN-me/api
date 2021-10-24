@@ -25,6 +25,11 @@ NEW_TBL_UPDATES = '''CREATE TABLE updates(
         object JSON,
         object_id INT);
         '''
+NEW_TBL_CHATS = '''CREATE TABLE chats(
+        id INTEGER NOT NULL,
+        user_id INT NOT NULL
+        );
+        '''
 
 INIT_ADMIN='''insert into users (id,name,token)
     values (0,'admin','admin')'''
@@ -49,3 +54,5 @@ def drop(yes:str):
     exec(NEW_TBL_MESSAGES)
     exec('''DROP TABLE IF EXISTS updates;''')
     exec(NEW_TBL_UPDATES)
+    exec('''DROP TABLE IF EXISTS chats;''')
+    exec(NEW_TBL_CHATS)

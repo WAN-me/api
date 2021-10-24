@@ -3,6 +3,7 @@ import methods.messages
 import methods.utils
 import methods.users
 import methods.updates
+import methods.chats
 from flask import request,redirect
 
 
@@ -46,6 +47,9 @@ def methodhandler():
 
         elif method == 'message.get':
             return methods.messages.get(args)
+
+        elif method == 'message.chats':
+            return methods.chats.get(args)
 
         elif method == 'updates.get':
             return methods.updates.get(args)

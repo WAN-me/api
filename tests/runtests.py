@@ -30,6 +30,11 @@ def getupdates(tokens):
     for token in tokens:
         updatess.append(updates.get(token))
     return updatess
+def getchats(tokens):
+    chats = []
+    for token in tokens:
+        chats.append(messages.chats(token))
+    return chats
 
 def delete(tokens):
     for token in tokens:
@@ -39,7 +44,7 @@ def startt(count=10):
     print(tokens,ids)
     genmessages(tokens,ids)
     print(getupdates(tokens))
+    print(getchats(tokens))
     delete(tokens)
 if __name__ == "__main__":
-    for i in range(10):
-        th = Thread(target=startt).start()
+    startt(2)
