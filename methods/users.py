@@ -5,19 +5,19 @@ def get(args):
     if ss == True: 
         token = args['accesstoken']
         id = args.get('id',0)
-        thisuser = (db.exec(f'''select id,name,online_state from users where token = ? ''',(token,)))
+        thisuser = (db.exec(f'''select id,name,online_state,image from users where token = ? ''',(token,)))
         if not thisuser or len(thisuser)!=1:
             return utils.error(2,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
             if id == 0:
                 return  {'id':thisuser[0],'name':thisuser[1],'online_state':thisuser[2]}
-            user = (db.exec('''select id,name,online_state from users where id = :id ''',{'id':id}))
+            user = (db.exec('''select id,name,online_state,image from users where id = :id ''',{'id':id}))
             if len(user) == 0:
                 return utils.error(4,"this user not exists")
             else:
                 user = user[0]
-                return {'id':user[0],'name':user[1],'online_state':user[2]}
+                return {'id':user[0],'name':user[1],'online_state':user[2],'image':user[3]}
     else:
         return ss
 
@@ -47,8 +47,8 @@ def reg(args):
         name = args['name']
         password = utils.dohash(f"{args['password']}")
         token = utils.dohash(f'{name}_{time.time()}_{password}')
-        db.exec(f'''insert into users (name,token,email,password)
-        values (:name,:token,:email,:password)''',
-        {'name': name,'token':token,'email':args['email'],'password':password})
+        db.exec(f'''insert into users (name,token,email,password,image)
+        values (:name,:token,:email,:password,:image)''',
+        {'name': name,'token':token,'email':args['email'],'password':password,'image':args.get('image','default')})
         return get({'accesstoken':token})
     else: return ss

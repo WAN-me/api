@@ -5,6 +5,7 @@ NEW_TBL_USERS = '''CREATE TABLE users(
         name TEXT NOT NULL,
         token TEXT NOT NULL,
         email TEXT,
+        image TEXT,
         password TEXT,
         online_state TEXT);
         '''
