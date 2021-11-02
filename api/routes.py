@@ -29,30 +29,33 @@ def methodhandler():
     ss = methods.utils.notempty(args,['method'])
     if ss == True:
         method = args['method'].lower()
-
+        res = {}
         if method == 'user.get':
-            return methods.users.get(args)
-
+            res = methods.users.get(args)
         elif method == 'user.reg':
-            return methods.users.reg(args)
+            res = methods.users.reg(args)
 
         elif method == 'user.auth':
-            return methods.users.auth(args)
+            res = methods.users.auth(args)
 
         elif method == 'user.del':
-            return methods.users.delete(args)
+            res = methods.users.delete(args)
 
         elif method == 'message.send':
-            return methods.messages.send(args)
+            res = methods.messages.send(args)
 
         elif method == 'message.get':
-            return methods.messages.get(args)
+            res = methods.messages.get(args)
 
         elif method == 'message.chats':
-            return methods.chats.get(args)
+            res = methods.chats.get(args)
 
         elif method == 'updates.get':
-            return methods.updates.get(args)
+            res = methods.updates.get(args)
 
-        else: return methods.utils.error(5,'unknown method passed')
-    else: return ss
+        else: res = methods.utils.error(400,'unknown method passed'),400
+
+        if "error" in res:
+            return res,res["error"]["code"]
+        else: return res
+    else: return ss,400

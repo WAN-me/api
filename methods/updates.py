@@ -12,7 +12,7 @@ def get(args):
         ofset = args.get('ofset',0)
         thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
         if not thisuser or len(thisuser)!=1:
-            return utils.error(2,"'accesstoken' is invalid")
+            return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
             updates = []

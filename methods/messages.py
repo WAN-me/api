@@ -7,7 +7,7 @@ def send(args):
         toId = args['to_id']
         thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
         if not thisuser or len(thisuser)!=1:
-            return utils.error(2,"'accesstoken' is invalid")
+            return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
             db.exec('''insert into messages (from_id,to_id,text)
@@ -28,15 +28,15 @@ def get(args):
         id = args['id']
         thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
         if not thisuser or len(thisuser)!=1:
-            return utils.error(2,"'accesstoken' is invalid")
+            return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuserid = thisuser[0][0]
             msg = db.exec('''select from_id,text,to_id from messages where id = ?''',(id,))
             if not msg or len(msg)!=1:
-                return utils.error(2,"'id' is invalid")
+                return utils.error(400,"'id' is invalid")
             msg = msg[0]
             if msg[0] != thisuserid and msg[2] != thisuserid:
-                return utils.error(7,'access denided for this action')
+                return utils.error(403,'access denided for this action')
             return {'from_id':msg[0],'to_id':msg[2],'text':msg[1]}
     else:
         return ss

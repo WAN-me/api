@@ -11,7 +11,7 @@ def notempty(args,need):
             empty.append(key)
     if len(empty)==0:
         return True
-    else: return error(3,f"this keys is empty: {empty}")
+    else: return 400,f"this keys is empty: {empty}"
 
 def thisonly(input,symbols):
     for s in input:
