@@ -58,6 +58,8 @@ def methodhandler():
                 res = methods.groups.get(args)
             elif submethod == 'new':
                 res = methods.groups.new(args)
+            elif submethod == 'join':
+                res = methods.groups.join(args)
             elif submethod == 'getbyname':
                 res = methods.groups.getbyname(args)
             elif submethod == 'adduser':
