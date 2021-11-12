@@ -33,7 +33,7 @@ def get(args):
             thisuserid = thisuser[0][0]
             msg = db.exec('''select from_id,text,to_id from messages where id = ?''',(id,))
             if not msg or len(msg)!=1:
-                return utils.error(400,"'id' is invalid")
+                return utils.error(400,"this message not exists")
             msg = msg[0]
             if msg[0] != thisuserid and msg[2] != thisuserid:
                 return utils.error(403,'access denided for this action')
