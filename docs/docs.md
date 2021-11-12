@@ -5,9 +5,9 @@
     * [get](users/get.md "Перейти")
     * [del](users/del.md "Перейти")
 2. messages
-    * send
-    * get
-    * chats
+    * [send](messages/send.md "Перейти")
+    * [get](messages/get.md "Перейти")
+    * chats(*__в разработке__*)
 3. bugs
     * new
     * get
