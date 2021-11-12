@@ -41,6 +41,7 @@ NEW_TBL_BUGS = '''CREATE TABLE bugs(
         steps TEXT NOT NULL,
         actual TEXT NOT NULL,
         expected TEXT NOT NULL,
+        product INT NOT NULL,
         status INT NOT NULL default 0
         );
         '''
