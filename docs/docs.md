@@ -14,7 +14,8 @@
     * [changestat](bugs/changestat.md "Перейти")
     * __[статусы отчетов](bugs/statuses.md "Перейти")__
 4. updates
-    * get
+    * [get](updates/get.md "Перейти")
+    * __[типы событий](updates/types.md "Перейти")__
 5. groups
     * get
     * new
