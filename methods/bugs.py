@@ -13,11 +13,11 @@ def get(args):
         else:
             thisuser = thisuser[0]
             bug = (db.exec('''select id,title,priority,steps,actual,expected,user_id,status,product from bugs where id = :id ''',{'id':id}))
-            product = bug['product']
             if len(bug) == 0:
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
+                product = bug['product']
             if(product['type']<1):
                 if not(thisuser[0] in product['users'] or thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']):
                     return utils.error(403,"you are not tester for this product")
