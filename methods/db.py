@@ -38,7 +38,7 @@ NEW_TBL_BUGS = '''CREATE TABLE bugs(
         user_id INT NOT NULL,
         title TEXT NOT NULL,
         priority INTEGER NOT NULL,
-        case TEXT NOT NULL,
+        steps TEXT NOT NULL,
         actual TEXT NOT NULL,
         expected TEXT NOT NULL,
         status INT NOT NULL default 0
