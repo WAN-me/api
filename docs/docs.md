@@ -9,9 +9,10 @@
     * [get](messages/get.md "Перейти")
     * chats(*__в разработке__*)
 3. bugs
-    * new
-    * get
-    * changestat
+    * [new](bugs/new.md "Перейти")
+    * [get](bugs/get.md "Перейти")
+    * [changestat](bugs/changestat.md "Перейти")
+    * __[статусы отчетов](bugs/statuses.md "Перейти")__
 4. updates
     * get
 5. groups
