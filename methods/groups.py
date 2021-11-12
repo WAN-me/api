@@ -48,8 +48,8 @@ def new(args):
             return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
-            db.exec('''insert into groups (owner_id,name,type)
-            values (?,?,?)''',(thisuser[0],name,args['type']))
+            db.exec('''insert into groups (owner_id,name,type,users)
+            values (?,?,?,?)''',(thisuser[0],name,args['type'],[thisuser[0]],))
             groupid = db.exec('''select seq from sqlite_sequence where name="groups"''')[0][0]
             return {'id':groupid}
     else:
@@ -68,7 +68,8 @@ def adduser(args):
             group = get(args)
             if thisuser[0] in group['admins'] or thisuser[0] == group['owner_id']:
                 users = list(json.loads(group['users']))
-                users.append(user_id)
+                if not user_id in users:
+                    users.append(user_id)
                 db.exec('''UPDATE groups
                         SET users = :nusers
                         WHERE id = :id''',{'id':id,'nusers':users})
@@ -90,7 +91,8 @@ def join(args):
             group = get(args)
             if group['type'] == 0 and not thisuser[0] in group['users']:
                 users = list(json.loads(group['users']))
-                users.append(thisuser[0])
+                if not thisuser[0] in users:
+                    users.append(thisuser[0])
                 db.exec('''UPDATE groups
                         SET users = :nusers
                         WHERE id = :id''',{'id':id,'nusers':users})
@@ -112,11 +114,16 @@ def addadmin(args):
         else:
             group = get(args)
             if thisuser[0] in group['admins'] or thisuser[0] == group['owner_id']:
-                users = list(json.loads(group['admins']))
-                users.append(user_id)
+                admins = list(json.loads(group['admins']))
+                if not user_id in admins:
+                    admins.append(user_id)
+                users = list(json.loads(group['users']))
+                if not user_id in users:
+                    users.append(user_id)
                 db.exec('''UPDATE groups
-                        SET admins = :nusers
-                        WHERE id = :id''',{'id':id,'nusers':users})
+                        SET admins = :nadmins
+                        users = :nusers
+                        WHERE id = :id''',{'id':id,'nadmins':admins,'nusers':users})
                 return {'state':'ok'}
             return utils.error(403,"access denided for this group")
     else:
