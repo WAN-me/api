@@ -8,7 +8,7 @@ def send(mail,content,subscription=""):
     msg.add_header('Content-Type', 'text/html')
     msg.set_payload(content)
     # setup the parameters of the message
-    password = "Silniyparol1"
+    password = "******"
     msg['From'] = "ashcarev@gmail.com"
     msg['To'] = mail
     msg['Subject'] = subscription

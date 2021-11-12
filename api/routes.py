@@ -4,6 +4,8 @@ import methods.utils
 import methods.users
 import methods.updates
 import methods.chats
+import methods.bugs
+import methods.groups
 from flask import request,redirect
 
 
@@ -28,27 +30,50 @@ def methodhandler():
     args = request.args.to_dict()
     ss = methods.utils.notempty(args,['method'])
     if ss == True:
-        method = args['method'].lower()
+        method = str(args['method'].lower())
+        submethod = method.split('.')[1]
         res = {}
-        if method == 'user.get':
-            res = methods.users.get(args)
-        elif method == 'user.reg':
-            res = methods.users.reg(args)
+        if method.startswith("user"):
+            if submethod == 'get':
+                res = methods.users.get(args)
+            elif submethod == 'reg':
+                res = methods.users.reg(args)
+            elif submethod == 'auth':
+                res = methods.users.auth(args)
+            elif submethod == 'del':
+                res = methods.users.delete(args)
+            else: res = methods.utils.error(400,'unknown method passed'),400
 
-        elif method == 'user.auth':
-            res = methods.users.auth(args)
+        elif method.startswith("mess"):
+            if submethod == 'send':
+                res = methods.messages.send(args)
+            elif submethod == 'get':
+                res = methods.messages.get(args)
+            elif submethod == 'chats':
+                res = methods.chats.get(args)
+            else: res = methods.utils.error(400,'unknown method passed'),400
 
-        elif method == 'user.del':
-            res = methods.users.delete(args)
+        elif method.startswith("group"):
+            if submethod == 'get':
+                res = methods.groups.get(args)
+            elif submethod == 'new':
+                res = methods.groups.new(args)
+            elif submethod == 'getbyname':
+                res = methods.groups.getbyname(args)
+            elif submethod == 'adduser':
+                res = methods.groups.adduser(args)
+            elif submethod == 'addadmin':
+                res = methods.groups.addadmin(args)
+            else: res = methods.utils.error(400,'unknown method passed'),400
 
-        elif method == 'message.send':
-            res = methods.messages.send(args)
-
-        elif method == 'message.get':
-            res = methods.messages.get(args)
-
-        elif method == 'message.chats':
-            res = methods.chats.get(args)
+        elif method.startswith("bug"):
+            if submethod == 'new':
+                res = methods.bugs.new(args)
+            elif submethod == 'get':
+                res = methods.bugs.get(args)
+            elif submethod == 'changestat':
+                res = methods.bugs.changestat(args)
+            else: res = methods.utils.error(400,'unknown method passed'),400
 
         elif method == 'updates.get':
             res = methods.updates.get(args)
