@@ -36,10 +36,20 @@ def auth(args):
         return ss
 
 def delete(args):
-    db.exec('''DELETE FROM users
-    WHERE token = ?;''',(
-    args.get('accesstoken','null'),))
-    return {'state':'ok'}
+    ss = utils.notempty(args,['accesstoken'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = (db.exec(f'''select id,name,online_state,image from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            thisuser = thisuser[0]
+            db.exec('''DELETE FROM users
+            WHERE token = ?;''',(
+            token,))
+        return {'state':'ok'}
+    else:
+        return ss
 
 def reg(args):
     ss = utils.notempty(args,['name','email','password'])
