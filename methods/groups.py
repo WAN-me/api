@@ -49,7 +49,7 @@ def new(args):
         else:
             thisuser = thisuser[0]
             db.exec('''insert into groups (owner_id,name,type,users)
-            values (?,?,?,?)''',(thisuser[0],name,args['type'],[thisuser[0]],))
+            values (?,?,?,?)''',(thisuser[0],name,args['type'],str([thisuser[0],]),))
             groupid = db.exec('''select seq from sqlite_sequence where name="groups"''')[0][0]
             return {'id':groupid}
     else:
@@ -72,7 +72,7 @@ def adduser(args):
                     users.append(user_id)
                 db.exec('''UPDATE groups
                         SET users = :nusers
-                        WHERE id = :id''',{'id':id,'nusers':users})
+                        WHERE id = :id''',{'id':id,'nusers':str(users)})
                 return {'state':'ok'}
             return utils.error(403,"access denided for this group")
     else:
@@ -95,7 +95,7 @@ def join(args):
                     users.append(thisuser[0])
                 db.exec('''UPDATE groups
                         SET users = :nusers
-                        WHERE id = :id''',{'id':id,'nusers':users})
+                        WHERE id = :id''',{'id':id,'nusers':str(users)})
                 return {'state':'ok'}
             return utils.error(403,"access denided for this group")
     else:
@@ -123,7 +123,7 @@ def addadmin(args):
                 db.exec('''UPDATE groups
                         SET admins = :nadmins
                         users = :nusers
-                        WHERE id = :id''',{'id':id,'nadmins':admins,'nusers':users})
+                        WHERE id = :id''',{'id':id,'nadmins':admins,'nusers':str(users)})
                 return {'state':'ok'}
             return utils.error(403,"access denided for this group")
     else:
