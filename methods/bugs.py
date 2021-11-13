@@ -2,7 +2,7 @@ from os import access
 from methods import utils,db,groups
 import time
 
-def get(args):
+def get(args:dict):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 
         token = args['accesstoken']
@@ -17,9 +17,9 @@ def get(args):
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
-                product = bug['product']
+                product = groups.get([args['accesstoken'],bug[8]])
             if(product['type']<1):
-                if not(thisuser[0] in product['users'] or thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']):
+                if not(thisuser[0] in product['users']):
                     return utils.error(403,"you are not tester for this product")
                 else:
                         return {'id':bug[0],'title':bug[1],'priority':bug[2],'steps':bug[3],'actual':bug[4],'expected':bug[5],"user_id":bug[6],"status":bug[7],"product":bug[8]}
@@ -47,13 +47,86 @@ def new(args):
     else:
         return ss
 
+def comment(args):
+    ss = utils.notempty(args,['accesstoken','id',])
+    if ss == True:
+        token = args['accesstoken']
+        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            thisuser = thisuser[0]
+            text = args.get("text","")
+            bug = get(args)
+            product = groups.get(bug['product'])
+
+            if(product['type']<1):
+                if args.get("status",None) != None:
+                    if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
+                        db.exec('''insert into comments (from_id,post_id,text,status)
+                            values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
+                        comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                        return {"id":comid}
+                    elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
+                        if args['status'] in [5,6,11]:
+                            db.exec('''insert into comments (from_id,post_id,text,status)
+                            values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
+                            comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                            return {"id":comid}
+                        else: return utils.error(403,"you can't set this status")
+                    else: return utils.error(403,"you are havn't access to this bug")
+                elif text != "":
+                    if thisuser[0] in product['users']:
+                        db.exec('''insert into comments (from_id,post_id,text)
+                        values (?,?,?)''',(thisuser[0],args['id'],text,))
+                        comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                        return {"id":comid}
+                    else: return utils.error(403,"you are havn't access to this bug")
+                else:
+                    return utils.notempty(args,['text','status',])
+            else: return utils.error(404,"this is not product")
+    else:
+        return ss
+
+def getcomments(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        bug_id = args['id']
+        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            bug = (db.exec('''select id,title,priority,steps,actual,expected,user_id,status,product from bugs where id = :id ''',{'id':bug_id}))
+            if len(bug) == 0:
+                return utils.error(404,"this bug not exists(yet)")
+            else:
+                bug = bug[0]
+                product = groups.get([args['accesstoken'],bug[8]])
+                thisuser = thisuser[0]
+                if(product['type']<1):
+                    if not(thisuser[0] in product['users']):
+                        return utils.error(403,"you are not tester for this product")
+                    else:
+                        comments = []
+                        raw_comments = db.exec('''select text,from_id,id,etxra from updates where post_id=:id 
+                                order by id''',
+                                {'id':bug_id,})
+                        if len(raw_comments)<1:
+                            return {[]}
+                        for i in raw_comments:
+                            comments.append({'text':i[0],'from_id':i[1],'id':i[2],'status':i[3]})
+
+                        return {comments}
+    else:
+        return ss
+
 def changestat(args):
     ss = utils.notempty(args,['accesstoken','id','status'])
     if ss == True: 
         token = args['accesstoken']
         id = args['id']
         thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
-
         if not thisuser or len(thisuser)!=1:
             return utils.error(400,"'accesstoken' is invalid")
         else:
