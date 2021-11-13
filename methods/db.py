@@ -1,6 +1,6 @@
 from sqlite3 import Error, connect
 
-NEW_TBL_USERS = '''CREATE TABLE users(
+NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         token TEXT NOT NULL,
@@ -10,14 +10,23 @@ NEW_TBL_USERS = '''CREATE TABLE users(
         online_state TEXT);
         '''
 
-NEW_TBL_MESSAGES = '''CREATE TABLE messages(
+NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         from_id INT NOT NULL,
         to_id INT NOT NULL,
         text TEXT);
         '''
 
-NEW_TBL_UPDATES = '''CREATE TABLE updates(
+NEW_TBL_COMMENTS = '''CREATE TABLE IF NOT EXISTS comments(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_id INT NOT NULL,
+        post_id INT NOT NULL,
+        etxra INT,
+        time integer(6) not null default (strftime('%s','now')),
+        text TEXT);
+        '''
+
+NEW_TBL_UPDATES = '''CREATE TABLE IF NOT EXISTS updates(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
         type INT NOT NULL,
@@ -26,14 +35,14 @@ NEW_TBL_UPDATES = '''CREATE TABLE updates(
         object_id INT);
         '''
 
-NEW_TBL_CHATS = '''CREATE TABLE chats(
+NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         id INTEGER NOT NULL,
         user_id INT NOT NULL
         );
         '''
 
         
-NEW_TBL_BUGS = '''CREATE TABLE bugs(
+NEW_TBL_BUGS = '''CREATE TABLE IF NOT EXISTS bugs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
         title TEXT NOT NULL,
@@ -45,7 +54,7 @@ NEW_TBL_BUGS = '''CREATE TABLE bugs(
         status INT NOT NULL default 0
         );
         '''
-NEW_TBL_GROUPS = '''CREATE TABLE groups(
+NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         owner_id INT NOT NULL,
         name TEXT NOT NULL,
@@ -70,18 +79,13 @@ def exec(query,s=""):
     return res
 
 def drop(yes:str,admintoken="admin"):
-    exec('''DROP TABLE IF EXISTS users;''')
     exec(NEW_TBL_USERS)
     exec(INIT_ADMIN.replace("{token}",admintoken))
-    exec('''DROP TABLE IF EXISTS messages;''')
     exec(NEW_TBL_MESSAGES)
-    exec('''DROP TABLE IF EXISTS updates;''')
     exec(NEW_TBL_UPDATES)
-    exec('''DROP TABLE IF EXISTS chats;''')
     exec(NEW_TBL_CHATS)
-    exec('''DROP TABLE IF EXISTS bugs;''')
     exec(NEW_TBL_BUGS)
-    exec('''DROP TABLE IF EXISTS groups;''')
     exec(NEW_TBL_GROUPS)
+    exec(NEW_TBL_COMMENTS)
 def update():
         ...

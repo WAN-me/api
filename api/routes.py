@@ -73,6 +73,10 @@ def methodhandler():
                 res = methods.bugs.new(args)
             elif submethod == 'get':
                 res = methods.bugs.get(args)
+            elif submethod == 'comment':
+                res = methods.bugs.new(args)
+            elif submethod == 'getcomments':
+                res = methods.bugs.get(args)
             elif submethod == 'changestat':
                 res = methods.bugs.changestat(args)
             else: res = methods.utils.error(400,'unknown method passed'),400

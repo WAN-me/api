@@ -13,6 +13,8 @@
     * [get](bugs/get.md "Перейти")
     * [changestat](bugs/changestat.md "Перейти")
     * __[статусы отчетов](bugs/statuses.md "Перейти")__
+    * [comment](bugs/comment.md "Перейти")
+    * [getcomments](bugs/getcomments.md "Перейти")
 4. updates
     * [get](updates/get.md "Перейти")
     * __[типы событий](updates/types.md "Перейти")__
