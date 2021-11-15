@@ -1,4 +1,4 @@
-from methods import utils,db,messages
+from methods import utils,db,messages,users
 import json
 def set(type:int,user,id:int=None,object:dict=None):
     db.exec('''insert into updates(type,object_id,user_id,object) 
@@ -10,11 +10,9 @@ def get(args):
         token = args['accesstoken']
         count = args.get('count',10)
         ofset = args.get('ofset',0)
-        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
-        if not thisuser or len(thisuser)!=1:
-            return utils.error(400,"'accesstoken' is invalid")
-        else:
-            thisuser = thisuser[0]
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
             updates = []
             raw_updates = db.exec('''select type,object_id,time,object from updates where user_id=:userId 
                     order by id desc limit :ofset,:count''',

@@ -4,23 +4,27 @@ def get(args):
     ss = utils.notempty(args,['accesstoken'])
     if ss == True: 
         token = args['accesstoken']
-        id = args.get('id',0)
-        thisuser = (db.exec(f'''select id,name,online_state,image from users where token = ? ''',(token,)))
-        if not thisuser or len(thisuser)!=1:
-            return utils.error(400,"'accesstoken' is invalid")
-        else:
-            thisuser = thisuser[0]
-            if id == 0:
-                return  {'id':thisuser[0],'name':thisuser[1],'online_state':thisuser[2]}
-            user = (db.exec('''select id,name,online_state,image from users where id = :id ''',{'id':id}))
-            if len(user) == 0:
-                return utils.error(404,"this user not exists")
-            else:
-                user = user[0]
-                return {'id':user[0],'name':user[1],'online_state':user[2],'image':user[3]}
+        res = _gett(token)
+        id = args.get('id',res[0])
+        return res if 'error' in res else _get(id)
+
     else:
         return ss
 
+def _get(id):
+    user = (db.exec('''select id,name,online_state,image from users where id = :id ''',{'id':id}))
+    if len(user) == 0:
+        return utils.error(404,"this user not exists")
+    else:
+        user = user[0]
+        return {'id':user[0],'name':user[1],'online_state':user[2],'image':user[3]}
+
+def _gett(token):
+    thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+    if not thisuser or len(thisuser)!=1:
+        return utils.error(400,"'accesstoken' is invalid")
+    else:
+        return thisuser[0]
 def auth(args):
     ss = utils.notempty(args,['login','password'])
     if ss == True: 
@@ -39,12 +43,10 @@ def delete(args):
     ss = utils.notempty(args,['accesstoken'])
     if ss == True: 
         token = args['accesstoken']
-        thisuser = (db.exec(f'''select id,name,online_state,image from users where token = ? ''',(token,)))
-        if not thisuser or len(thisuser)!=1:
-            return utils.error(400,"'accesstoken' is invalid")
-        else:
-            thisuser = thisuser[0]
-            db.exec('''DELETE FROM users
+        thisuser = _gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        db.exec('''DELETE FROM users
             WHERE token = ?;''',(
             token,))
         return {'state':'ok'}
