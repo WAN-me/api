@@ -17,7 +17,7 @@ def get(args:dict):
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
-                product = groups.get([args['accesstoken'],bug[8]])
+                product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
             if(product['type']<1):
                 if not(thisuser[0] in product['users']):
                     return utils.error(403,"you are not tester for this product")
@@ -35,7 +35,7 @@ def new(args):
             return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
-            product = groups.get([args['accesstoken'],args['product']])
+            product = groups.get({"accesstoken":args['accesstoken'],"product":args['product']})
             if(product['type']<1):
                 if not(thisuser[0] in product['users'] or thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']):
                     return utils.error(403,"you are not tester for this product")
@@ -58,7 +58,7 @@ def comment(args):
             thisuser = thisuser[0]
             text = args.get("text","")
             bug = get(args)
-            product = groups.get(bug['product'])
+            product = groups.get({"accesstoken":args['accesstoken'],"product":bug['product']})
 
             if(product['type']<1):
                 if args.get("status",None) != None:
@@ -102,7 +102,7 @@ def getcomments(args):
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
-                product = groups.get([args['accesstoken'],bug[8]])
+                product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
                 thisuser = thisuser[0]
                 if(product['type']<1):
                     if not(thisuser[0] in product['users']):
@@ -132,7 +132,7 @@ def changestat(args):
         else:
             thisuser = thisuser[0]
             bug = get(args)
-            product = groups.get(bug['product'])
+            product = groups.get({"accesstoken":token,"id":bug['product']})
             if(product['type']<1):
                 if thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
@@ -167,7 +167,7 @@ def edit(args):
             steps = args.get("steps",bug['steps'])
             actual = args.get("actual",bug['actual'])
             expected = args.get("expected",bug['expected'])
-            product = groups.get(bug['product'])
+            product = groups.get({"accesstoken":token,"id":bug['product']})
             if(product['type']<1):
                 if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
