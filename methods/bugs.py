@@ -17,7 +17,7 @@ def get(args:dict):
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
-                product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
+                product = groups.get({"accesstoken":args['accesstoken'],"id":bug[8]})
                 if "error" in product:
                     return product
             if(product['type']<1):
@@ -37,7 +37,7 @@ def new(args):
             return utils.error(400,"'accesstoken' is invalid")
         else:
             thisuser = thisuser[0]
-            product = groups.get({"accesstoken":args['accesstoken'],"product":args['product']})
+            product = groups.get({"accesstoken":args['accesstoken'],"id":args['product']})
             if "error" in product:
                 return product
             elif(product['type']<1):
@@ -62,7 +62,7 @@ def comment(args):
             thisuser = thisuser[0]
             text = args.get("text","")
             bug = get(args)
-            product = groups.get({"accesstoken":args['accesstoken'],"product":bug['product']})
+            product = groups.get({"accesstoken":args['accesstoken'],"id":bug['product']})
             if "error" in product:
                 return product
             elif(product['type']<1):
@@ -107,7 +107,7 @@ def getcomments(args):
                 return utils.error(404,"this bug not exists(yet)")
             else:
                 bug = bug[0]
-                product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
+                product = groups.get({"accesstoken":args['accesstoken'],"id":bug[8]})
                 thisuser = thisuser[0]
                 if "error" in product:
                     return product
