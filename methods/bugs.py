@@ -168,7 +168,9 @@ def edit(args):
             actual = args.get("actual",bug['actual'])
             expected = args.get("expected",bug['expected'])
             product = groups.get({"accesstoken":token,"id":bug['product']})
-            if(product['type']<1):
+            if "error" in product:
+                return product
+            elif(product['type']<1):
                 if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
                     SET title = :title
