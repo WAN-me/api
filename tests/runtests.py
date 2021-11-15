@@ -47,4 +47,5 @@ def startt(count=10):
     print(getchats(tokens))
     delete(tokens)
 if __name__ == "__main__":
-    startt(2)
+    for t in range(10):
+        th = Thread(target=startt).start()

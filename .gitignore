@@ -1,3 +1,5 @@
 api/__p*
 .git/*
 __pycache__/*
+tests/__pycache__/*
+*.pyc
