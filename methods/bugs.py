@@ -18,6 +18,8 @@ def get(args:dict):
             else:
                 bug = bug[0]
                 product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
+                if "error" in product:
+                    return product
             if(product['type']<1):
                 if not(thisuser[0] in product['users']):
                     return utils.error(403,"you are not tester for this product")
@@ -36,7 +38,9 @@ def new(args):
         else:
             thisuser = thisuser[0]
             product = groups.get({"accesstoken":args['accesstoken'],"product":args['product']})
-            if(product['type']<1):
+            if "error" in product:
+                return product
+            elif(product['type']<1):
                 if not(thisuser[0] in product['users'] or thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']):
                     return utils.error(403,"you are not tester for this product")
                 else:
@@ -59,8 +63,9 @@ def comment(args):
             text = args.get("text","")
             bug = get(args)
             product = groups.get({"accesstoken":args['accesstoken'],"product":bug['product']})
-
-            if(product['type']<1):
+            if "error" in product:
+                return product
+            elif(product['type']<1):
                 if args.get("status",None) != None:
                     if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
                         db.exec('''insert into comments (from_id,post_id,text,status)
@@ -104,7 +109,9 @@ def getcomments(args):
                 bug = bug[0]
                 product = groups.get({"accesstoken":args['accesstoken'],"product":bug[8]})
                 thisuser = thisuser[0]
-                if(product['type']<1):
+                if "error" in product:
+                    return product
+                elif(product['type']<1):
                     if not(thisuser[0] in product['users']):
                         return utils.error(403,"you are not tester for this product")
                     else:
@@ -133,7 +140,9 @@ def changestat(args):
             thisuser = thisuser[0]
             bug = get(args)
             product = groups.get({"accesstoken":token,"id":bug['product']})
-            if(product['type']<1):
+            if "error" in product:
+                return product
+            elif(product['type']<1):
                 if thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
                     SET status = :st
@@ -168,7 +177,6 @@ def edit(args):
             actual = args.get("actual",bug['actual'])
             expected = args.get("expected",bug['expected'])
             product = groups.get({"accesstoken":token,"id":bug['product']})
-            print(product)
             if "error" in product:
                 return product
             elif(product['type']<1):
