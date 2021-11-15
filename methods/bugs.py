@@ -134,7 +134,7 @@ def changestat(args):
             bug = get(args)
             product = groups.get(bug['product'])
             if(product['type']<1):
-                if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
+                if thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
                     SET status = :st
                     WHERE id = :id''',{'id':id,'st':args['status']})
@@ -146,6 +146,69 @@ def changestat(args):
                     WHERE id = :id''',{'id':id,'st':args['status']})
                         return {'state':'ok'}
                     else: return utils.error(403,"you can't set this status")
+                else: return utils.error(403,"you are havn't access to this bug")
+            else: return utils.error(404,"this is not product")
+    else:
+        return ss
+
+def edit(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        id = args['id']
+        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            thisuser = thisuser[0]
+            bug = get(args)
+            title = args.get("title",bug['title'])
+            priority = args.get("priority",bug['priority'])
+            steps = args.get("steps",bug['steps'])
+            actual = args.get("actual",bug['actual'])
+            expected = args.get("expected",bug['expected'])
+            product = groups.get(bug['product'])
+            if(product['type']<1):
+                if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
+                    db.exec('''UPDATE bugs
+                    SET title = :title
+                    SET priority = :priority
+                    SET steps = :steps
+                    SET actual = :actual
+                    SET expected = :expected
+
+                    WHERE id = :id''',
+                    
+                    {
+                        'id':id,
+                        'title':title,
+                        'priority':priority,
+                        'steps':steps,
+                        'actual':actual,
+                        'expected':expected
+                    }
+                    )
+                    return {'state':'ok'}
+                elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
+                    db.exec('''UPDATE bugs
+                    SET title = :title
+                    SET priority = :priority
+                    SET steps = :steps
+                    SET actual = :actual
+                    SET expected = :expected
+
+                    WHERE id = :id''',
+                    
+                    {
+                        'id':id,
+                        'title':title,
+                        'priority':priority,
+                        'steps':steps,
+                        'actual':actual,
+                        'expected':expected
+                    }
+                    )
+                    return {'state':'ok'}
                 else: return utils.error(403,"you are havn't access to this bug")
             else: return utils.error(404,"this is not product")
     else:
