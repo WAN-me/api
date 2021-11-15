@@ -90,7 +90,7 @@ def join(args):
             thisuser=thisuser[0]
             group = get(args)
             if group['type'] == 0 and not thisuser[0] in group['users']:
-                users = list(json.loads(group['users']))
+                users = list(group['users'])
                 if not thisuser[0] in users:
                     users.append(thisuser[0])
                 db.exec('''UPDATE groups
