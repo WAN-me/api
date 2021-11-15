@@ -79,6 +79,8 @@ def methodhandler():
                 res = methods.bugs.get(args)
             elif submethod == 'changestat':
                 res = methods.bugs.changestat(args)
+            elif submethod == 'edit':
+                res = methods.bugs.edit(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
 
         elif method == 'updates.get':
