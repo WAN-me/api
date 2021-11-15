@@ -23,6 +23,8 @@
     * [get](groups/get.md "Перейти")
     * [new](groups/new.md "Перейти")
     * [join](groups/join.md "Перейти")
+    * [del](groups/del.md "Перейти")
+    * [edit](groups/edit.md "Перейти")
     * getbyname
     * adduser
     * addadmin
