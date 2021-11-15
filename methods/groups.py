@@ -55,6 +55,62 @@ def new(args):
     else:
         return ss
 
+def edit(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            thisuser = thisuser[0]
+            group = get(args)
+            if "error" in group:
+                return group
+            name = args.get("name",group['name'])
+            type = args.get("type",group['type'])
+            if thisuser[0] == group['owner_id']:
+                db.exec('''UPDATE groups
+                    SET name = :name
+                    ,type = :type
+
+                    WHERE id = :id''',
+                    
+                    {
+                        'id':args['id'],
+                        'name':name,
+                        'type':type,
+                    }
+                    )
+                return {'state':'ok'}
+    else:
+        return ss
+
+def delete(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
+        if not thisuser or len(thisuser)!=1:
+            return utils.error(400,"'accesstoken' is invalid")
+        else:
+            thisuser = thisuser[0]
+            group = get(args)
+            if "error" in group:
+                return group
+            if thisuser[0] == group['owner_id']:
+                db.exec('''DELETE FROM groups
+                    WHERE id = :id''',
+                    
+                    {
+                        'id':args['id']
+                    }
+                    )
+                return {'state':'ok'}
+    else:
+        return ss
+
+
 def adduser(args):
     ss = utils.notempty(args,['accesstoken','id','user_id'])
     if ss == True: 

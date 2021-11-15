@@ -60,12 +60,16 @@ def methodhandler():
                 res = methods.groups.new(args)
             elif submethod == 'join':
                 res = methods.groups.join(args)
+            elif submethod == 'del':
+                res = methods.groups.delete(args)
             elif submethod == 'getbyname':
                 res = methods.groups.getbyname(args)
             elif submethod == 'adduser':
                 res = methods.groups.adduser(args)
             elif submethod == 'addadmin':
                 res = methods.groups.addadmin(args)
+            elif submethod == 'edit':
+                res = methods.groups.edit(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
 
         elif method.startswith("bug"):
