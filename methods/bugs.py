@@ -202,10 +202,10 @@ def edit(args):
                     return {'state':'ok'}
                 elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
                     db.exec('''UPDATE bugs
-                    SET title = :title
-                    SET priority = :priority
-                    SET steps = :steps
-                    SET actual = :actual
+                    SET title = :title,
+                    SET priority = :priority,
+                    SET steps = :steps,
+                    SET actual = :actual,
                     SET expected = :expected
 
                     WHERE id = :id''',
