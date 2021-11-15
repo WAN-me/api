@@ -12,6 +12,7 @@
     * [new](bugs/new.md "Перейти")
     * [get](bugs/get.md "Перейти")
     * [changestat](bugs/changestat.md "Перейти")
+    * [edit](bugs/edit.md "Перейти")
     * __[статусы отчетов](bugs/statuses.md "Перейти")__
     * [comment](bugs/comment.md "Перейти")
     * [getcomments](bugs/getcomments.md "Перейти")
@@ -19,9 +20,9 @@
     * [get](updates/get.md "Перейти")
     * __[типы событий](updates/types.md "Перейти")__
 5. groups
-    * get
-    * new
-    * join
+    * [get](groups/get.md "Перейти")
+    * [new](groups/new.md "Перейти")
+    * [join](groups/join.md "Перейти")
     * getbyname
     * adduser
     * addadmin
