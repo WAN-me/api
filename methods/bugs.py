@@ -168,6 +168,7 @@ def edit(args):
             actual = args.get("actual",bug['actual'])
             expected = args.get("expected",bug['expected'])
             product = groups.get({"accesstoken":token,"id":bug['product']})
+            print(product)
             if "error" in product:
                 return product
             elif(product['type']<1):
