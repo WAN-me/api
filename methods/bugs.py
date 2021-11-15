@@ -183,10 +183,10 @@ def edit(args):
                 if thisuser[0] in product['admins'] or thisuser[0] == product['owner_id']:
                     db.exec('''UPDATE bugs
                     SET title = :title
-                    SET priority = :priority
-                    SET steps = :steps
-                    SET actual = :actual
-                    SET expected = :expected
+                    priority = :priority
+                    steps = :steps
+                    actual = :actual
+                    expected = :expected
 
                     WHERE id = :id''',
                     
@@ -203,10 +203,10 @@ def edit(args):
                 elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
                     db.exec('''UPDATE bugs
                     SET title = :title,
-                    SET priority = :priority,
-                    SET steps = :steps,
-                    SET actual = :actual,
-                    SET expected = :expected
+                    priority = :priority,
+                    steps = :steps,
+                    actual = :actual,
+                    expected = :expected
 
                     WHERE id = :id''',
                     
