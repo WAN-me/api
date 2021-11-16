@@ -14,6 +14,7 @@ NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         from_id INT NOT NULL,
         to_id INT NOT NULL,
+        time integer(6) not null default (strftime('%s','now')),
         text TEXT);
         '''
 

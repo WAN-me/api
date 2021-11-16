@@ -19,6 +19,35 @@ def send(args):
     else:
         return ss
 
+def gethistory(args):
+    ss = utils.notempty(args,['accesstoken','user_id'])
+    if ss == True: 
+        token = args['accesstoken']
+        user_id = args['user_id']
+        count = args.get('count',20)
+        ofset = args.get('ofset',0)
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        messages = []
+        raw_messages = db.exec('''select id,from_id,to_id,text,time from messages where 
+                (to_id=:this and from_id=:userid)
+                or
+                (to_id=:userid and from_id=:this)
+                order by id desc limit :ofset,:count''',
+                {'this':thisuser[0],
+                'count':count,
+                'ofset':ofset,
+                'userid':user_id})
+        if len(raw_messages)<1:
+            return {'count':len(raw_messages),'items':raw_messages}
+        for i in raw_messages:
+            messages.append({'id':i[0],'from_id':i[1],'to_id':i[2],'text':i[3],'time':i[4]})
+
+        return {'count':len(messages),'items':messages}
+    else:
+        return ss
+
 def get(args):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 

@@ -52,8 +52,9 @@ def methodhandler():
                 res = methods.messages.send(args)
             elif submethod == 'get':
                 res = methods.messages.get(args)
+            elif submethod == 'gethistory':
+                res = methods.messages.gethistory(args)
             elif submethod == 'chats':
-                print("do chats")
                 res = methods.chats.get(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
 
