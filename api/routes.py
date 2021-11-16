@@ -51,6 +51,7 @@ def methodhandler():
             elif submethod == 'get':
                 res = methods.messages.get(args)
             elif submethod == 'chats':
+                print("do chats")
                 res = methods.chats.get(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
         elif method.startswith("kino"):
