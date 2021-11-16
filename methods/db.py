@@ -63,8 +63,8 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         type INT NOT NULL
         );
         '''
-INIT_ADMIN='''insert into users (id,name,token,online_state)
-    values (0,'admin','{token}',{apikey})'''
+INIT_ADMIN='''insert into users (id,name,token)
+    values (0,'admin','{token}')'''
 
 def exec(query,s=""):
     res = ""
