@@ -20,7 +20,7 @@ def get(args):
         if len(raw_updates)<1:
             return {'count':len(raw_updates),'items':raw_updates}
         for i in raw_updates:
-            updates.append({'event_id':i[3],'type':i[0],'object_id':i[1],'time':i[2],'object':json.loads(i[3])})
+            updates.append({'event_id':i[4],'type':i[0],'object_id':i[1],'time':i[2],'object':json.loads(i[3])})
 
         return {'count':len(updates),'items':updates}
     else:
