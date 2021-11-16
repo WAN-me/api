@@ -1,5 +1,5 @@
 from os import access
-from methods import utils,db,groups,users
+from methods import utils,db,groups,users,updates
 import time
 
 def get(args:dict):
@@ -65,7 +65,7 @@ def comment(args):
         if 'error' in thisuser:
             return thisuser 
         text = args.get("text","")
-        bug = get(args)
+        bug = _get(id)
         product = groups._get(bug['product'])
         if "error" in product:
             return product
@@ -75,12 +75,16 @@ def comment(args):
                     db.exec('''insert into comments (from_id,post_id,text,status)
                         values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
                     comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                    if not bug['user_id'] == thisuser[0]:
+                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text,'extra':args["status"]})
                     return {"id":comid}
                 elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
                     if args['status'] in [5,6,11]:
                         db.exec('''insert into comments (from_id,post_id,text,status)
                         values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
                         comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                        if not bug['user_id'] == thisuser[0]:
+                            updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text,'extra':args["status"]})
                         return {"id":comid}
                     else: return utils.error(403,"you can't set this status")
                 else: return utils.error(403,"you are havn't access to this bug")
@@ -89,6 +93,8 @@ def comment(args):
                     db.exec('''insert into comments (from_id,post_id,text)
                     values (?,?,?)''',(thisuser[0],args['id'],text,))
                     comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
+                    if not bug['user_id'] == thisuser[0]:
+                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text})
                     return {"id":comid}
                 else: return utils.error(403,"you are havn't access to this bug")
             else:
