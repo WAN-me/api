@@ -2,7 +2,7 @@ import testkenel as tk
 
 def auth(login,passw):
     s = tk.session("")
-    return (s.rget('user.auth',{'login':login,'password':passw}))
+    return (s.rget('user.auth',{'login':login},{'password':passw}))
 
 def get(token):
     s = tk.session(token)
@@ -14,4 +14,4 @@ def delete(token):
 
 def reg(name,email,passw):
     s = tk.session("")
-    return (s.rget('user.reg',{'name':name,'email':email,'password':passw}))
+    return (s.rget('user.reg',{'name':name,'email':email},{'password':passw}))

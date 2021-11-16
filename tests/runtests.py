@@ -5,8 +5,8 @@ import time,uuid
 def initusers(count=2):#Регистрирует пару пользователей и возвращает токены
     tokens,ids = [],[]
     for d in range(count):
-        passw = uuid.uuid4()
-        email = uuid.uuid4()
+        passw = str(uuid.uuid4())
+        email = str(uuid.uuid4())
         user = users.reg(f'user{d}',email,passw)
         if 'id' in user:
             print(f'Зарегистрировано: {user}')
