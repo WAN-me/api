@@ -13,15 +13,15 @@ def get(args):
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 
-            updates = []
-            raw_updates = db.exec('''select type,object_id,time,object from updates where user_id=:userId 
-                    order by id desc limit :ofset,:count''',
-                    {'userId':thisuser[0],'count':count,'ofset':ofset})
-            if len(raw_updates)<1:
-                return {'count':len(raw_updates),'items':raw_updates}
-            for i in raw_updates:
-                updates.append({'type':i[0],'object_id':i[1],'time':i[2],'object':json.loads(i[3])})
+        updates = []
+        raw_updates = db.exec('''select type,object_id,time,object from updates where user_id=:userId 
+                order by id desc limit :ofset,:count''',
+                {'userId':thisuser[0],'count':count,'ofset':ofset})
+        if len(raw_updates)<1:
+            return {'count':len(raw_updates),'items':raw_updates}
+        for i in raw_updates:
+            updates.append({'type':i[0],'object_id':i[1],'time':i[2],'object':json.loads(i[3])})
 
-            return {'count':len(updates),'items':updates}
+        return {'count':len(updates),'items':updates}
     else:
         return ss
