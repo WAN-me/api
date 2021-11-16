@@ -9,7 +9,7 @@ def send(args):
         if 'error' in thisuser:
             return thisuser 
         db.exec('''insert into messages (from_id,to_id,text)
-        values (?,?,?)''',(thisuser[0],toId,text,))
+        values (?,?,?)''',(thisuser[0],int(toId),text,))
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
         updates.set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
         updates.set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
