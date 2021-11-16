@@ -54,9 +54,13 @@ def methodhandler():
                 print("do chats")
                 res = methods.chats.get(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
+
         elif method.startswith("kino"):
             if submethod == 'search':
                 return methods.kino.search(args)
+            elif submethod == 'films':
+                return methods.kino.films(args)
+                
         elif method.startswith("group"):
             if submethod == 'get':
                 res = methods.groups.get(args)
