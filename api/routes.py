@@ -91,7 +91,7 @@ def methodhandler():
             res = methods.updates.get(args)
 
         else: res = methods.utils.error(400,'unknown method passed'),400
-
+        print(res)
         if "error" in res:
             return res,res["error"]["code"]
         else: return res

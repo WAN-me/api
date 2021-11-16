@@ -39,7 +39,7 @@ def getchats(tokens):
 def delete(tokens):
     for token in tokens:
         users.delete(token)
-def startt(count=10):
+def startt(count=1):
     tokens,ids = initusers(count)
     print(tokens,ids)
     genmessages(tokens,ids)
@@ -47,5 +47,5 @@ def startt(count=10):
     print(getchats(tokens))
     delete(tokens)
 if __name__ == "__main__":
-    for t in range(10):
+    for t in range(1):
         th = Thread(target=startt).start()
