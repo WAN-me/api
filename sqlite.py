@@ -1,4 +1,4 @@
-from api.methods import db
+from methods import db
 while True:
     try:
         print(db.exec(input('>>>')))
