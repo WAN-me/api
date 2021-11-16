@@ -1,3 +1,4 @@
+import requests
 from api import api
 import methods.messages
 import methods.utils
@@ -29,6 +30,7 @@ def webpwn():
 @api.route('/method', methods=['GET',"POST"])
 def methodhandler():
     args = request.args.to_dict()
+    args += request.headers
     ss = methods.utils.notempty(args,['method'])
     if ss == True:
         method = str(args['method'].lower())
