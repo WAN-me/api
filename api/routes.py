@@ -32,7 +32,7 @@ def methodhandler():
     if ss == True:
         method = str(args['method'].lower())
         submethod = method.split('.')[1]
-        res = {}
+        res = "unknown"
         if method.startswith("user"):
             if submethod == 'get':
                 res = methods.users.get(args)
