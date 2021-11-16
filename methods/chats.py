@@ -1,6 +1,6 @@
 from methods import utils,db,messages,users
 import json
-def set(user,id:int):
+def _set(user,id:int):
     db.exec('''insert into chats(id,user_id) 
             values(?,?)''',(id,user,))
 

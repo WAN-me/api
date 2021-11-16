@@ -13,8 +13,8 @@ def send(args):
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
         updates.set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
         updates.set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
-        chats.set(thisuser[0],toId)
-        chats.set(toId,thisuser[0])
+        chats._set(thisuser[0],toId)
+        chats._set(toId,thisuser[0])
         return {'id':msgid}
     else:
         return ss

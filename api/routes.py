@@ -52,7 +52,9 @@ def methodhandler():
             elif submethod == 'chats':
                 res = methods.chats.get(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
-
+        elif method.startswith("kino"):
+            if submethod == 'search':
+                res = methods.kino.search(args)
         elif method.startswith("group"):
             if submethod == 'get':
                 res = methods.groups.get(args)
