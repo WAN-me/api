@@ -20,6 +20,7 @@ def initusers(count=2):#Регистрирует пару пользовател
                 print(f'Ошибка при авторизации:\n{auth}')
         else: print(f"Ключ 'id' отсутствует!\n{user}")
     return tokens,ids
+
 def genmessages(tokens,ids):#генерирует сообщения от каждого к каждому
     for token in tokens:
         for id in ids:
@@ -30,6 +31,7 @@ def getupdates(tokens):
     for token in tokens:
         updatess.append(updates.get(token))
     return updatess
+
 def getchats(tokens):
     chats = []
     for token in tokens:
@@ -39,6 +41,7 @@ def getchats(tokens):
 def delete(tokens):
     for token in tokens:
         users.delete(token)
+
 def startt(count=1):
     tokens,ids = initusers(count)
     print(tokens,ids)
@@ -46,6 +49,7 @@ def startt(count=1):
     print(getupdates(tokens))
     print(getchats(tokens))
     delete(tokens)
+
 if __name__ == "__main__":
     for t in range(1):
         th = Thread(target=startt).start()

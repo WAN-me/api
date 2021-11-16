@@ -63,8 +63,8 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         type INT NOT NULL
         );
         '''
-INIT_ADMIN='''insert into users (id,name,token)
-    values (0,'admin','{token}')'''
+INIT_ADMIN='''insert into users (id,name,token,online_state)
+    values (0,'admin','{token}',{apikey})'''
 
 def exec(query,s=""):
     res = ""
@@ -78,9 +78,9 @@ def exec(query,s=""):
     c.close
     return res
 
-def drop(yes:str,admintoken="admin"):
+def drop(yes:str,admintoken="admin",x_api_key=""):
     exec(NEW_TBL_USERS)
-    exec(INIT_ADMIN.replace("{token}",admintoken))
+    exec(INIT_ADMIN.replace("{token}",admintoken).replace("{apikey}",x_api_key))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_UPDATES)
     exec(NEW_TBL_CHATS)

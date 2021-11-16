@@ -1,2 +1,3 @@
 from methods import db
-db.drop('yes')
+import sys
+db.drop('yes',sys.argv[1],sys.argv[2])
