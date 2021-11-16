@@ -6,6 +6,7 @@ import methods.updates
 import methods.chats
 import methods.bugs
 import methods.groups
+import methods.kino
 from flask import request,redirect
 
 
