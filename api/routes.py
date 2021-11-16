@@ -87,8 +87,9 @@ def methodhandler():
                 res = methods.bugs.edit(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
 
-        elif method == 'updates.get':
-            res = methods.updates.get(args)
+        elif method.startswith("upd"):
+            if submethod == 'get':
+                res = methods.updates.get(args)
 
         else: res = methods.utils.error(400,'unknown method passed'),400
         print(res)
