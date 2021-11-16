@@ -30,7 +30,7 @@ def webpwn():
 @api.route('/method', methods=['GET',"POST"])
 def methodhandler():
     args = request.args.to_dict()
-    args += request.headers
+    args['password'] = request.headers.get('password')
     ss = methods.utils.notempty(args,['method'])
     if ss == True:
         method = str(args['method'].lower())
