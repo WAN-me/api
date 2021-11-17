@@ -11,6 +11,8 @@ def get(args):
     else:
         return ss
 def _get(id):
+    if False == utils.validr(id,utils.IDR):
+        return utils.error(400,"'id' is invalid")
     group = (db.exec('''select id,name,owner_id,users,type,admins from groups where id = :id ''',{'id':id}))
     if len(group) == 0:
         return utils.error(404,"this group not exists")
@@ -26,6 +28,8 @@ def getbyname(args):
         token = args['accesstoken']
         name = args['name']
         thisuser = _gett(token)
+        if False == utils.validr(name,utils.NAMER):
+            return utils.error(400,"'name' is invalid")
         if 'error' in thisuser:
             return thisuser 
         group = (db.exec('''select id,name,owner_id,users,type from groups where name = :name ''',{'name':name}))

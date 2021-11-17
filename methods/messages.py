@@ -1,4 +1,5 @@
 from methods import utils,db,updates,chats,users
+
 def send(args):
     ss = utils.notempty(args,['accesstoken','text','to_id'])
     if ss == True: 
@@ -8,6 +9,8 @@ def send(args):
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 
+        if False == utils.validr(toId,utils.IDR):
+            return utils.error(400,"'to_id' is invalid")
         db.exec('''insert into messages (from_id,to_id,text)
         values (?,?,?)''',(thisuser[0],toId,text,))
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
@@ -26,6 +29,14 @@ def gethistory(args):
         user_id = args['user_id']
         count = args.get('count',20)
         ofset = args.get('ofset',0)
+        if False == utils.validr(token,utils.TOKENR):
+            return utils.error(400,"'accesstoken' is invalid")
+        if False == utils.validr(user_id,utils.IDR):
+            return utils.error(400,"'user_id' is invalid")
+        if False == utils.validr(count,utils.IDR):
+            return utils.error(400,"'count' is invalid")
+        if False == utils.validr(ofset,utils.IDR):
+            return utils.error(400,"'ofset' is invalid")
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 
@@ -53,16 +64,23 @@ def get(args):
     if ss == True: 
         token = args['accesstoken']
         id = args['id']
+        if False == utils.validr(token,utils.TOKENR):
+            return utils.error(400,"'accesstoken' is invalid")
+        if False == utils.validr(id,utils.IDR):
+            return utils.error(400,"'id' is invalid")
         thisuser = users._gett(token)
+        msg = _get(id)
+        if msg['from_id'] != thisuser[0] and msg['to_id'] != thisuser[0]:
+            return utils.error(403,'access denided for this action')
         if 'error' in thisuser:
             return thisuser 
-        msg = db.exec('''select from_id,text,to_id from messages where id = ?''',(id,))
-        if not msg or len(msg)!=1:
-            return utils.error(400,"this message not exists")
-        msg = msg[0]
-        if msg[0] != thisuser[0] and msg[2] != thisuser[0]:
-            return utils.error(403,'access denided for this action')
-        return {'from_id':msg[0],'to_id':msg[2],'text':msg[1]}
+        
     else:
         return ss
 
+def _get(id):
+    msg = db.exec('''select from_id,text,to_id from messages where id = ?''',(id,))
+    if not msg or len(msg)!=1:
+        return utils.error(400,"this message not exists")
+    msg = msg[0]
+    return {'from_id':msg[0],'to_id':msg[2],'text':msg[1]}

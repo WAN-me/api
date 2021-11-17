@@ -64,6 +64,12 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         type INT NOT NULL
         );
         '''
+NEW_TBL_VUL = '''CREATE TABLE IF NOT EXISTS vul(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text INT NOT NULL
+        );
+        '''
+
 INIT_ADMIN='''insert into users (id,name,token)
     values (0,'admin','{token}')'''
 
@@ -88,5 +94,6 @@ def drop(yes:str,admintoken="admin",x_api_key=""):
     exec(NEW_TBL_BUGS)
     exec(NEW_TBL_GROUPS)
     exec(NEW_TBL_COMMENTS)
+    exec(NEW_TBL_VUL)
 def update():
         ...

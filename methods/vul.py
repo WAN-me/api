@@ -1,6 +1,4 @@
 from methods import utils,db
-from jinja2 import Template
-
 def get(args):
     id = args['id']
     val = db.exec('''select text from vul where id = :id ''',{'id':id})
@@ -14,4 +12,4 @@ def set(args):
     return {'id':valid}
 
 def secure(text:str):
-    return Template("{{ text }}").render(text=text)
+    return text.encode('ascii', 'xmlcharrefreplace')

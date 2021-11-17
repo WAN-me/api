@@ -26,6 +26,8 @@ def get(args:dict):
         return ss
 
 def _get(id):
+    if False == utils.validr(id,utils.IDR):
+        return utils.error(400,"'id' is invalid")
     bug = (db.exec('''select id,title,priority,steps,actual,expected,user_id,status,product from bugs where id = :id ''',{'id':id}))
     if len(bug) == 0:
         return utils.error(404,"this bug not exists(yet)")
