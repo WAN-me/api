@@ -1,9 +1,10 @@
 from methods import utils,db
+from jinja2 import Template
 
 def get(args):
     id = args['id']
     val = db.exec('''select text from vul where id = :id ''',{'id':id})
-    return {'text':val[0][0]}
+    return {'text':secure(val[0][0])}
 
 def set(args):
     text = args['text']
@@ -11,3 +12,6 @@ def set(args):
         values (?)''',(text,))
     valid = db.exec('''select seq from sqlite_sequence where name="vul"''')[0][0]
     return {'id':valid}
+
+def secure(text:str):
+    return Template("{{ text }}").render(text=text)
