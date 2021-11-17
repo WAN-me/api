@@ -5,6 +5,9 @@ TOKENR=r"^([a-e]|[0-9]){1,}$"
 IDR=r"^\d{0,}$"
 NAMER=r"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,30}$"
 
+def secure(text:str):
+    return text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+
 def dohash(input):
     return hashlib.sha256(input.encode()).hexdigest()
 

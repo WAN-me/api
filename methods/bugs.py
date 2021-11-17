@@ -1,6 +1,7 @@
 from os import access
 from methods import utils,db,groups,users,updates
 import time
+from utils import secure
 
 def get(args:dict):
     ss = utils.notempty(args,['accesstoken','id'])
@@ -36,7 +37,7 @@ def _get(id):
         product = groups._get(bug[8])
         if "error" in product:
             return product
-    return {'id':bug[0],'title':bug[1],'priority':bug[2],'steps':bug[3],'actual':bug[4],'expected':bug[5],"user_id":bug[6],"status":bug[7],"product":bug[8]}
+    return {'id':bug[0],'title':secure(bug[1]),'priority':bug[2],'steps':secure(bug[3]),'actual':secure(bug[4]),'expected':secure(bug[5]),"user_id":bug[6],"status":bug[7],"product":bug[8]}
 
 def new(args):
     ss = utils.notempty(args,['accesstoken','title','priority','steps','actual','expected','product'])
@@ -86,7 +87,7 @@ def comment(args):
                         values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
                         comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
                         if not bug['user_id'] == thisuser[0]:
-                            updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text,'extra':args["status"]})
+                            updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text),'extra':args["status"]})
                         return {"id":comid}
                     else: return utils.error(403,"you can't set this status")
                 else: return utils.error(403,"you are havn't access to this bug")
@@ -96,7 +97,7 @@ def comment(args):
                     values (?,?,?)''',(thisuser[0],args['id'],text,))
                     comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
                     if not bug['user_id'] == thisuser[0]:
-                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text})
+                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text)})
                     return {"id":comid}
                 else: return utils.error(403,"you are havn't access to this bug")
             else:
@@ -130,7 +131,7 @@ def getcomments(args):
                 if len(raw_comments)<1:
                     return {[]}
                 for i in raw_comments:
-                    comments.append({'text':i[0],'from_id':i[1],'id':i[2],'status':i[3]})
+                    comments.append({'text':secure(i[0]),'from_id':i[1],'id':i[2],'status':i[3]})
 
                 return {comments}
     else:
