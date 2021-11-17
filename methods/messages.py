@@ -1,5 +1,5 @@
 from methods import utils,db,updates,chats,users
-
+from utils import secure
 def send(args):
     ss = utils.notempty(args,['accesstoken','text','to_id'])
     if ss == True: 
@@ -14,8 +14,8 @@ def send(args):
         db.exec('''insert into messages (from_id,to_id,text)
         values (?,?,?)''',(thisuser[0],toId,text,))
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
-        updates.set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
-        updates.set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':text})
+        updates.set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)})
+        updates.set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)})
         chats._set(thisuser[0],toId)
         chats._set(toId,thisuser[0])
         return {'id':msgid}
@@ -53,7 +53,7 @@ def gethistory(args):
         if len(raw_messages)<1:
             return {'count':len(raw_messages),'items':raw_messages}
         for i in raw_messages:
-            messages.append({'id':i[0],'from_id':i[1],'to_id':i[2],'text':i[3],'time':i[4]})
+            messages.append({'id':i[0],'from_id':i[1],'to_id':i[2],'text':secure(i[3]),'time':i[4]})
 
         return {'count':len(messages),'items':messages}
     else:
@@ -83,4 +83,4 @@ def _get(id):
     if not msg or len(msg)!=1:
         return utils.error(400,"this message not exists")
     msg = msg[0]
-    return {'from_id':msg[0],'to_id':msg[2],'text':msg[1]}
+    return {'from_id':msg[0],'to_id':msg[2],'text':secure(msg[1])}

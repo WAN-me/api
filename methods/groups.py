@@ -1,6 +1,7 @@
 from methods import utils,db,users
 import time,json
-from methods.users import _gett
+from users import _gett
+from utils import secure
 def get(args):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 
@@ -18,7 +19,7 @@ def _get(id):
         return utils.error(404,"this group not exists")
     else:
         group = group[0]
-        return {'id':group[0],'name':group[1],'owner_id':group[2],'users':json.loads(group[3]),'admins':json.loads(group[5]),'type':group[4]}
+        return {'id':group[0],'name':secure(group[1]),'owner_id':group[2],'users':json.loads(group[3]),'admins':json.loads(group[5]),'type':group[4]}
 
 
 
@@ -37,7 +38,7 @@ def getbyname(args):
             return utils.error(404,"this group not exists")
         else:
             group = group[0]
-            return {'id':group[0],'name':group[1],'owner_id':group[2],'users':json.loads(group[3]),'type':group[4]}
+            return {'id':group[0],'name':secure(group[1]),'owner_id':group[2],'users':json.loads(group[3]),'type':group[4]}
     else:
         return ss
 
