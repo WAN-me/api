@@ -12,4 +12,4 @@ def set(args):
     return {'id':valid}
 
 def secure(text:str):
-    return text.encode('ascii', 'xmlcharrefreplace')
+    return text.replace(">","&lt;").replace(">","&gt;").replace("&","&amp;")
