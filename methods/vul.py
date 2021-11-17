@@ -3,7 +3,7 @@ from methods import utils,db
 def get(args):
     id = args['id']
     val = db.exec('''select text from vul where id = :id ''',{'id':id})
-    return {'text':val[0]}
+    return {'text':val[0][0]}
 
 def set(args):
     text = args['text']
