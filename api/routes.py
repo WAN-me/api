@@ -8,6 +8,7 @@ import methods.chats
 import methods.bugs
 import methods.groups
 import methods.kino
+import methods.vul
 from flask import request,redirect
 
 
@@ -82,6 +83,12 @@ def methodhandler():
             elif submethod == 'edit':
                 res = methods.groups.edit(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
+
+        elif method.startswith("vul"):
+            if submethod == 'set':
+                res = methods.vul.set(args)
+            elif submethod == 'get':
+                res = methods.vul.get(args)
 
         elif method.startswith("bug"):
             if submethod == 'new':
