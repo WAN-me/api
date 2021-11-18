@@ -1,4 +1,4 @@
-import requests
+import os
 from api import api
 import methods.messages
 import methods.utils
@@ -27,7 +27,24 @@ def index():
 @api.route('/webpwnchat', methods=['GET',"POST"])
 def webpwn():
     return "ООО, да вы программист на html"
+@api.route('/cloud', methods=['GET',"POST"])
+def upload():
+    if request.method == 'POST':
+        if 'file1' not in request.files:
+            return 'there is no file1 in form!'
+        file1 = request.files['file1']
+        path = os.path.join(api.config['UPLOAD_FOLDER'], file1.filename)
+        file1.save(path)
+        return path
 
+        return 'ok'
+    return '''
+    <h1>Upload new File</h1>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="file1">
+      <input type="submit">
+    </form>
+    '''
 @api.route('/method', methods=['GET',"POST"])
 def methodhandler():
     args = request.args.to_dict()
