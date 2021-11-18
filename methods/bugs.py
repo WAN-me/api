@@ -1,7 +1,7 @@
 from os import access
 from methods import utils,db,groups,users,updates
 import time
-from utils import secure
+from methods.utils import secure
 
 def get(args:dict):
     ss = utils.notempty(args,['accesstoken','id'])

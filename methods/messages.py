@@ -1,5 +1,5 @@
 from methods import utils,db,updates,chats,users
-from utils import secure
+from methods.utils import secure
 def send(args):
     ss = utils.notempty(args,['accesstoken','text','to_id'])
     if ss == True: 
