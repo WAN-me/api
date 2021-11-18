@@ -10,7 +10,7 @@ import methods.groups
 import methods.kino
 import methods.vul
 from flask import request,redirect
-
+from werkzeug import utils as uti
 
 @api.errorhandler(404)
 def pageNotFound(error):
@@ -34,7 +34,7 @@ def upload():
             return 'there is no file1 in form!'
         file1 = request.files['file1']
         print(dir(file1))
-        path = os.path.join(api.config['UPLOAD_FOLDER'], file1.filename)
+        path = os.path.join(api.config['UPLOAD_FOLDER'], uti.secure_filename(file1.filename))
         file1.save(path)
         return redirect("https://cloud.wan-group.ru/upload/"+path.split('/var/www/cloud/upload/',1)[1], code=301)
 

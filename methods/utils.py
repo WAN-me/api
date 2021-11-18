@@ -5,6 +5,10 @@ TOKENR=r"^([a-e]|[0-9]){1,}$"
 IDR=r"^\d{0,}$"
 NAMER=r"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,30}$"
 
+def allowedPhoto(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ["png","jpg","jped","gif","bmp",]
+
 def secure(text:str):
     return text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
 
