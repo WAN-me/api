@@ -35,7 +35,7 @@ def upload():
         file1 = request.files['file1']
         path = os.path.join(api.config['UPLOAD_FOLDER'], file1.filename)
         file1.save(path)
-        return path
+        return "cloud.wan-group.ru/upload"+path.split('/var/www/cloud/upload/',1)[1]
 
         return 'ok'
     return '''
