@@ -33,7 +33,7 @@ def upload():
         if 'file1' not in request.files:
             return 'there is no file1 in form!'
         file1 = request.files['file1']
-        print(json.dumps(file1))
+        print(dir(file1))
         path = os.path.join(api.config['UPLOAD_FOLDER'], file1.filename)
         file1.save(path)
         return redirect("https://cloud.wan-group.ru/upload/"+path.split('/var/www/cloud/upload/',1)[1], code=301)
