@@ -9,6 +9,7 @@ import methods.bugs
 import methods.groups
 import methods.kino
 import methods.vul
+import methods.achive
 from flask import request,redirect
 from werkzeug import utils as uti
 
@@ -75,6 +76,15 @@ def methodhandler():
                 res = methods.messages.gethistory(args)
             elif submethod == 'chats':
                 res = methods.chats.get(args)
+            else: res = methods.utils.error(400,'unknown method passed'),400
+
+        elif method.startswith("ach"):
+            if submethod == 'give':
+                res = methods.achive.give(args)
+            elif submethod == 'get':
+                res = methods.achive.get(args)
+            elif submethod == 'new':
+                res = methods.achive.new(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
 
         elif method.startswith("kino"):

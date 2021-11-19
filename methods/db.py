@@ -70,6 +70,14 @@ NEW_TBL_VUL = '''CREATE TABLE IF NOT EXISTS vul(
         );
         '''
 
+NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        group INT NOT NULL,
+        image TEXT);
+        '''
+
 INIT_ADMIN='''insert into users (id,name,token)
     values (0,'admin','{token}')'''
 
@@ -90,6 +98,7 @@ def drop(yes:str,admintoken="admin",x_api_key=""):
     exec(INIT_ADMIN.replace("{token}",admintoken).replace("{apikey}",x_api_key))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_UPDATES)
+    exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)
     exec(NEW_TBL_GROUPS)
