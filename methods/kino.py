@@ -1,5 +1,6 @@
 from methods import utils
 import requests
+version="v2.1"
 
 def search(args):
     ss = utils.notempty(args,['query'])
@@ -12,11 +13,7 @@ def search(args):
     else:
         return ss
 
-def films(args):
-    ss = utils.notempty(args,['id'])
-    if ss == True: 
-        id = args['id']
-        return requests.get(f"https://kinopoiskapiunofficial.tech/api/v2.1/films/{id}",
-        headers={'X-API-KEY':"66e57928-f821-4f05-8922-9828fa81aaca"}).content
-    else:
-        return ss
+def universal(args,method):
+    v = args.get('v',version)
+    return requests.get(f"https://kinopoiskapiunofficial.tech/api/{v}/{method}",params=args,
+    headers={'X-API-KEY':"66e57928-f821-4f05-8922-9828fa81aaca"}).content

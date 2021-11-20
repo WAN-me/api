@@ -14,6 +14,7 @@ NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         from_id INT NOT NULL,
         to_id INT NOT NULL,
+        time integer(6) not null default (strftime('%s','now')),
         text TEXT);
         '''
 
@@ -63,12 +64,27 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         type INT NOT NULL
         );
         '''
+
+NEW_TBL_VUL = '''CREATE TABLE IF NOT EXISTS vul(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text INT NOT NULL
+        );
+        '''
+
+NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        group INT NOT NULL,
+        image TEXT);
+        '''
+
 INIT_ADMIN='''insert into users (id,name,token)
     values (0,'admin','{token}')'''
 
 def exec(query,s=""):
     res = ""
-    cn = connect('/databases/db.sqlite3')
+    cn = connect('/databases/testdb.sqlite3')
     c=cn.cursor()
     if s == "":
         c.execute(query)
@@ -83,9 +99,11 @@ def drop(yes:str,admintoken="admin",x_api_key=""):
     exec(INIT_ADMIN.replace("{token}",admintoken).replace("{apikey}",x_api_key))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_UPDATES)
+    exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)
     exec(NEW_TBL_GROUPS)
     exec(NEW_TBL_COMMENTS)
+    exec(NEW_TBL_VUL)
 def update():
         ...

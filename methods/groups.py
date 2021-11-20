@@ -1,6 +1,7 @@
 from methods import utils,db,users
 import time,json
 from methods.users import _gett
+from methods.utils import secure
 def get(args):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 
@@ -11,12 +12,14 @@ def get(args):
     else:
         return ss
 def _get(id):
+    if False == utils.validr(id,utils.IDR):
+        return utils.error(400,"'id' is invalid")
     group = (db.exec('''select id,name,owner_id,users,type,admins from groups where id = :id ''',{'id':id}))
     if len(group) == 0:
         return utils.error(404,"this group not exists")
     else:
         group = group[0]
-        return {'id':group[0],'name':group[1],'owner_id':group[2],'users':json.loads(group[3]),'admins':json.loads(group[5]),'type':group[4]}
+        return {'id':group[0],'name':secure(group[1]),'owner_id':group[2],'users':json.loads(group[3]),'admins':json.loads(group[5]),'type':group[4]}
 
 
 
@@ -26,6 +29,8 @@ def getbyname(args):
         token = args['accesstoken']
         name = args['name']
         thisuser = _gett(token)
+        if False == utils.validr(name,utils.NAMER):
+            return utils.error(400,"'name' is invalid")
         if 'error' in thisuser:
             return thisuser 
         group = (db.exec('''select id,name,owner_id,users,type from groups where name = :name ''',{'name':name}))
@@ -33,7 +38,7 @@ def getbyname(args):
             return utils.error(404,"this group not exists")
         else:
             group = group[0]
-            return {'id':group[0],'name':group[1],'owner_id':group[2],'users':json.loads(group[3]),'type':group[4]}
+            return {'id':group[0],'name':secure(group[1]),'owner_id':group[2],'users':json.loads(group[3]),'type':group[4]}
     else:
         return ss
 

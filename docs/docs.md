@@ -28,6 +28,10 @@
     * getbyname
     * adduser
     * addadmin
+6. achives
+    * [new](achives/new.md "Перейти")
+    * [give](achives/give.md "Перейти")
+    * [get](achives/get.md "Перейти")
     
     
     

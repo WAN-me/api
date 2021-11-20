@@ -1,4 +1,5 @@
 from methods import utils,db
+from methods.utils import secure
 import time
 def get(args):
     ss = utils.notempty(args,['accesstoken'])
@@ -17,7 +18,7 @@ def _get(id):
         return utils.error(404,"this user not exists")
     else:
         user = user[0]
-        return {'id':user[0],'name':user[1],'online_state':user[2],'image':user[3]}
+        return {'id':user[0],'name':secure(user[1]),'online_state':user[2],'image':user[3]}
 
 def _gett(token):
     thisuser = (db.exec(f'''select id from users where token = ? ''',(token,)))
@@ -61,6 +62,6 @@ def reg(args):
         token = utils.dohash(f'{name}_{time.time()}_{password}')
         db.exec(f'''insert into users (name,token,email,password,image)
         values (:name,:token,:email,:password,:image)''',
-        {'name': name,'token':token,'email':args['email'],'password':password,'image':args.get('image','default.png')})
+        {'name': secure(name),'token':token,'email':args['email'],'password':password,'image':args.get('image','default.png')})
         return get({'accesstoken':token})
     else: return ss
