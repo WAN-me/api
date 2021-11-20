@@ -31,6 +31,7 @@ def webpwn():
 
 @api.route('/kino/<method>', methods=['GET',"POST"])
 def uu(method):
+    print(method)
     return methods.kino.universal(request.args.to_dict(),method)
 
 @api.route('/cloud', methods=['GET',"POST"])
