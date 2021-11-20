@@ -50,14 +50,14 @@ def upload():
       <input type="submit">
     </form>
     '''
-@api.route('/method', methods=['GET',"POST"])
-def methodhandler():
+@api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
+def methodhandler(method,submethod):
     args = request.args.to_dict()
     args['password'] = request.headers.get('password',args.get("password"))
     ss = methods.utils.notempty(args,['method'])
     if ss == True:
-        method = str(args['method'].lower())
-        submethod = method.split('.')[1]
+        method = method.lower()
+        submethod = submethod.lower()
         res = "unknown"
         if method.startswith("user"):
             if submethod == 'get':
