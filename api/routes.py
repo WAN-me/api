@@ -28,6 +28,11 @@ def index():
 @api.route('/webpwnchat', methods=['GET',"POST"])
 def webpwn():
     return "ООО, да вы программист на html"
+
+@api.route('/kino/<method>', methods=['GET',"POST"])
+def universal(method):
+    return methods.kino.universal(request.args.to_dict(),method)
+
 @api.route('/cloud', methods=['GET',"POST"])
 def upload():
     if request.method == 'POST':
@@ -38,8 +43,6 @@ def upload():
         path = os.path.join(api.config['UPLOAD_FOLDER'], uti.secure_filename(file1.filename))
         file1.save(path)
         return redirect("https://cloud.wan-group.ru/upload/"+path.split('/var/www/cloud/upload/',1)[1], code=301)
-
-        return 'ok'
     return '''
     <h1>Upload new File</h1>
     <form method="post" enctype="multipart/form-data">
@@ -86,12 +89,6 @@ def methodhandler():
             elif submethod == 'new':
                 res = methods.achive.new(args)
             else: res = methods.utils.error(400,'unknown method passed'),400
-
-        elif method.startswith("kino"):
-            if submethod == 'search':
-                return methods.kino.search(args)
-            elif submethod == 'films':
-                return methods.kino.films(args)
                 
         elif method.startswith("group"):
             if submethod == 'get':
