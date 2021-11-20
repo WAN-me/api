@@ -5,10 +5,10 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         name TEXT NOT NULL,
         token TEXT NOT NULL,
         email TEXT,
-        image TEXT,
+        image TEXT, 
         password TEXT,
         online_state TEXT);
-        '''
+        '''#TODO is verifed
 
 NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,

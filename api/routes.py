@@ -15,7 +15,7 @@ from werkzeug import utils as uti
 
 @api.errorhandler(404)
 def pageNotFound(error):
-    return methods.utils.error(404,'page not found'),404
+    return methods.utils.error(404,'Page not found'),404
 @api.errorhandler(500)
 def ISE(error):
     return methods.utils.error(500,'internal server error'),500
@@ -29,8 +29,19 @@ def index():
 def webpwn():
     return "ООО, да вы программист на html"
 
+@api.route('/kino/<method>/<params>', methods=['GET',"POST"])
+def uu1(method,params):
+    print(method+"/"+params)
+    return methods.kino.universal(request.args.to_dict(),method+"/"+params)
+
+@api.route('/kino/<method>/', methods=['GET',"POST"])
+def uu2(method):
+    print(method+"/")
+    return methods.kino.universal(request.args.to_dict(),method+"/")
+
 @api.route('/kino/<method>', methods=['GET',"POST"])
-def uu(method):
+def uu3(method):
+    print(method)
     return methods.kino.universal(request.args.to_dict(),method)
 
 @api.route('/cloud', methods=['GET',"POST"])
