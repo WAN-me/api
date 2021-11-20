@@ -29,7 +29,7 @@ def index():
 def webpwn():
     return "ООО, да вы программист на html"
 
-@api.route('`/kino/<method>`', methods=['GET',"POST"])
+@api.route('/kino/<method>', methods=['GET',"POST"])
 def uu(method):
     return methods.kino.universal(request.args.to_dict(),method)
 
