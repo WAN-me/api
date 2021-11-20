@@ -3,7 +3,7 @@ from methods.utils import secure
 
 
 def _get(id):
-    ach = (db.exec('''select id,name,description,image,group from achivs where id = :id ''',{'id':id}))
+    ach = (db.exec('''select id,name,description,image,groupid from achivs where id = :id ''',{'id':id}))
     if len(ach) == 0:
         return utils.error(404,"this achivment not exists")
     else:
@@ -11,7 +11,7 @@ def _get(id):
         return {'id':ach[0],'name':secure(ach[1]),'description':secure(ach[2]),'image':ach[3],'group':ach[4]}
 
 def _new(name,desc,image,group):
-    db.exec(f'''insert into achivs (name,description,group,image)
+    db.exec(f'''insert into achivs (name,description,groupid,image)
         values (:name,:desc,:group,:image)''',{'name':name,'desc':desc,'group':group,'image':image})
     achid = db.exec('''select seq from sqlite_sequence where name="achivs"''')[0][0]
     return {'id':achid}
