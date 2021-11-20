@@ -64,6 +64,7 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         type INT NOT NULL
         );
         '''
+
 NEW_TBL_VUL = '''CREATE TABLE IF NOT EXISTS vul(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text INT NOT NULL
