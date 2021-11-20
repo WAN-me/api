@@ -34,6 +34,16 @@ def uu(method,params):
     print(method+"/"+params)
     return methods.kino.universal(request.args.to_dict(),method+"/"+params)
 
+@api.route('/kino/<method>/', methods=['GET',"POST"])
+def uu(method):
+    print(method+"/")
+    return methods.kino.universal(request.args.to_dict(),method+"/")
+
+@api.route('/kino/<method>', methods=['GET',"POST"])
+def uu(method):
+    print(method)
+    return methods.kino.universal(request.args.to_dict(),method)
+
 @api.route('/cloud', methods=['GET',"POST"])
 def upload():
     if request.method == 'POST':
