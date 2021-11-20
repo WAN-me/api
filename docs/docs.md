@@ -32,6 +32,6 @@
     * [new](achives/new.md "Перейти")
     * [give](achives/give.md "Перейти")
     * [get](achives/get.md "Перейти")
-    
-    
+7. kino (anti-cors server for NAC Kinovod)
+    * all methods are cloned from Kinopoisk API Unofficial. You can read the docs [here](https://kinopoiskapiunofficial.tech/documentation/api/)
     
