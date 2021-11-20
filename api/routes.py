@@ -15,7 +15,7 @@ from werkzeug import utils as uti
 
 @api.errorhandler(404)
 def pageNotFound(error):
-    return methods.utils.error(404,'page not found'),404
+    return methods.utils.error(404,'Page not found'),404
 @api.errorhandler(500)
 def ISE(error):
     return methods.utils.error(500,'internal server error'),500
