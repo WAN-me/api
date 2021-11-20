@@ -30,17 +30,17 @@ def webpwn():
     return "ООО, да вы программист на html"
 
 @api.route('/kino/<method>/<params>', methods=['GET',"POST"])
-def uu(method,params):
+def uu1(method,params):
     print(method+"/"+params)
     return methods.kino.universal(request.args.to_dict(),method+"/"+params)
 
 @api.route('/kino/<method>/', methods=['GET',"POST"])
-def uu(method):
+def uu2(method):
     print(method+"/")
     return methods.kino.universal(request.args.to_dict(),method+"/")
 
 @api.route('/kino/<method>', methods=['GET',"POST"])
-def uu(method):
+def uu3(method):
     print(method)
     return methods.kino.universal(request.args.to_dict(),method)
 
