@@ -1,5 +1,6 @@
-from sqlite3 import Error, connect
-
+import os
+from sqlite3 import connect
+import cfg
 NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -75,7 +76,7 @@ NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT,
-        group INT NOT NULL,
+        groupid INT NOT NULL,
         image TEXT);
         '''
 
@@ -84,7 +85,7 @@ INIT_ADMIN='''insert into users (id,name,token)
 
 def exec(query,s=""):
     res = ""
-    cn = connect('/databases/testdb.sqlite3')
+    cn = connect(cfg.dataBaseFile)
     c=cn.cursor()
     if s == "":
         c.execute(query)
@@ -94,9 +95,11 @@ def exec(query,s=""):
     c.close
     return res
 
-def drop(yes:str,admintoken="admin",x_api_key=""):
+def drop(yes:str):
+    os.remove(cfg.dataBaseFile)
+def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    exec(INIT_ADMIN.replace("{token}",admintoken).replace("{apikey}",x_api_key))
+    exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_UPDATES)
     exec(NEW_TBL_ACH)
@@ -105,5 +108,3 @@ def drop(yes:str,admintoken="admin",x_api_key=""):
     exec(NEW_TBL_GROUPS)
     exec(NEW_TBL_COMMENTS)
     exec(NEW_TBL_VUL)
-def update():
-        ...
