@@ -54,89 +54,86 @@ def upload():
 def methodhandler(method,submethod):
     args = request.args.to_dict()
     args['password'] = request.headers.get('password',args.get("password"))
-    ss = methods.utils.notempty(args,['method'])
-    if ss == True:
-        method = method.lower()
-        submethod = submethod.lower()
-        res = "unknown"
-        if method.startswith("user"):
-            if submethod == 'get':
-                res = methods.users.get(args)
-            elif submethod == 'reg':
-                res = methods.users.reg(args)
-            elif submethod == 'auth':
-                res = methods.users.auth(args)
-            elif submethod == 'del':
-                res = methods.users.delete(args)
-            else: res = methods.utils.error(400,'unknown method passed'),400
-
-        elif method.startswith("mess"):
-            if submethod == 'send':
-                res = methods.messages.send(args)
-            elif submethod == 'get':
-                res = methods.messages.get(args)
-            elif submethod == 'gethistory':
-                res = methods.messages.gethistory(args)
-            elif submethod == 'chats':
-                res = methods.chats.get(args)
-            else: res = methods.utils.error(400,'unknown method passed'),400
-
-        elif method.startswith("ach"):
-            if submethod == 'give':
-                res = methods.achive.give(args)
-            elif submethod == 'get':
-                res = methods.achive.get(args)
-            elif submethod == 'new':
-                res = methods.achive.new(args)
-            else: res = methods.utils.error(400,'unknown method passed'),400
-                
-        elif method.startswith("group"):
-            if submethod == 'get':
-                res = methods.groups.get(args)
-            elif submethod == 'new':
-                res = methods.groups.new(args)
-            elif submethod == 'join':
-                res = methods.groups.join(args)
-            elif submethod == 'del':
-                res = methods.groups.delete(args)
-            elif submethod == 'getbyname':
-                res = methods.groups.getbyname(args)
-            elif submethod == 'adduser':
-                res = methods.groups.adduser(args)
-            elif submethod == 'addadmin':
-                res = methods.groups.addadmin(args)
-            elif submethod == 'edit':
-                res = methods.groups.edit(args)
-            else: res = methods.utils.error(400,'unknown method passed'),400
-
-        elif method.startswith("vul"):
-            if submethod == 'set':
-                res = methods.vul.set(args)
-            elif submethod == 'get':
-                res = methods.vul.get(args)
-
-        elif method.startswith("bug"):
-            if submethod == 'new':
-                res = methods.bugs.new(args)
-            elif submethod == 'get':
-                res = methods.bugs.get(args)
-            elif submethod == 'comment':
-                res = methods.bugs.new(args)
-            elif submethod == 'getcomments':
-                res = methods.bugs.get(args)
-            elif submethod == 'changestat':
-                res = methods.bugs.changestat(args)
-            elif submethod == 'edit':
-                res = methods.bugs.edit(args)
-            else: res = methods.utils.error(400,'unknown method passed'),400
-
-        elif method.startswith("upd"):
-            if submethod == 'get':
-                res = methods.updates.get(args)
-
+    method = method.lower()
+    submethod = submethod.lower()
+    res = "unknown"
+    if method.startswith("user"):
+        if submethod == 'get':
+            res = methods.users.get(args)
+        elif submethod == 'reg':
+            res = methods.users.reg(args)
+        elif submethod == 'auth':
+            res = methods.users.auth(args)
+        elif submethod == 'del':
+            res = methods.users.delete(args)
         else: res = methods.utils.error(400,'unknown method passed'),400
-        print(res)
-        if "error" in res:
-            return res,res["error"]["code"]
-        else: return res
-    else: return ss,400
+
+    elif method.startswith("mess"):
+        if submethod == 'send':
+            res = methods.messages.send(args)
+        elif submethod == 'get':
+            res = methods.messages.get(args)
+        elif submethod == 'gethistory':
+            res = methods.messages.gethistory(args)
+        elif submethod == 'chats':
+            res = methods.chats.get(args)
+        else: res = methods.utils.error(400,'unknown method passed'),400
+
+    elif method.startswith("ach"):
+        if submethod == 'give':
+            res = methods.achive.give(args)
+        elif submethod == 'get':
+            res = methods.achive.get(args)
+        elif submethod == 'new':
+            res = methods.achive.new(args)
+        else: res = methods.utils.error(400,'unknown method passed'),400
+            
+    elif method.startswith("group"):
+        if submethod == 'get':
+            res = methods.groups.get(args)
+        elif submethod == 'new':
+            res = methods.groups.new(args)
+        elif submethod == 'join':
+            res = methods.groups.join(args)
+        elif submethod == 'del':
+            res = methods.groups.delete(args)
+        elif submethod == 'getbyname':
+            res = methods.groups.getbyname(args)
+        elif submethod == 'adduser':
+            res = methods.groups.adduser(args)
+        elif submethod == 'addadmin':
+            res = methods.groups.addadmin(args)
+        elif submethod == 'edit':
+            res = methods.groups.edit(args)
+        else: res = methods.utils.error(400,'unknown method passed'),400
+
+    elif method.startswith("vul"):
+        if submethod == 'set':
+            res = methods.vul.set(args)
+        elif submethod == 'get':
+            res = methods.vul.get(args)
+
+    elif method.startswith("bug"):
+        if submethod == 'new':
+            res = methods.bugs.new(args)
+        elif submethod == 'get':
+            res = methods.bugs.get(args)
+        elif submethod == 'comment':
+            res = methods.bugs.new(args)
+        elif submethod == 'getcomments':
+            res = methods.bugs.get(args)
+        elif submethod == 'changestat':
+            res = methods.bugs.changestat(args)
+        elif submethod == 'edit':
+            res = methods.bugs.edit(args)
+        else: res = methods.utils.error(400,'unknown method passed'),400
+
+    elif method.startswith("upd"):
+        if submethod == 'get':
+            res = methods.updates.get(args)
+
+    else: res = methods.utils.error(400,'unknown method passed'),400
+    print(res)
+    if "error" in res:
+        return res,res["error"]["code"]
+    else: return res
