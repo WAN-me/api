@@ -84,7 +84,7 @@ INIT_ADMIN='''insert into users (id,name,token)
 
 def exec(query,s=""):
     res = ""
-    cn = connect('/databases/testdb.sqlite3')
+    cn = connect('/databases/db.sqlite3')
     c=cn.cursor()
     if s == "":
         c.execute(query)
