@@ -29,10 +29,10 @@ def index():
 def webpwn():
     return "ООО, да вы программист на html"
 
-@api.route('/kino/<method>', methods=['GET',"POST"])
-def uu(method):
-    print(method)
-    return methods.kino.universal(request.args.to_dict(),method)
+@api.route('/kino/<method>/<params>', methods=['GET',"POST"])
+def uu(method,params):
+    print(method+"/"+params)
+    return methods.kino.universal(request.args.to_dict(),method+"/"+params)
 
 @api.route('/cloud', methods=['GET',"POST"])
 def upload():
