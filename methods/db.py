@@ -1,5 +1,6 @@
-from sqlite3 import Error, connect
-
+import os
+from sqlite3 import connect
+import cfg
 NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -27,12 +28,13 @@ NEW_TBL_COMMENTS = '''CREATE TABLE IF NOT EXISTS comments(
         text TEXT);
         '''
 
-NEW_TBL_UPDATES = '''CREATE TABLE IF NOT EXISTS updates(
+NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
         type INT NOT NULL,
         time integer(6) not null default (strftime('%s','now')),
         object JSON,
+        readed BOOLEAN defaul 0,
         object_id INT);
         '''
 
@@ -75,7 +77,7 @@ NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT,
-        group INT NOT NULL,
+        groupid INT NOT NULL,
         image TEXT);
         '''
 
@@ -84,7 +86,7 @@ INIT_ADMIN='''insert into users (id,name,token)
 
 def exec(query,s=""):
     res = ""
-    cn = connect('/databases/db.sqlite3')
+    cn = connect(cfg.dataBaseFile)
     c=cn.cursor()
     if s == "":
         c.execute(query)
@@ -94,16 +96,16 @@ def exec(query,s=""):
     c.close
     return res
 
-def drop(yes:str,admintoken="admin",x_api_key=""):
+def drop(yes:str):
+    os.remove(cfg.dataBaseFile)
+def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    exec(INIT_ADMIN.replace("{token}",admintoken).replace("{apikey}",x_api_key))
+    exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
-    exec(NEW_TBL_UPDATES)
+    exec(NEW_TBL_POOL)
     exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)
     exec(NEW_TBL_GROUPS)
     exec(NEW_TBL_COMMENTS)
     exec(NEW_TBL_VUL)
-def update():
-        ...
