@@ -28,12 +28,13 @@ NEW_TBL_COMMENTS = '''CREATE TABLE IF NOT EXISTS comments(
         text TEXT);
         '''
 
-NEW_TBL_UPDATES = '''CREATE TABLE IF NOT EXISTS updates(
+NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
         type INT NOT NULL,
         time integer(6) not null default (strftime('%s','now')),
         object JSON,
+        readed BOOLEAN defaul 0,
         object_id INT);
         '''
 
@@ -101,7 +102,7 @@ def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
     exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
-    exec(NEW_TBL_UPDATES)
+    exec(NEW_TBL_POOL)
     exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)
