@@ -3,7 +3,7 @@ from api import api
 import methods.messages
 import methods.utils
 import methods.users
-import methods.updates
+import methods.pool
 import methods.chats
 import methods.bugs
 import methods.groups
@@ -62,6 +62,9 @@ def upload():
     </form>
     '''
 @api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
+@api.route('/method/<method>/<submethod>/', methods=['GET',"POST"])
+@api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
+@api.route('/method/<method>.<submethod>/', methods=['GET',"POST"])
 def methodhandler(method,submethod):
     args = request.args.to_dict()
     args['password'] = request.headers.get('password',args.get("password"))
@@ -139,9 +142,11 @@ def methodhandler(method,submethod):
             res = methods.bugs.edit(args)
         else: res = methods.utils.error(400,'unknown method passed'),400
 
-    elif method.startswith("upd"):
+    elif method.startswith("pool"):
         if submethod == 'get':
-            res = methods.updates.get(args)
+            res = methods.pool.get(args)
+        elif submethod == 'read':
+            res = methods.pool.read(args)
 
     else: res = methods.utils.error(400,'unknown method passed'),400
     print(res)

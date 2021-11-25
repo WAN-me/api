@@ -1,6 +1,6 @@
 from methods import utils,db,messages,users
 import json
-def set(type:int,user,id:int=None,object:dict=None):
+def _set(type:int,user,id:int=None,object:dict=None):
     db.exec('''insert into pool(type,object_id,user_id,object) 
             values(?,?,?,?)''',(type,id,user,json.dumps(object),))
 

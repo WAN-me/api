@@ -1,5 +1,5 @@
 from os import access
-from methods import utils,db,groups,users,updates
+from methods import utils,db,groups,users,pool
 import time
 from methods.utils import secure
 
@@ -79,7 +79,7 @@ def comment(args):
                         values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
                     comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
                     if not bug['user_id'] == thisuser[0]:
-                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text,'extra':args["status"]})
+                        pool._set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':text,'extra':args["status"]})
                     return {"id":comid}
                 elif thisuser[0] in product['users'] and bug['user_id']==thisuser[0]:
                     if args['status'] in [5,6,11]:
@@ -87,7 +87,7 @@ def comment(args):
                         values (?,?,?,?)''',(thisuser[0],args['id'],text,args["status"],))
                         comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
                         if not bug['user_id'] == thisuser[0]:
-                            updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text),'extra':args["status"]})
+                            pool._set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text),'extra':args["status"]})
                         return {"id":comid}
                     else: return utils.error(403,"you can't set this status")
                 else: return utils.error(403,"you are havn't access to this bug")
@@ -97,7 +97,7 @@ def comment(args):
                     values (?,?,?)''',(thisuser[0],args['id'],text,))
                     comid = db.exec('''select seq from sqlite_sequence where name="comments"''')[0][0]
                     if not bug['user_id'] == thisuser[0]:
-                        updates.set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text)})
+                        pool._set(3,bug['id'],bug['user_id'],{'id':comid,'from_id':thisuser[0],'text':secure(text)})
                     return {"id":comid}
                 else: return utils.error(403,"you are havn't access to this bug")
             else:
@@ -125,7 +125,7 @@ def getcomments(args):
                 return utils.error(403,"you are not tester for this product")
             else:
                 comments = []
-                raw_comments = db.exec('''select text,from_id,id,etxra from updates where post_id=:id 
+                raw_comments = db.exec('''select text,from_id,id,etxra from comments where post_id=:id 
                         order by id''',
                         {'id':bug_id,})
                 if len(raw_comments)<1:
