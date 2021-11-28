@@ -68,7 +68,9 @@ def auth():
     args = request.args.to_dict()
     if "code" in args:
         code = args['code']
-        return requests.get('https://oauth.vk.com/access_token?client_id=8012324&client_secret=COH80Oy3E72Nhj7ChB7L&redirect_uri=http://test.api.wan-group.ru/auth&code='+code).content
+        r = json.loads(requests.get('https://oauth.vk.com/access_token?client_id=8012324&client_secret=COH80Oy3E72Nhj7ChB7L&redirect_uri=http://test.api.wan-group.ru/auth&code='+code).content)
+        user = json.loads(requests.get(f"https://api.vk.com/method/users.get?access_token={r['access_token']}&v=5.101"))
+        return f"Привет, {user['first_name']} {user['last_name']}\n{r['email']} - Это твоя почта?"
     else:
         return redirect("https://oauth.vk.com/authorize?client_id=8012324&display=page&redirect_uri=http://test.api.wan-group.ru/auth&scope=email&response_type=code&v=5.131", code=302)
 @api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
