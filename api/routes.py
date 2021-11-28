@@ -63,7 +63,10 @@ def upload():
     '''
 @api.route('/auth', methods=['GET',"POST"])
 def auth():
-    return f'{request.args.to_dict()}'
+    args = request.args.to_dict()
+    if "code" in args:
+        code = args['code']
+        return request.get('https://oauth.vk.com/access_token?client_id=8012324&client_secret=COH80Oy3E72Nhj7ChB7L&redirect_uri=http://test.api.wan-group.ru/auth&code='+code).content
 @api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
 @api.route('/method/<method>/<submethod>/', methods=['GET',"POST"])
 @api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
