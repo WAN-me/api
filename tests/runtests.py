@@ -1,5 +1,5 @@
 from threading import Thread
-import messages,updates,users
+import messages,updates,users,pool
 import time,uuid
 
 def initusers(count=2):#Регистрирует пару пользователей и возвращает токены
@@ -29,7 +29,7 @@ def genmessages(tokens,ids):#генерирует сообщения от каж
 def getupdates(tokens):
     updatess = []
     for token in tokens:
-        updatess.append(updates.get(token))
+        updatess.append(pool.get(token))
     return updatess
 
 def getchats(tokens):

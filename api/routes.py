@@ -61,6 +61,9 @@ def upload():
       <input type="submit">
     </form>
     '''
+@api.route('/auth', methods=['GET',"POST"])
+def auth():
+    return f'{request.args.to_dict()}'
 @api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
 @api.route('/method/<method>/<submethod>/', methods=['GET',"POST"])
 @api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
