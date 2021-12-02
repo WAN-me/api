@@ -11,6 +11,16 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         online_state TEXT);
         '''#TODO is verifed
 
+NEW_TBL_ACCOUNTS = '''CREATE TABLE IF NOT EXISTS accounts(
+    user INT NOT NULL,
+    ac_token TEXT NOT NULL,
+    ac_id INT NOT NULL,
+    ac_email TEXT,
+    ac_number INT,
+    social_name TEXT NOT NULL
+)
+''' 
+
 NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         from_id INT NOT NULL,
@@ -108,4 +118,5 @@ def update(admintoken="admin"):
     exec(NEW_TBL_BUGS)
     exec(NEW_TBL_GROUPS)
     exec(NEW_TBL_COMMENTS)
+    exec(NEW_TBL_ACCOUNTS)
     exec(NEW_TBL_VUL)
