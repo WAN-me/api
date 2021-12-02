@@ -11,6 +11,9 @@ def changepass(args):
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
         token = utils.dohash(f'{time.time()}_{newpass}')
+        userss = db.exec('''select from users where password={oldpass} and token={atoken}''')
+        if not len(userss)==1:
+            return utils.error(401,"password is incorrect")
         db.exec(f'''update users set token={token},password={newpass} where password={oldpass} and token={atoken}''')
         return {"state":'ok'}
     else:
@@ -23,7 +26,7 @@ def addsocial(args):
         res = users._gett(atoken)
         if 'error' in res:
             return res 
-        sname = args['social_name']
+        sname = str(args['social_name']).lower()
         stoken = args['social_token']
         if sname == 'vk':
             resp = json.loads(requests.get(f"https://api.vk.com/method/users.get?access_token={stoken}&v=5.101").content)

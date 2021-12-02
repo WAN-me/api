@@ -11,6 +11,7 @@ import methods.bugs
 import methods.groups
 import methods.kino
 import methods.vul
+import methods.account
 import methods.achive
 from flask import request,redirect
 from werkzeug import utils as uti
@@ -138,6 +139,12 @@ def methodhandler(method,submethod):
             res = methods.vul.set(args)
         elif submethod == 'get':
             res = methods.vul.get(args)
+
+    elif method.startswith("acc"):
+        if submethod == 'changepass':
+            res = methods.account.changepass(args)
+        elif submethod == 'addsocial':
+            res = methods.account.addsocial(args)
 
     elif method.startswith("bug"):
         if submethod == 'new':

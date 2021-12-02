@@ -35,4 +35,7 @@
     * [get](achives/get.md "Перейти")
 7. kino (anti-cors server for NAC Kinovod)
     * all methods are cloned from Kinopoisk API Unofficial. You can read the docs [here](https://kinopoiskapiunofficial.tech/documentation/api/)
+8. account
+    * [changepass](account/changepass.md "Перейти")
+    * [addsocial](account/addsocial.md "Перейти")
     
