@@ -16,9 +16,10 @@
     * __[статусы отчетов](bugs/statuses.md "Перейти")__
     * [comment](bugs/comment.md "Перейти")
     * [getcomments](bugs/getcomments.md "Перейти")
-4. updates
-    * [get](updates/get.md "Перейти")
-    * __[типы событий](updates/types.md "Перейти")__
+4. pool TODO poll
+    * [get](pool/get.md "Перейти")
+    * [read](updates/read.md "Перейти")
+    * __[типы событий](pool/types.md "Перейти")__
 5. groups
     * [get](groups/get.md "Перейти")
     * [new](groups/new.md "Перейти")
