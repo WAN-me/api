@@ -8,6 +8,7 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         email TEXT,
         image TEXT, 
         password TEXT,
+        verifi INT defoalt 0,
         online_state TEXT);
         '''#TODO is verifed
 

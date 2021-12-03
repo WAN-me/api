@@ -19,6 +19,13 @@ def changepass(args):
     else:
         return ss
 
+def _verif(id,level):
+    try:
+        db.exec('''update users set verifi = {level}''')
+        return {'state':'ok'}
+    except Exception as ex:
+        return utils.error(500,ex)
+        
 def addsocial(args):
     ss = utils.notempty(args,['accesstoken','social_token','social_name'])
     if ss == True: 
