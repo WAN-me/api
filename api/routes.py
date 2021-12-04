@@ -102,6 +102,10 @@ def methodhandler(method,submethod):
             res = methods.messages.get(args)
         elif submethod == 'gethistory':
             res = methods.messages.gethistory(args)
+        elif submethod == 'del':
+            res = methods.messages.delete(args)
+        elif submethod == 'edit':
+            res = methods.messages.edit(args)
         elif submethod == 'chats':
             res = methods.chats.get(args)
         else: res = methods.utils.error(400,'unknown method passed'),400

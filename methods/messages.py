@@ -84,3 +84,52 @@ def _get(id):
         return utils.error(400,"this message not exists")
     msg = msg[0]
     return {'from_id':msg[0],'to_id':msg[2],'text':secure(msg[1])}
+
+def edit(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        message = _get(args['id'])
+        if "error" in message:
+            return message
+        text = args.get("text",message['text'])
+        if thisuser[0] == message['from_id']:
+            db.exec('''UPDATE messages
+                SET text = :text
+
+                WHERE id = :id''',
+                
+                {
+                    'id':args['id'],
+                    'text':text,
+                }
+                )
+            return {'state':'ok'}
+    else:
+        return ss
+
+
+def delete(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        message = _get(args['id'])
+        if "error" in message:
+            return message
+        if thisuser[0] == message['from_id']:
+            db.exec('''DELETE FROM messages
+                WHERE id = :id''',
+                
+                {
+                    'id':args['id']
+                }
+                )
+            return {'state':'ok'}
+    else:
+        return ss
