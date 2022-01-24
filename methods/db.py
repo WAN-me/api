@@ -8,7 +8,7 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         email TEXT,
         image TEXT, 
         password TEXT,
-        verifi INT defoalt 0,
+        verifi INT default 0,
         online_state TEXT);
         '''#TODO is verifed
 
@@ -45,7 +45,7 @@ NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
         type INT NOT NULL,
         time integer(6) not null default (strftime('%s','now')),
         object JSON,
-        readed BOOLEAN defaul 0,
+        readed BOOLEAN default 0,
         object_id INT);
         '''
 
@@ -111,7 +111,7 @@ def drop(yes:str):
     os.remove(cfg.dataBaseFile)
 def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    exec(INIT_ADMIN.replace("{token}",admintoken))
+    #exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_POOL)
     exec(NEW_TBL_ACH)

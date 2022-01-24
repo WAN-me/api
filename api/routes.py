@@ -43,7 +43,9 @@ def uu3(method):
 @api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
 @api.route('/method/<method>.<submethod>/', methods=['GET',"POST"])
 def methodhandler(method,submethod):
-    args = request.args.to_dict().update(request.form.to_dict())
+    params = request.args.to_dict()
+    form = request.form.to_dict()
+    args = ((params|form))
     method = method.lower()
     submethod = submethod.lower()
     res = "unknown"
