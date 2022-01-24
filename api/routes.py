@@ -79,7 +79,7 @@ def auth():
 @api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
 @api.route('/method/<method>.<submethod>/', methods=['GET',"POST"])
 def methodhandler(method,submethod):
-    args = request.args.to_dict()
+    args = request.form
     args['password'] = request.headers.get('password',args.get("password"))
     method = method.lower()
     submethod = submethod.lower()
