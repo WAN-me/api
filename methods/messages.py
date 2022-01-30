@@ -1,3 +1,4 @@
+from re import T
 from methods import utils,db,pool,chats,users
 from methods.utils import secure
 def send(args):
@@ -5,12 +6,13 @@ def send(args):
     if ss == True: 
         token = args['accesstoken']
         text = args['text']
-        toId = int(args['to_id'])
+        toId = args['to_id']
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 
-        if False == utils.validr(toId,utils.IDR):
+        if False == utils.validr(str(toId),utils.IDR):
             return utils.error(400,"'to_id' is invalid")
+        toId = int(toId)
         db.exec('''insert into messages (from_id,to_id,text)
         values (?,?,?)''',(thisuser[0],toId,text,))
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
