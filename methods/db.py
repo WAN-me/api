@@ -51,6 +51,7 @@ NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
 
 NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         id INTEGER NOT NULL,
+        name TEXT NOT NULL,
         user_id INT NOT NULL
         );
         '''
