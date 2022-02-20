@@ -1,6 +1,6 @@
 from methods import utils,db,messages,users
 import json
-def set(type:int,user,id:int=None,object:dict=None):
+def _set(type:int,user,id:int=None,object:dict=None):
     db.exec('''insert into pool(type,object_id,user_id,object) 
             values(?,?,?,?)''',(type,id,user,json.dumps(object),))
 
@@ -26,10 +26,10 @@ def get(args):
         return ss
 
 def read(args):
-    ss = utils.notempty(args,['accesstoken','id'])
+    ss = utils.notempty(args,['accesstoken'])
     if ss == True: 
         token = args['accesstoken']
-        id = args['id']
+        id = args.get('id',9223372036854775807)
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 

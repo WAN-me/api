@@ -1,14 +1,17 @@
 import os,json
+
+import requests
 from api import api
 import methods.messages
 import methods.utils
 import methods.users
-import methods.updates
+import methods.pool
 import methods.chats
 import methods.bugs
 import methods.groups
 import methods.kino
 import methods.vul
+import methods.account
 import methods.achive
 from flask import request,redirect
 from werkzeug import utils as uti
@@ -19,15 +22,6 @@ def pageNotFound(error):
 @api.errorhandler(500)
 def ISE(error):
     return methods.utils.error(500,'internal server error'),500
-@api.route('/favicon.ico')
-def favicon():
-    return redirect("https://wan-group.ru/favicon.svg", code=302)
-@api.route('/index', methods=['GET',"POST"])
-def index():
-    return "You in index"
-@api.route('/webpwnchat', methods=['GET',"POST"])
-def webpwn():
-    return "ООО, да вы программист на html"
 
 @api.route('/kino/<method>/<params>', methods=['GET',"POST"])
 def uu1(method,params):
@@ -44,27 +38,14 @@ def uu3(method):
     print(method)
     return methods.kino.universal(request.args.to_dict(),method)
 
-@api.route('/cloud', methods=['GET',"POST"])
-def upload():
-    if request.method == 'POST':
-        if 'file1' not in request.files:
-            return 'there is no file1 in form!'
-        file1 = request.files['file1']
-        print(dir(file1))
-        path = os.path.join(api.config['UPLOAD_FOLDER'], uti.secure_filename(file1.filename))
-        file1.save(path)
-        return redirect("https://cloud.wan-group.ru/upload/"+path.split('/var/www/cloud/upload/',1)[1], code=301)
-    return '''
-    <h1>Upload new File</h1>
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="file1">
-      <input type="submit">
-    </form>
-    '''
 @api.route('/method/<method>/<submethod>', methods=['GET',"POST"])
+@api.route('/method/<method>/<submethod>/', methods=['GET',"POST"])
+@api.route('/method/<method>.<submethod>', methods=['GET',"POST"])
+@api.route('/method/<method>.<submethod>/', methods=['GET',"POST"])
 def methodhandler(method,submethod):
-    args = request.args.to_dict()
-    args['password'] = request.headers.get('password',args.get("password"))
+    params = request.args.to_dict()
+    form = request.form.to_dict()
+    args = ((params|form))
     method = method.lower()
     submethod = submethod.lower()
     res = "unknown"
@@ -86,6 +67,10 @@ def methodhandler(method,submethod):
             res = methods.messages.get(args)
         elif submethod == 'gethistory':
             res = methods.messages.gethistory(args)
+        elif submethod == 'del':
+            res = methods.messages.delete(args)
+        elif submethod == 'edit':
+            res = methods.messages.edit(args)
         elif submethod == 'chats':
             res = methods.chats.get(args)
         else: res = methods.utils.error(400,'unknown method passed'),400
@@ -124,6 +109,12 @@ def methodhandler(method,submethod):
         elif submethod == 'get':
             res = methods.vul.get(args)
 
+    elif method.startswith("acc"):
+        if submethod == 'changepass':
+            res = methods.account.changepass(args)
+        elif submethod == 'addsocial':
+            res = methods.account.addsocial(args)
+
     elif method.startswith("bug"):
         if submethod == 'new':
             res = methods.bugs.new(args)
@@ -139,9 +130,11 @@ def methodhandler(method,submethod):
             res = methods.bugs.edit(args)
         else: res = methods.utils.error(400,'unknown method passed'),400
 
-    elif method.startswith("upd"):
+    elif method.startswith("pool"):
         if submethod == 'get':
-            res = methods.updates.get(args)
+            res = methods.pool.get(args)
+        elif submethod == 'read':
+            res = methods.pool.read(args)
 
     else: res = methods.utils.error(400,'unknown method passed'),400
     print(res)

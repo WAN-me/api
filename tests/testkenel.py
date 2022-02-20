@@ -5,9 +5,8 @@ class session():
         self.token = token
     
     def rget(self,method,params={},headers={}):
-        params['method'] = method
         params['accesstoken'] = self.token
-        r = requests.get("http://185.105.109.155:5000/method",params,headers=headers)
+        r = requests.get(f"http://185.105.109.155:5000/method/{method}",params,headers=headers)
         try:
             return json.loads(r.content.decode('utf-8'))
         except:

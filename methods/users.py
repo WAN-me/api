@@ -1,5 +1,8 @@
+import json
+
+import requests
 from methods import utils,db
-from methods.utils import secure
+from methods.utils import TOKENR, secure
 import time
 def get(args):
     ss = utils.notempty(args,['accesstoken'])
@@ -27,18 +30,40 @@ def _gett(token):
     else:
         return thisuser[0]
 def auth(args):
-    ss = utils.notempty(args,['login','password'])
-    if ss == True: 
-        #time.sleep(1)
-        user = (db.exec(
-            '''select id,token from users where email = :login and password = :pass''',
-            {'login':args['login'],'pass':utils.dohash(args['password'])}))
-        if not user or len(user)!=1:
-            return utils.error(401,"login or password is incorrect")
+    type = args.get('type','pass')
+    if type == 'pass':
+        ss = utils.notempty(args,['login','password'])
+        if ss == True: 
+            #time.sleep(1)
+            user = (db.exec(
+                '''select id,token from users where email = :login and password = :pass''',
+                {'login':args['login'],'pass':utils.dohash(args['password'])}))
+            if not user or len(user)!=1:
+                return utils.error(401,"login or password is incorrect")
+            else:
+                return {'id':user[0][0],'token':user[0][1]}
         else:
-            return {'id':user[0][0],'token':user[0][1]}
-    else:
-        return ss
+            return ss
+    elif type == 'vk':
+        ss = utils.notempty(args,['token'])
+        if ss == True:
+            token = args['token'] 
+            if utils.validr(token,TOKENR):
+                resp = json.loads(requests.get(f"https://api.vk.com/method/users.get?access_token={token}&v=5.101").content)
+                if 'response' in resp:
+                    user = resp['response'][0]
+                    ex = db.exec(f'''select (user) from accounts where ac_id = {user['id']}''')
+                    if len(ex) < 1:
+                        return utils.error(401, "access denided for this account")
+                    user = (db.exec(
+                '''select id,token from users where id = :id''',
+                {'id':ex[0]}))
+                    return {'id':user[0][0],'token':user[0][1]}
+                return utils.error(400,f'error while get data from token: {resp}')
+            return utils.error(400,"'token' is invalid")
+        else:
+            return ss
+    else: return utils.error(400,"'type' is invalid")
 
 def delete(args):
     ss = utils.notempty(args,['accesstoken'])

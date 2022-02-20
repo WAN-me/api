@@ -1,4 +1,4 @@
-from methods import utils,users,db,groups,updates
+from methods import utils,users,db,groups,pool
 from methods.utils import secure
 
 
@@ -81,7 +81,7 @@ def give(args):
             return group 
         if userid in group['users']:
             if thisuser[0] in group['admins'] or thisuser[0] == group['owner_id']:
-                updates.set(4,userid,group['id'],ach)
+                pool._set(4,userid,group['id'],ach)
                 return {'state':'ok'}
             else: return utils.error(403,"you are not admin for this group")
         else: return utils.error(404,"this user not exists")

@@ -1,23 +1,25 @@
-from methods import utils,db,updates,chats,users
+from re import T
+from methods import utils,db,pool,chats,users
 from methods.utils import secure
 def send(args):
     ss = utils.notempty(args,['accesstoken','text','to_id'])
     if ss == True: 
         token = args['accesstoken']
         text = args['text']
-        toId = int(args['to_id'])
+        toId = args['to_id']
         thisuser = users._gett(token)
         if 'error' in thisuser:
             return thisuser 
-        if False == utils.validr(toId,utils.IDR):
+        if False == utils.validr(str(toId),utils.IDR):
             return utils.error(400,"'to_id' is invalid")
+        toId = int(toId)
         db.exec('''insert into messages (from_id,to_id,text)
         values (?,?,?)''',(thisuser[0],toId,text,))
         msgid = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
-        updates.set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)})
-        updates.set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)})
-        chats._set(thisuser[0],toId)
-        chats._set(toId,thisuser[0])
+        pool._set(1,toId,msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)}) # добавляем события
+        pool._set(2,thisuser[0],msgid,{'id':msgid,'from_id':thisuser[0],'to_id':toId,'text':secure(text)})
+        chats._set(thisuser[0],toId,users._get(toId)['name']) # Добавляем в список чатов
+        chats._set(toId,thisuser[0],users._get(thisuser[0])['name'])
         return {'id':msgid}
     else:
         return ss
@@ -84,3 +86,52 @@ def _get(id):
         return utils.error(400,"this message not exists")
     msg = msg[0]
     return {'from_id':msg[0],'to_id':msg[2],'text':secure(msg[1])}
+
+def edit(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        message = _get(args['id'])
+        if "error" in message:
+            return message
+        text = args.get("text",message['text'])
+        if thisuser[0] == message['from_id']:
+            db.exec('''UPDATE messages
+                SET text = :text
+
+                WHERE id = :id''',
+                
+                {
+                    'id':args['id'],
+                    'text':text,
+                }
+                )
+            return {'state':'ok'}
+    else:
+        return ss
+
+
+def delete(args):
+    ss = utils.notempty(args,['accesstoken','id'])
+    if ss == True: 
+        token = args['accesstoken']
+        thisuser = users._gett(token)
+        if 'error' in thisuser:
+            return thisuser 
+        message = _get(args['id'])
+        if "error" in message:
+            return message
+        if thisuser[0] == message['from_id']:
+            db.exec('''DELETE FROM messages
+                WHERE id = :id''',
+                
+                {
+                    'id':args['id']
+                }
+                )
+            return {'state':'ok'}
+    else:
+        return ss
