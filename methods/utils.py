@@ -38,7 +38,7 @@ def valid(content,allow):
     return True
 
 def validr(content,reg):
-    if len(re.findall(reg, content)) > 0:
+    if len(re.findall(reg, str(content))) > 0:
         return True
     else:
         return False
