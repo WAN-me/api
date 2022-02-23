@@ -21,7 +21,7 @@ def get(args):
         if len(raw_chats)<1:
             return {'count':len(raw_chats),'items':raw_chats}
         for i in raw_chats:
-            chats.append({'id':i[0],"name":""})
+            chats.append({'id':i[0],"name":i[1]})
 
         return {'count':len(chats),'items':chats}
     else:
