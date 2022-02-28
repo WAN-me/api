@@ -8,7 +8,7 @@ def get(args:dict):
     if ss == True: 
         token = args['accesstoken']
         id = args.get('id',0)
-        thisuser = users._gett(token)
+        thisuser = users._gett(token1,)
         if 'error' in thisuser:
             return thisuser 
         bug = _get(id)
@@ -43,7 +43,7 @@ def new(args):
     ss = utils.notempty(args,['accesstoken','title','priority','steps','actual','expected','product'])
     if ss == True: 
         token = args['accesstoken']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         product = groups._get(args['product'])
@@ -64,7 +64,7 @@ def comment(args):
     ss = utils.notempty(args,['accesstoken','id',])
     if ss == True:
         token = args['accesstoken']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         text = args.get("text","")
@@ -111,7 +111,7 @@ def getcomments(args):
     if ss == True: 
         token = args['accesstoken']
         bug_id = args['id']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         bug = _get(id)
@@ -142,7 +142,7 @@ def changestat(args):
     if ss == True: 
         token = args['accesstoken']
         id = args['id']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         bug = _get(id)
@@ -174,7 +174,7 @@ def edit(args):
     if ss == True: 
         token = args['accesstoken']
         id = args['id']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         bug = _get(id)

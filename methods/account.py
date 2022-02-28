@@ -12,7 +12,7 @@ def changepass(args):
         newpass = utils.dohash(f"{args['newpass']}")
         token = utils.dohash(f'{time.time()}_{newpass}')
         userss = db.exec('''select from users where password={oldpass} and token={atoken}''')
-        if not len(userss)==1:
+        if len(userss)==0:
             return utils.error(401,"password is incorrect")
         db.exec(f'''update users set token={token},password={newpass} where password={oldpass} and token={atoken}''')
         return {"state":'ok'}
@@ -21,16 +21,31 @@ def changepass(args):
 
 def _verif(id,level):
     try:
-        db.exec('''update users set verifi = {level}''')
+        db.exec(f'''update users set verifi = {level} where id={id}''')
         return {'state':'ok'}
     except Exception as ex:
         return utils.error(500,ex)
-        
+
+def verif(args):
+    ss = utils.notempty(args,['accesstoken','code'])
+    if ss == True: 
+        atoken = args['accesstoken']
+        res = users._gett(atoken)
+        if 'error' in res:
+            return res 
+        if res[1] != 0:
+            return utils.error(208,'Already verifed')
+        code = db.exec(f'''select code from users where token = ? ''',(atoken,))[0]
+        if code == args["code"]:
+            return _verif(res,1)
+    else:
+        return ss
+
 def addsocial(args):
     ss = utils.notempty(args,['accesstoken','social_token','social_name'])
     if ss == True: 
         atoken = args['accesstoken']
-        res = users._gett(atoken)
+        res = users._gett(atoken,1)
         if 'error' in res:
             return res 
         sname = str(args['social_name']).lower()

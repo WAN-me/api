@@ -1,33 +1,27 @@
+import smtplib
+import cfg
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import email.message
-import smtplib
-def send(mail,content,subscription=""):
- 
-    msg = email.message.Message()
-    msg.add_header('Content-Type', 'text/html')
-    msg.set_payload(content)
-    # setup the parameters of the message
-    password = "******"
-    msg['From'] = "ashcarev@gmail.com"
-    msg['To'] = mail
-    msg['Subject'] = subscription
-    
 
-    #create server
-    server = smtplib.SMTP('smtp.gmail.com: 587')
-    
-    server.starttls()
-    
-    # Login Credentials for sending the mail
-    server.login(msg['From'], password)
-    
-    
-    # send the message via the server.
-    server.sendmail(msg['From'], msg['To'], msg.as_string())
-    
-    server.quit()
-    
-    return True
+def send(mail,content,subject="",advanced=""):
+
+    try:
+        smtpObj = smtplib.SMTP_SSL('smtp.mail.ru', 465)
+
+        smtpObj.login(cfg.mail_admin_user,cfg.mail_admin_pass)
+        html = content
+        to = mail
+        msg = MIMEMultipart()
+        msg['Subject'] = subject
+        msg['To'] = to
+        msg.attach(MIMEText(html, 'html'))
+        msg.attach(MIMEText(advanced, 'plain'))
+        print(msg.as_string())
+        print(smtpObj.sendmail(cfg.mail_admin_user,to,msg.as_string()))
+
+        print(smtpObj.quit())
+        return True
+    except:
+        return False
 if __name__ == "__main__":
     send("wex335@yandex.ru",'''Hello, world''')

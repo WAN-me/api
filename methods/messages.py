@@ -7,7 +7,7 @@ def send(args):
         token = args['accesstoken']
         text = args['text']
         toId = args['to_id']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         if False == utils.validr(str(toId),utils.IDR):
@@ -39,7 +39,7 @@ def gethistory(args):
             return utils.error(400,"'count' is invalid")
         if False == utils.validr(ofset,utils.IDR):
             return utils.error(400,"'ofset' is invalid")
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         messages = []
@@ -70,7 +70,7 @@ def get(args):
             return utils.error(400,"'accesstoken' is invalid")
         if False == utils.validr(id,utils.IDR):
             return utils.error(400,"'id' is invalid")
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         msg = _get(id)
         if msg['from_id'] != thisuser[0] and msg['to_id'] != thisuser[0]:
             return utils.error(403,'access denided for this action')
@@ -91,7 +91,7 @@ def edit(args):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 
         token = args['accesstoken']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         message = _get(args['id'])
@@ -118,7 +118,7 @@ def delete(args):
     ss = utils.notempty(args,['accesstoken','id'])
     if ss == True: 
         token = args['accesstoken']
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         message = _get(args['id'])

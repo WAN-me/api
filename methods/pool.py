@@ -9,7 +9,7 @@ def get(args):
     if ss == True: 
         token = args['accesstoken']
         count = args.get('count',10)
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         updates = []
@@ -30,7 +30,7 @@ def read(args):
     if ss == True: 
         token = args['accesstoken']
         id = args.get('id',9223372036854775807)
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         db.exec('''update pool set readed = 1 where user_id=:userId and id<:id''',

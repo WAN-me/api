@@ -10,7 +10,7 @@ def get(args):
         token = args['accesstoken']
         count = args.get('count',10)
         ofset = args.get('ofset',0)
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         chats = []

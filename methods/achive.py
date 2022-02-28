@@ -23,7 +23,7 @@ def get(args):
         id = args['id']
         if False == utils.validr(token,utils.TOKENR):
             return utils.error(400,"'accesstoken' is invalid")
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         if False == utils.validr(id,utils.IDR):
@@ -45,7 +45,7 @@ def new(args):
         image = args.get('image',"https://cloud.wan-group.ru/upload/achive.png")
         if False == utils.validr(token,utils.TOKENR):
             return utils.error(400,"'accesstoken' is invalid")
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         if False == utils.validr(id,utils.IDR):
@@ -69,7 +69,7 @@ def give(args):
         ach = _get(args['id'])
         if False == utils.validr(token,utils.TOKENR):
             return utils.error(400,"'accesstoken' is invalid")
-        thisuser = users._gett(token)
+        thisuser = users._gett(token,1)
         if 'error' in thisuser:
             return thisuser 
         if False == utils.validr(id,utils.IDR):
