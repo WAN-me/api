@@ -1,8 +1,8 @@
 # wm-api
 
-## [Документация](docs/docs.md "Перейти")
+## [Документация](https://github.com/WAN-me/docs/blob/master/docs.md "Перейти")
 
-## [Справка](docs/manual.md "Перейти")
+## [Справка](https://github.com/WAN-me/docs/blob/master/manual.md "Перейти")
 
 api.wan-group.ru
 
