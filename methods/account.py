@@ -35,8 +35,9 @@ def verif(args):
             return res 
         if res[1] != 0:
             return utils.error(208,'Already verifed')
-        code = db.exec(f'''select code from users where token = ? ''',(atoken,))[0]
-        print((code,args['code']))
+        d = db.exec(f'''select code from users where token = ?''',(atoken,))
+        code = d[0]
+        print((d,code,args['code']))
         if code == args["code"]:
             return _verif(res,1)
         else:
