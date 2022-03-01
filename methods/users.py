@@ -84,10 +84,10 @@ def delete(args):
         return ss
 
 def _sendcode(code,args):
-    res = requests.get('http://rd.wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email'])}).json()
+    res = requests.get('http://rd.wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email']+f"{time.time_ns()}")}).json()
     url = "http://rd.wan-group.ru"
     if 'error' in res:
-        res = requests.get('http://wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email'])}).json()
+        res = requests.get('http://wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email']+f"{time.time_ns()}")}).json()
         url = "http://wan-group.ru"
     if 'error' in res:
         return utils.error(500,'failed to generate captcha. Try again or contact as')
