@@ -112,6 +112,7 @@ def _sendcode(code,args):
 
 
 def reg(args):
+    print("reg")
     ss = utils.notempty(args,['name','email','password'])
     if ss == True:
         name = args['name']
