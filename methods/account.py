@@ -38,6 +38,8 @@ def verif(args):
         code = db.exec(f'''select code from users where token = ? ''',(atoken,))[0]
         if code == args["code"]:
             return _verif(res,1)
+        else:
+            return utils.error(401,"Incorrect verify code")
     else:
         return ss
 
