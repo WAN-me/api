@@ -117,7 +117,7 @@ def reg(args):
         name = args['name']
         password = utils.dohash(f"{args['password']}")
         token = utils.dohash(f'{name}_{time.time()}_{password}')
-        code = str(random.randint(100000,99999999))
+        code = utils.randomString(6)
         db.exec(f'''insert into users (name,token,email,password,image,code)
         values (:name,:token,:email,:password,:image,:code)''',
         {'name': secure(name),'token':token,'email':args['email'],'code':code,'password':password,'image':args.get('image','default.png')})

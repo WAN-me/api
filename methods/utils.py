@@ -1,9 +1,14 @@
 import hashlib
 import re
+import random
 
 TOKENR=r"^([a-f]|[0-9]){1,}$"
 IDR=r"^\d{0,}$"
 NAMER=r"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,30}$"
+letters = "abcdefghijklmnopqrstwxzyuv"
+
+def randomString(length):
+    return ''.join(random.choice(letters) for _ in range(length))
 
 def allowedPhoto(filename):
     return '.' in filename and \
