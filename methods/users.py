@@ -84,10 +84,10 @@ def delete(args):
         return ss
 
 def _sendcode(code,args):
-    res = requests.get('http://rd.wan-group.ru:3555/method/utils.capcha',{'data':code,'file':args['email']}).json()
+    res = requests.get('http://rd.wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email'])}).json()
     url = "http://rd.wan-group.ru"
     if 'error' in res:
-        res = requests.get('http://wan-group.ru:3555/method/utils.capcha',{'data':code,'file':args['email']}).json()
+        res = requests.get('http://wan-group.ru:3555/method/utils.capcha',{'data':code,'file':utils.dohash(args['email'])}).json()
         url = "http://wan-group.ru"
     if 'error' in res:
         return utils.error(500,'failed to generate captcha. Try again or contact as')
@@ -99,7 +99,7 @@ def _sendcode(code,args):
                         <body>
                             <h1>Регистрация в WAN Group</h1>
                             <p>Привет! Спасибо за регистрацию в наших сервисах. Используйте код с картинки для продолжения регистрации</p>
-                            <img src={url}/>
+                            <img src="{url}" >
                         </body>
                     </html>
                 """
