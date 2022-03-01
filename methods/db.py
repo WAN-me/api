@@ -98,7 +98,6 @@ INIT_ADMIN='''insert into users (id,name,token)
     values (0,'admin','{token}')'''
 
 def exec(query,s=""):
-    print(">> "+(query,s))
     res = ""
     cn = connect(cfg.dataBaseFile)
     c=cn.cursor()
@@ -107,6 +106,7 @@ def exec(query,s=""):
     else: c.execute(query,s)
     cn.commit()
     res = c.fetchall()
+    print(">> "+str((query,s))+"\n"+str(res))
     c.close
     return res
 
