@@ -21,7 +21,7 @@ def get(args):
 def _get(id):
     user = (
         db.exec(
-            '''select id,name,online_state,image,verifi from users where id = :id ''', {
+            '''select id, name, online_state, image, verifi from users where id = :id ''', {
                 'id': id}))
     if len(user) == 0:
         return utils.error(404, "This user not exists")
@@ -145,8 +145,8 @@ def reg(args):
         password = utils.dohash(f"{args['password']}")
         token = utils.dohash(f'{name}_{time.time()}_{password}')
         code = utils.random_string(6)
-        db.exec(f'''insert into users (name,token,email,password,image,code)
-        values (:name,:token,:email,:password,:image,:code)''',
+        db.exec(f'''insert into users (name, token, email, password, image, code)
+        values (:name, :token, :email, :password, :image, :code)''',
                 {'name': secure(name),
                  'token': token,
                  'email': args['email'],

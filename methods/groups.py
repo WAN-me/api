@@ -20,7 +20,7 @@ def _get(id):
         return utils.error(400, "'id' is invalid")
     raw_group = (
         db.exec(
-            '''select id,name,owner_id,users,type,admins from groups where id = :id ''', {
+            '''select id, name, owner_id, users, type, admins from groups where id = :id ''', {
                 'id': id}))
     if len(raw_group) == 0:
         return utils.error(404, "This group not exists")
@@ -45,7 +45,7 @@ def getbyname(args):
             return user
         raw_group = (
             db.exec(
-                '''select id,name,owner_id,users,type from groups where name = :name ''', {
+                '''select id, name, owner_id, users, type from groups where name = :name ''', {
                     'name': name}))
         if len(raw_group) == 0:
             return utils.error(404, "This group not exists")
@@ -71,7 +71,7 @@ def new(args):
         user = _gett(token)
         if 'error' in user:
             return user
-        db.exec('''insert into groups (owner_id,name,type,users)
+        db.exec('''insert into groups (owner_id, name, type, users)
         values (?,?,?,?)''', (user[0], name, args['type'], str([user[0], ]),))
         group_id = db.exec(
             '''select seq from sqlite_sequence where name="groups"''')[0][0]
@@ -94,7 +94,7 @@ def edit(args):
         type = args.get("type", group['type'])
         if user[0] == group['owner_id']:
             db.exec('''UPDATE groups
-                SET name = :name
+                SET name = :name 
                 ,type = :type
 
                 WHERE id = :id''',

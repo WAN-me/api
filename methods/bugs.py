@@ -30,7 +30,7 @@ def _get(id):
         return utils.error(400, "'id' is invalid")
     bug = (
         db.exec(
-            '''select id,title,priority,steps,actual,expected,user_id,status,product from bugs where id = :id ''', {
+            '''select id, title, priority, steps, actual, expected, user_id, status, product from bugs where id = :id ''', {
                 'id': id}))
     if len(bug) == 0:
         return utils.error(404, "This bug not exists(yet)")
@@ -70,7 +70,7 @@ def new(args):
                 return utils.error(403, "you are not tester for this product")
             else:
                 db.exec(
-                    '''insert into bugs (title,priority,steps,actual,expected,user_id,product)
+                    '''insert into bugs (title, priority, steps, actual, expected, user_id, product)
                 values (?,?,?,?,?,?,?)''',
                     (args['title'],
                     args['priority'],
@@ -103,7 +103,7 @@ def comment(args):
             if args.get("status", None) is not None:
                 if user[0] in product['admins'] or user[0] == product['owner_id']:
                     db.exec(
-                        '''insert into comments (from_id,post_id,text,status)
+                        '''insert into comments (from_id, post_id, text, status)
                         values (?,?,?,?)''', (user[0], args['id'], text, args["status"],))
                     comment_id = db.exec(
                         '''select seq from sqlite_sequence where name="comments"''')[0][0]
@@ -115,7 +115,7 @@ def comment(args):
                 elif user[0] in product['users'] and bug['user_id'] == user[0]:
                     if args['status'] in [5, 6, 11]:
                         db.exec(
-                            '''insert into comments (from_id,post_id,text,status)
+                            '''insert into comments (from_id, post_id, text, status)
                         values (?,?,?,?)''', (user[0], args['id'], text, args["status"],))
                         comment_id = db.exec(
                             '''select seq from sqlite_sequence where name="comments"''')[0][0]
@@ -129,13 +129,13 @@ def comment(args):
                                           'extra': args["status"]})
                         return {"id": comment_id}
                     else:
-                        return utils.error(403, "you can't set this status")
+                        return utils.error(403, "You can't set this status")
                 else:
                     return utils.error(
                         403, "You are havn't access to this bug")
             elif text != "":
                 if user[0] in product['users']:
-                    db.exec('''insert into comments (from_id,post_id,text)
+                    db.exec('''insert into comments (from_id, post_id, text)
                     values (?,?,?)''', (user[0], args['id'], text,))
                     comment_id = db.exec(
                         '''select seq from sqlite_sequence where name="comments"''')[0][0]
@@ -175,7 +175,7 @@ def getcomments(args):
             else:
                 comments = []
                 raw_comments = db.exec(
-                    '''select text,from_id,id,etxra from comments where post_id=:id
+                    '''select text, from_id, id, etxra from comments where post_id=:id
                         order by id''', {
                         'id': bug_id, })
                 if len(raw_comments) < 1:
@@ -252,10 +252,10 @@ def edit(args):
         elif(product['type'] < 1):
             if user[0] in product['admins'] or user[0] == product['owner_id']:
                 db.exec('''UPDATE bugs
-                SET title = :title
-                ,priority = :priority
-                ,steps = :steps
-                ,actual = :actual
+                SET title = :title 
+                ,priority = :priority 
+                ,steps = :steps 
+                ,actual = :actual 
                 ,expected = :expected
 
                 WHERE id = :id''',
@@ -272,10 +272,10 @@ def edit(args):
                 return {'state': 'ok'}
             elif user[0] in product['users'] and bug['user_id'] == user[0]:
                 db.exec('''UPDATE bugs
-                SET title = :title,
-                priority = :priority,
-                steps = :steps,
-                actual = :actual,
+                SET title = :title, 
+                priority = :priority, 
+                steps = :steps, 
+                actual = :actual, 
                 expected = :expected
 
                 WHERE id = :id''',

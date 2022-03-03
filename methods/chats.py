@@ -3,7 +3,7 @@ import json
 
 
 def _set(user, id: int, name="dialog"):
-    db.exec('''insert into chats(id,user_id,name)
+    db.exec('''insert into chats(id, user_id, name)
             values(?,?,?)''', (id, user, name))
 
 
@@ -18,9 +18,9 @@ def get(args):
             return user
         chats = []
         raw_chats = db.exec(
-            '''select DISTINCT id, name from chats where user_id=:userId
+            '''select DISTINCT id, name from chats where user_id=:user_id
                     order by id desc limit :ofset,:count''', {
-                'userId': user[0], 'count': count, 'ofset': ofset})
+                'user_id': user[0], 'count': count, 'ofset': ofset})
         if len(raw_chats) < 1:
             return {'count': len(raw_chats), 'items': raw_chats}
         for raw_chat in raw_chats:

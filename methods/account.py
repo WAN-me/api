@@ -20,7 +20,7 @@ def changepass(args):
         if len(result) == 0:
             return utils.error(401, "password is incorrect")
         db.exec(
-            f'''update users set token={token},password={newpass} where password={oldpass} and token={token}''')
+            f'''update users set token={token}, password={newpass} where password={oldpass} and token={token}''')
         return {"state": 'ok'}
     else:
         return ss
@@ -70,7 +70,7 @@ def addsocial(args):
             if 'response' in response:
                 user = response['response'][0]
                 db.exec(
-                    f'''inert into accounts (user,ac_token,ac_id,ac_email,social_name)
+                    f'''inert into accounts (user, ac_token, ac_id, ac_email, social_name)
                     values ({user[0]},"{social_token}",{user['id']},"{user.get('email','none@wan-group.ru')}","{user['first_name']} {user['last_name']}")''')
                 return {'state': "ok"}
             return utils.error(

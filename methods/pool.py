@@ -3,7 +3,7 @@ import json
 
 
 def _set(type: int, user, id: int = None, object: dict = None):
-    db.exec('''insert into pool(type,object_id,user_id,object)
+    db.exec('''insert into pool(type, object_id, user_id, object)
             values(?,?,?,?)''', (type, id, user, json.dumps(object),))
 
 
@@ -17,7 +17,7 @@ def get(args):
             return user
         updates = []
         raw_updates = db.exec(
-            '''select type,object_id,time,object,id from pool where user_id=:userId and readed=0
+            '''select type, object_id, time, object, id from pool where user_id=:userId and readed=0
                 order by id limit :count''', {
                 'userId': user[0], 'count': count})
         if len(raw_updates) < 1:
@@ -38,7 +38,7 @@ def read(args):
     ss = utils.notempty(args, ['accesstoken'])
     if ss == True:
         token = args['accesstoken']
-        id = args.get('id', 9223372036854775807) # Почему именно это число? что я курил?
+        id = args.get('id', 9223372036854775807) # Почему именно это число!? что я курил?
         user = users._gett(token, 1)
         if 'error' in user:
             return user
