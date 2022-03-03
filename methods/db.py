@@ -6,12 +6,12 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         name TEXT NOT NULL,
         token TEXT NOT NULL,
         email TEXT,
-        image TEXT, 
+        image TEXT,
         password TEXT,
         code TEXT,
         verifi INT default 0,
         online_state TEXT);
-        '''#TODO is verifed
+        '''
 
 NEW_TBL_ACCOUNTS = '''CREATE TABLE IF NOT EXISTS accounts(
     user INT NOT NULL,
@@ -20,7 +20,7 @@ NEW_TBL_ACCOUNTS = '''CREATE TABLE IF NOT EXISTS accounts(
     ac_email TEXT,
     ac_number INT,
     social_name TEXT NOT NULL);
-''' 
+'''
 
 NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,7 +55,7 @@ NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         user_id INT NOT NULL);
         '''
 
-        
+
 NEW_TBL_BUGS = '''CREATE TABLE IF NOT EXISTS bugs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
@@ -89,28 +89,32 @@ NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
         image TEXT);
         '''
 
-INIT_ADMIN='''insert into users (id,name,token)
+INIT_ADMIN = '''insert into users (id,name,token)
     values (0,'admin','{token}')'''
 
-def exec(query,s=""):
+
+def exec(query, s=""):
     res = ""
     cn = connect(cfg.dataBaseFile)
-    c=cn.cursor()
+    c = cn.cursor()
     if s == "":
         c.execute(query)
-    else: c.execute(query,s)
+    else:
+        c.execute(query, s)
     cn.commit()
     res = c.fetchall()
-    print(">> "+str((query,s))+"\n"+str(res))
+    print(">> " + str((query, s)) + "\n" + str(res))
     c.close
     return res
 
-def drop(yes:str):
+
+def drop(yes: str):
     os.remove(cfg.dataBaseFile)
-    
+
+
 def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    #exec(INIT_ADMIN.replace("{token}",admintoken))
+    # exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_POOL)
     exec(NEW_TBL_ACH)
