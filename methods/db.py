@@ -19,8 +19,7 @@ NEW_TBL_ACCOUNTS = '''CREATE TABLE IF NOT EXISTS accounts(
     ac_id INT NOT NULL,
     ac_email TEXT,
     ac_number INT,
-    social_name TEXT NOT NULL
-)
+    social_name TEXT NOT NULL);
 ''' 
 
 NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
@@ -53,8 +52,7 @@ NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
 NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         id INTEGER NOT NULL,
         name TEXT NOT NULL,
-        user_id INT NOT NULL
-        );
+        user_id INT NOT NULL);
         '''
 
         
@@ -67,8 +65,7 @@ NEW_TBL_BUGS = '''CREATE TABLE IF NOT EXISTS bugs(
         actual TEXT NOT NULL,
         expected TEXT NOT NULL,
         product INT NOT NULL,
-        status INT NOT NULL default 0
-        );
+        status INT NOT NULL default 0);
         '''
 NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,14 +73,12 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         name TEXT NOT NULL,
         users TEXT NOT NULL default "[]",
         admins TEXT NOT NULL default "[]",
-        type INT NOT NULL
-        );
+        type INT NOT NULL);
         '''
 
 NEW_TBL_VUL = '''CREATE TABLE IF NOT EXISTS vul(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        text INT NOT NULL
-        );
+        text INT NOT NULL);
         '''
 
 NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
@@ -112,6 +107,7 @@ def exec(query,s=""):
 
 def drop(yes:str):
     os.remove(cfg.dataBaseFile)
+    
 def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
     #exec(INIT_ADMIN.replace("{token}",admintoken))

@@ -7,10 +7,10 @@ IDR=r"^\d{0,}$"
 NAMER=r"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,30}$"
 letters = "abcdefghijklmnopqrstwxzyuv"
 
-def randomString(length):
+def random_string(length):
     return ''.join(random.choice(letters) for _ in range(length))
 
-def allowedPhoto(filename):
+def allowed_photo(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ["png","jpg","jped","gif","bmp",]
 
