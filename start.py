@@ -5,7 +5,7 @@ import os
 from gunicorn.app.wsgiapp import run
 
 if __name__ == '__main__':
-    os.chdir("/home/wex/prod/api")
+    os.chdir("/root/prod/api")
     os.system('git pull origin master')
     sys.argv = [
         sys.argv[0],
