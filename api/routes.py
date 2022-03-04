@@ -48,7 +48,7 @@ def method_handler(method, submethod):
     elif method.startswith("mess"):  # messages section
         if submethod.startswith('send'):
             res = methods.messages.send(args)
-        elif submethod.startswith('get'):
+        elif submethod == 'get':
             res = methods.messages.get(args)
         elif submethod.startswith('gethistory'):
             res = methods.messages.gethistory(args)
@@ -97,11 +97,11 @@ def method_handler(method, submethod):
         elif submethod.startswith('addsocial'):
             res = methods.account.addsocial(args)
         elif submethod.startswith('reg'):
-            res = methods.users.reg(args)
+            res = methods.account.reg(args)
         elif submethod.startswith('auth'):
-            res = methods.users.auth(args)
+            res = methods.account.auth(args)
         elif submethod.startswith('del'):
-            res = methods.users.delete(args)
+            res = methods.account.delete(args)
         elif submethod.startswith('verif'):
             res = methods.account.verif(args)
         else:

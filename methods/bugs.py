@@ -7,7 +7,7 @@ def get(args: dict):
     if ss == True:
         token = args['accesstoken']
         id = args.get('id', 0)
-        user = users._gett(token,)
+        user = account._gett(token,)
         if 'error' in user:
             return user
         bug = _get(id)
@@ -58,7 +58,7 @@ def new(args):
                          'product'])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         product = groups._get(args['product'])
@@ -91,7 +91,7 @@ def comment(args):
     ss = utils.notempty(args, ['accesstoken', 'id', ])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         text = args.get("text", "")
@@ -160,7 +160,7 @@ def getcomments(args):
     if ss == True:
         token = args['accesstoken']
         bug_id = args['id']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         bug = _get(id)
@@ -199,7 +199,7 @@ def changestat(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         bug = _get(id)
@@ -235,7 +235,7 @@ def edit(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         bug = _get(id)

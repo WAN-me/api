@@ -1,4 +1,4 @@
-from methods import utils, db, users
+from methods import utils, db, account
 import json
 
 
@@ -12,7 +12,7 @@ def get(args):
     if ss == True:
         token = args['accesstoken']
         count = args.get('count', 10)
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         updates = []
@@ -39,7 +39,7 @@ def read(args):
     if ss == True:
         token = args['accesstoken']
         id = args.get('id', 9223372036854775807) # Почему именно это число!? что я курил?
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         db.exec(

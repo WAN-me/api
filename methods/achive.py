@@ -1,4 +1,4 @@
-from methods import utils, users, db, groups, pool
+from methods import utils, users, db, groups, pool, account
 from methods.utils import secure
 
 
@@ -32,7 +32,7 @@ def get(args):
         id = args['id']
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(id, utils.IDR):
@@ -57,7 +57,7 @@ def new(args):
             "https://cloud.wan-group.ru/upload/achive.png")
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(id, utils.IDR):
@@ -83,7 +83,7 @@ def give(args):
         ach = _get(args['id'])
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        thisuser = users._gett(token, 1)
+        thisuser = account._gett(token, 1)
         if 'error' in thisuser:
             return thisuser
         if 'error' in ach:

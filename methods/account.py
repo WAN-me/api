@@ -1,27 +1,168 @@
-from requests.models import Response
-from methods import utils, db, users
+from methods import utils, db, mail
+from methods.utils import TOKENR, secure
+from methods.users import get
 import time
 import json
 import requests
+import cfg
+
+
+def auth(args):
+    type = args.get('type', 'pass')
+    if type == 'pass':
+        ss = utils.notempty(args, ['email', 'password'])
+        if ss == True:
+            # time.sleep(1)
+            user = (
+                db.exec(
+                    '''select id,token from users where email = :email and password = :pass''', {
+                        'email': args['email'], 'pass': utils.dohash(
+                            args['password'])}))
+            if not user or len(user) == 0:
+                return utils.error(401, "Login or password is incorrect")
+            else:
+                return {'id': user[0][0], 'token': user[0][1]}
+        else:
+            return ss
+    elif type == 'vk':
+        ss = utils.notempty(args, ['token'])
+        if ss == True:
+            token = args['token']
+            if utils.validr(token, TOKENR):
+                response = json.loads(requests.get(
+                    f"https://api.vk.com/method/users.get?access_token={token}&v=5.101").content)
+                if 'response' in response:
+                    user = response['response'][0]
+                    user_id = db.exec(
+                        f'''select (user) from accounts where ac_id = {user['id']}''')
+                    if len(user_id) < 1:
+                        return utils.error(
+                            401, "Access denided for this account")
+                    user = (db.exec(
+                        '''select id,token from users where id = :id''',
+                        {'id': user_id[0]}))
+                    return {'id': user[0][0], 'token': user[0][1]}
+                return utils.error(
+                    400, f'Error while get data from token: {response}')
+            return utils.error(400, "'token' is invalid")
+        else:
+            return ss
+    else:
+        return utils.error(400, "'type' is invalid")
+
+
+def delete(args):
+    ss = utils.notempty(args, ['accesstoken'])
+    if ss == True:
+        token = args['accesstoken']
+        user = _gett(token)
+        if 'error' in user:
+            return user
+        db.exec('''DELETE FROM users
+            WHERE token = ?;''', (token,))
+        return {'state': 'ok'}
+    else:
+        return ss
+
+
+def _sendcode(code, args):
+    response = requests.get(
+        'http://rd.wan-group.ru:3555/method/utils.capcha', {
+            'data': code, 'file': utils.dohash(
+                args['email'] + f"{time.time_ns()}")}).json()
+    url = "http://rd.wan-group.ru"
+    if 'error' in response:
+        response = requests.get(
+            'http://wan-group.ru:3555/method/utils.capcha', {
+                'data': code, 'file': utils.dohash(
+                    args['email'] + f"{time.time_ns()}")}).json()
+        url = "http://wan-group.ru"
+    if 'error' in response:
+        return utils.error(
+            500, 'failed to generate captcha. Try again or contact as')
+    else:
+        url = url + f"/capcha/{response['file']}.png"
+        cont = f"""\
+                    <html>
+                        <head></head>
+                        <body>
+                            <h1>Регистрация в WAN Group</h1>
+                            <p>Привет! Спасибо за регистрацию в наших сервисах. Используйте код с картинки для продолжения регистрации</p>
+                            <img src="{url}" >
+                        </body>
+                    </html>
+                """
+        send_status = mail.send(args['email'], cont)
+        if send_status:
+            return {"advanced": 'Please check you mailbox'}
+        else:
+            return {"advanced": 'Failed to send mail'}
+
+
+def reg(args):
+    ss = utils.notempty(args, ['name', 'email', 'password'])
+    if ss == True:
+        name = args['name']
+        password = utils.dohash(f"{args['password']}")
+        token = utils.dohash(f'{name}_{time.time()}_{password}')
+        if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
+            db.exec(f'''insert into users (name, token, email, password, image, verifi)
+            values (:name, :token, :email, :password, :image, :verifi)''',
+                    {'name': secure(name),
+                    'token': token,
+                    'email': args['email'],
+                    'verifi': 3,
+                    'password': password,
+                    'image': args.get('image','default.png')})
+            sc = "verifi level set on 3(maximum)"
+        else:
+            code = utils.random_string(6)
+            db.exec(f'''insert into users (name, token, email, password, image, code)
+            values (:name, :token, :email, :password, :image, :code)''',
+                    {'name': secure(name),
+                    'token': token,
+                    'email': args['email'],
+                    'code': code,
+                    'password': password,
+                    'image': args.get('image','default.png')})
+            sc = _sendcode(code, args)
+        user = get({'accesstoken': token})
+        user['advanced'] = sc
+        user['token'] = token
+        return user
+    else:
+        return ss
+
+
+def _gett(token, needVerif=0):
+    user = (db.exec(f'''select id, verifi from users where token = ? ''', (token,)))
+    if not user or len(user) != 1:
+        return utils.error(400, "'accesstoken' is invalid")
+    elif user[0][1] < needVerif:
+        return utils.error(403, "You need to confirm your email")
+    else:
+        return user[0]
+
 
 
 def changepass(args):
     ss = utils.notempty(args, ['accesstoken', 'oldpass', 'newpass'])
     if ss == True:
-        token = args['accesstoken']
-        user = users._gett(token)
+        oldtoken = args['accesstoken']
+        user = _gett(oldtoken)
         if 'error' in user:
             return user
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
-        token = utils.dohash(f'{time.time()}_{newpass}')
-        result = db.exec(
-            f'''select from users where password={oldpass} and token={token}''')
+        result = db.exec('''select id, verifi from users where token = :token and password = :pass''', {
+                        'token': oldtoken, 'pass': oldpass})
         if len(result) == 0:
             return utils.error(401, "password is incorrect")
+        token = utils.dohash(f'{time.time()}_{newpass}')
         db.exec(
-            f'''update users set token={token}, password={newpass} where password={oldpass} and token={token}''')
-        return {"state": 'ok'}
+            f'''update users set token = :token, password = :newpass where token = :oldtoken''', {
+                        'token': token, 'newpass': newpass, 'oldtoken': oldtoken})
+        return {"token": token}
     else:
         return ss
 
@@ -38,7 +179,7 @@ def verif(args):
     ss = utils.notempty(args, ['accesstoken', 'code'])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token)
+        user = _gett(token)
         if 'error' in user:
             return user
         if user[1] != 0:
@@ -46,7 +187,6 @@ def verif(args):
         result = db.exec(
             f'''select code from users where token = ?''', (token,))
         code = result[0]
-        print((result, code, args['code']))
         if code == args["code"]:
             return _verif(user, 1)
         else:
@@ -59,7 +199,7 @@ def addsocial(args):
     ss = utils.notempty(args, ['accesstoken', 'social_token', 'social_name'])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token, 1)
+        user = _gett(token, 1)
         if 'error' in user:
             return user
         social_name = str(args['social_name']).lower()

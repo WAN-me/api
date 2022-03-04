@@ -1,5 +1,4 @@
-from re import T
-from methods import utils, db, pool, chats, users
+from methods import utils, db, pool, chats, account, users
 from methods.utils import secure
 
 
@@ -9,7 +8,7 @@ def send(args):
         token = args['accesstoken']
         text = args['text']
         to_id = args['to_id']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(str(to_id), utils.IDR):
@@ -56,7 +55,7 @@ def gethistory(args):
             return utils.error(400, "'count' is invalid")
         if False == utils.validr(ofset, utils.IDR):
             return utils.error(400, "'ofset' is invalid")
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         messages = []
@@ -90,13 +89,14 @@ def get(args):
             return utils.error(400, "'accesstoken' is invalid")
         if False == utils.validr(id, utils.IDR):
             return utils.error(400, "'id' is invalid")
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         msg = _get(id)
+        print(msg)
         if msg['from_id'] != user[0] and msg['to_id'] != user[0]:
             return utils.error(403, 'Access denided for this action')
         if 'error' in user:
             return user
-
+        return msg
     else:
         return ss
 
@@ -114,7 +114,7 @@ def edit(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         message = _get(args['id'])
@@ -140,7 +140,7 @@ def delete(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = users._gett(token, 1)
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         message = _get(args['id'])
@@ -157,3 +157,4 @@ def delete(args):
             return {'state': 'ok'}
     else:
         return ss
+
