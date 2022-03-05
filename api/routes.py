@@ -72,21 +72,23 @@ def method_handler(method, submethod):
             res = methods.utils.error(400, ERRORS['400']), 400
 
     elif method.startswith("group"):  # groups section
-        if submethod.startswith('get'):
+        if submethod == 'get': #
             res = methods.groups.get(args)
-        elif submethod.startswith('new'):
+        elif submethod.startswith('new'): #
             res = methods.groups.new(args)
-        elif submethod.startswith('join'):
+        elif submethod.startswith('join'): #
             res = methods.groups.join(args)
-        elif submethod.startswith('del'):
+        elif submethod.startswith('del'): 
             res = methods.groups.delete(args)
-        elif submethod.startswith('getbyname'):
+        elif submethod.startswith('getbyname'): #
             res = methods.groups.getbyname(args)
-        elif submethod.startswith('adduser'):
+        elif submethod.startswith('adduser'): #
             res = methods.groups.adduser(args)
-        elif submethod.startswith('addadmin'):
+        elif submethod.startswith('leave'): #
+            res = methods.groups.leave(args)
+        elif submethod.startswith('addadmin'): #
             res = methods.groups.addadmin(args)
-        elif submethod.startswith('edit'):
+        elif submethod.startswith('edit'): #
             res = methods.groups.edit(args)
         else:
             res = methods.utils.error(400, ERRORS['400']), 400

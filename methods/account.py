@@ -144,7 +144,6 @@ def _gett(token, needVerif=0):
         return user[0]
 
 
-
 def changepass(args):
     ss = utils.notempty(args, ['accesstoken', 'oldpass', 'newpass'])
     if ss == True:

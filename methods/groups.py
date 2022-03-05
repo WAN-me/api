@@ -28,9 +28,9 @@ def _get(id):
         raw_group = raw_group[0]
         return {
             'id': raw_group[0], 'name': secure(
-                raw_group[1]), 'owner_id': raw_group[2], 'users': json.loads(
-                raw_group[3]), 'admins': json.loads(
-                raw_group[5]), 'type': raw_group[4]}
+                raw_group[1]), 'owner_id': raw_group[2], 'users': json.loads(str(
+                raw_group[3])), 'admins': json.loads(str(
+                raw_group[5])), 'type': raw_group[4]}
 
 
 def getbyname(args):
@@ -39,8 +39,6 @@ def getbyname(args):
         token = args['accesstoken']
         name = args['name']
         user = _gett(token)
-        if False == utils.validr(name, utils.NAMER):
-            return utils.error(400, "'name' is invalid")
         if 'error' in user:
             return user
         raw_group = (
@@ -144,9 +142,9 @@ def adduser(args):
             return user
         group = _get(args['id'])
         if user[0] in group['admins'] or user[0] == group['owner_id']:
-            users = list(json.loads(group['users']))
+            users = list(group['users'])
             if user_id not in users:
-                users.append(user_id)
+                users.append(int(user_id))
             db.exec('''UPDATE groups
                     SET users = :nusers
                     WHERE id = :id''', {'id': id, 'nusers': str(users)})
@@ -155,6 +153,26 @@ def adduser(args):
     else:
         return ss
 
+def leave(args):    
+    ss = utils.notempty(args, ['accesstoken', 'id'])
+    if ss == True:
+        token = args['accesstoken']
+        id = args['id']
+        user = _gett(token)
+        if 'error' in user:
+            return user
+        group = _get(args['id'])
+        if user[0] in group['users']:
+            users = list(group['users'])
+            users.remove(user[0])
+            db.exec('''UPDATE groups
+                    SET users = :nusers
+                    WHERE id = :id''', {'id': id, 'nusers': str(users)})
+            return {'state': 'ok'}
+        print((user[0],group['users']))
+        return utils.error(403, "You are not member this group")
+    else:
+        return ss
 
 def join(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
@@ -168,7 +186,7 @@ def join(args):
         if group['type'] == 0 and not user[0] in group['users']:
             users = list(group['users'])
             if not user[0] in users:
-                users.append(user[0])
+                users.append(int(user[0]))
             db.exec('''UPDATE groups
                     SET users = :nusers
                     WHERE id = :id''', {'id': id, 'nusers': str(users)})
@@ -183,7 +201,7 @@ def addadmin(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user_id = args['user_id']
+        user_id = int(args['user_id'])
         user = _gett(token)
         if 'error' in user:
             return user
@@ -196,9 +214,9 @@ def addadmin(args):
             if user_id not in users:
                 users.append(user_id)
             db.exec('''UPDATE groups
-                    SET admins = :nadmins
+                    SET admins = :nadmins,
                     users = :nusers
-                    WHERE id = :id''', {'id': id, 'nadmins': admins, 'nusers': str(users)})
+                    WHERE id = :id''', {'id': id, 'nadmins': str(admins), 'nusers': str(users)})
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:
