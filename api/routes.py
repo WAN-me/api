@@ -45,18 +45,18 @@ def method_handler(method, submethod):
         else:
             res = methods.utils.error(400, ERRORS['400']), 400
 
-    elif method.startswith("mess"):  # messages section
-        if submethod.startswith('send'):
+    elif method.startswith("mess"):  # messages section #
+        if submethod.startswith('send'): #
             res = methods.messages.send(args)
-        elif submethod == 'get':
+        elif submethod == 'get': # 
             res = methods.messages.get(args)
-        elif submethod.startswith('gethistory'):
+        elif submethod.startswith('gethistory'):# 
             res = methods.messages.gethistory(args)
-        elif submethod.startswith('del'):
+        elif submethod.startswith('del'): #
             res = methods.messages.delete(args)
-        elif submethod.startswith('edit'):
-            res = methods.messages.edit(args)
-        elif submethod.startswith('chats'):
+        elif submethod.startswith('edit'): #
+            res = methods.messages.edit(args) 
+        elif submethod.startswith('chats'): #
             res = methods.chats.get(args)
         else:
             res = methods.utils.error(400, ERRORS['400']), 400
@@ -71,14 +71,14 @@ def method_handler(method, submethod):
         else:
             res = methods.utils.error(400, ERRORS['400']), 400
 
-    elif method.startswith("group"):  # groups section
+    elif method.startswith("group"):  # groups section #
         if submethod == 'get': #
             res = methods.groups.get(args)
         elif submethod.startswith('new'): #
             res = methods.groups.new(args)
         elif submethod.startswith('join'): #
             res = methods.groups.join(args)
-        elif submethod.startswith('del'): 
+        elif submethod.startswith('del'): #
             res = methods.groups.delete(args)
         elif submethod.startswith('getbyname'): #
             res = methods.groups.getbyname(args)
@@ -94,15 +94,15 @@ def method_handler(method, submethod):
             res = methods.utils.error(400, ERRORS['400']), 400
 
     elif method.startswith("acc"):  # accounts section
-        if submethod.startswith('changepass'):
+        if submethod.startswith('changepass'): #
             res = methods.account.changepass(args)
         elif submethod.startswith('addsocial'):
             res = methods.account.addsocial(args)
-        elif submethod.startswith('reg'):
+        elif submethod.startswith('reg'): #
             res = methods.account.reg(args)
-        elif submethod.startswith('auth'):
+        elif submethod.startswith('auth'): #
             res = methods.account.auth(args)
-        elif submethod.startswith('del'):
+        elif submethod.startswith('del'): #
             res = methods.account.delete(args)
         elif submethod.startswith('verif'):
             res = methods.account.verif(args)
@@ -125,10 +125,10 @@ def method_handler(method, submethod):
         else:
             res = methods.utils.error(400, ERRORS['400']), 400
 
-    elif method.startswith("pool"):  # pool section
-        if submethod.startswith('get'):
+    elif method.startswith("pool"):  # pool section #
+        if submethod.startswith('get'): #
             res = methods.pool.get(args)
-        elif submethod.startswith('read'):
+        elif submethod.startswith('read'): #
             res = methods.pool.read(args)
     else:
         res = methods.utils.error(400, ERRORS['400']), 400

@@ -6,3 +6,4 @@ tests/__pycache__/*
 methods/poll.py
 tests/runtests.py
 cfg.py
+api.log

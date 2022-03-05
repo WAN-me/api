@@ -40,7 +40,7 @@ RED= "\033[91m"
 ENDC= "\033[0m"
 
 api = Api()
-need = ['account','users',"messages",'groups']
+need = ['account','users',"messages",'groups','pool']
 if __name__ == "__main__":
     os.system("fuser 3000/tcp -k >> /dev/null")
     os.system('rm db.sqlite3')
@@ -271,6 +271,25 @@ if __name__ == "__main__":
 
 
             print(f"groups - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
+
+        if "pool" in need:
+            ok = []
+            get = test(api.pool.get, {
+                "accesstoken": user1[0]['token']
+            },'get pool')
+            ok.append(get[1] and get[0]['count'] == 2)
+
+            read = test(api.pool.read, {
+                "accesstoken": user1[0]['token']
+            },'read pool')
+            ok.append(read[1])
+
+            get = test(api.pool.get, {
+                "accesstoken": user1[0]['token']
+            },'get pool')
+            ok.append(get[1] and get[0]['count'] == 0)
+
+            print(f"pool - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
     except Exception as e:
         raise e
 
