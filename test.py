@@ -1,4 +1,4 @@
-from tkinter.tix import Tree
+
 import requests
 import os
 import time
@@ -42,7 +42,6 @@ ENDC= "\033[0m"
 api = Api()
 need = ['account','users',"messages",'groups','pool']
 if __name__ == "__main__":
-    os.system("fuser 3000/tcp -k >> /dev/null")
     os.system('rm db.sqlite3')
     os.system('python3 initdb.py &')
     os.system("python3 test_start.py >> api.log &")

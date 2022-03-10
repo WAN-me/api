@@ -5,6 +5,7 @@ import os
 from gunicorn.app.wsgiapp import run
 
 if __name__ == '__main__':
+    os.system("fuser 3000/tcp -k &> /dev/null")
     sys.argv = [
         sys.argv[0],
         '-w',

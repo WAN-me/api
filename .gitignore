@@ -7,3 +7,4 @@ methods/poll.py
 tests/runtests.py
 cfg.py
 api.log
+api.log
