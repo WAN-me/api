@@ -55,7 +55,6 @@ NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         user_id INT NOT NULL);
         '''
 
-
 NEW_TBL_BUGS = '''CREATE TABLE IF NOT EXISTS bugs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
@@ -67,6 +66,7 @@ NEW_TBL_BUGS = '''CREATE TABLE IF NOT EXISTS bugs(
         product INT NOT NULL,
         status INT NOT NULL default 0);
         '''
+
 NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         owner_id INT NOT NULL,

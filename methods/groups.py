@@ -9,19 +9,19 @@ def get(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = _gett(token)
-        return user if 'error' in user else _get(id)
+        user = _gett(token, 1, cursor=args['cursor'])
+        return user if 'error' in user else _get(id, args['cursor'])
     else:
         return ss
 
 
-def _get(id):
+def _get(id,cursor):
     if False == utils.validr(id, utils.IDR):
         return utils.error(400, "'id' is invalid")
-    raw_group = (
-        db.exec(
-            '''select id, name, owner_id, users, type, admins from groups where id = :id ''', {
-                'id': id}))
+    cursor.execute('''select id, name, owner_id, users, type, admins from groups where id = :id ''', {
+                'id': id})
+    raw_group = cursor.fetchall()
+            
     if len(raw_group) == 0:
         return utils.error(404, "This group not exists")
     else:
@@ -38,13 +38,12 @@ def getbyname(args):
     if ss == True:
         token = args['accesstoken']
         name = args['name']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        raw_group = (
-            db.exec(
-                '''select id, name, owner_id, users, type from groups where name = :name ''', {
-                    'name': name}))
+        args['cursor'].execute('''select id, name, owner_id, users, type from groups where name = :name ''', {
+                    'name': name})
+        raw_group = args['cursor'].fetchall()
         if len(raw_group) == 0:
             return utils.error(404, "This group not exists")
         else:
@@ -66,13 +65,15 @@ def new(args):
     if ss == True:
         token = args['accesstoken']
         name = args['name']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        db.exec('''insert into groups (owner_id, name, type, users)
+        args['cursor'].execute('''insert into groups (owner_id, name, type, users)
         values (?,?,?,?)''', (user[0], name, args['type'], str([user[0], ]),))
-        group_id = db.exec(
-            '''select seq from sqlite_sequence where name="groups"''')[0][0]
+        args['connection'].commit()
+        args['cursor'].execute('''select seq from sqlite_sequence where name="groups"''')
+        group_id = args['cursor'].fetchall()[0][0]
+            
         return {'id': group_id}
     else:
         return ss
@@ -82,16 +83,16 @@ def edit(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if "error" in group:
             return group
         name = args.get("name", group['name'])
         type = args.get("type", group['type'])
         if user[0] == group['owner_id']:
-            db.exec('''UPDATE groups
+            args['cursor'].execute('''UPDATE groups
                 SET name = :name 
                 ,type = :type
 
@@ -103,6 +104,7 @@ def edit(args):
                         'type': type,
                     }
                     )
+            args['connection'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -112,20 +114,21 @@ def delete(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if "error" in group:
             return group
         if user[0] == group['owner_id']:
-            db.exec('''DELETE FROM groups
+            args['cursor'].execute('''DELETE FROM groups
                 WHERE id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
+            args['connection'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -137,17 +140,18 @@ def adduser(args):
         token = args['accesstoken']
         id = args['id']
         user_id = args['user_id']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if user[0] in group['admins'] or user[0] == group['owner_id']:
             users = list(group['users'])
             if user_id not in users:
                 users.append(int(user_id))
-            db.exec('''UPDATE groups
+            args['cursor'].execute('''UPDATE groups
                     SET users = :nusers
                     WHERE id = :id''', {'id': id, 'nusers': str(users)})
+            args['connection'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:
@@ -158,16 +162,17 @@ def leave(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if user[0] in group['users']:
             users = list(group['users'])
             users.remove(user[0])
-            db.exec('''UPDATE groups
+            args['cursor'].execute('''UPDATE groups
                     SET users = :nusers
                     WHERE id = :id''', {'id': id, 'nusers': str(users)})
+            args['connection'].commit()
             return {'state': 'ok'}
         print((user[0],group['users']))
         return utils.error(403, "You are not member this group")
@@ -179,17 +184,18 @@ def join(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if group['type'] == 0 and not user[0] in group['users']:
             users = list(group['users'])
             if not user[0] in users:
                 users.append(int(user[0]))
-            db.exec('''UPDATE groups
+            args['cursor'].execute('''UPDATE groups
                     SET users = :nusers
                     WHERE id = :id''', {'id': id, 'nusers': str(users)})
+            args['connection'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:
@@ -202,10 +208,10 @@ def addadmin(args):
         token = args['accesstoken']
         id = args['id']
         user_id = int(args['user_id'])
-        user = _gett(token)
+        user = _gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        group = _get(args['id'])
+        group = _get(args['id'], args['cursor'])
         if user[0] in group['admins'] or user[0] == group['owner_id']:
             admins = list(group['admins'])
             if user_id not in admins:
@@ -213,10 +219,11 @@ def addadmin(args):
             users = list(group['users'])
             if user_id not in users:
                 users.append(user_id)
-            db.exec('''UPDATE groups
+            args['cursor'].execute('''UPDATE groups
                     SET admins = :nadmins,
                     users = :nusers
                     WHERE id = :id''', {'id': id, 'nadmins': str(admins), 'nusers': str(users)})
+            args['connection'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:

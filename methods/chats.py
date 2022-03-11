@@ -2,9 +2,10 @@ from methods import utils, db, account
 import json
 
 
-def _set(user, id: int, name="dialog"):
-    db.exec('''insert into chats(id, user_id, name)
+def _set(user, id: int, name="dialog", args=None):
+    args['cursor'].execute('''insert into chats(id, user_id, name)
             values(?,?,?)''', (id, user, name))
+    args['connection'].commit()
 
 
 def get(args):
@@ -13,14 +14,15 @@ def get(args):
         token = args['accesstoken']
         count = args.get('count', 10)
         ofset = args.get('ofset', 0)
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
         chats = []
-        raw_chats = db.exec(
-            '''select DISTINCT id, name from chats where user_id=:user_id
+        args['cursor'].execute('''select DISTINCT id, name from chats where user_id=:user_id
                     order by id desc limit :ofset,:count''', {
                 'user_id': user[0], 'count': count, 'ofset': ofset})
+        raw_chats = args['cursor'].fetchall()
+            
         if len(raw_chats) < 1:
             return {'count': len(raw_chats), 'items': raw_chats}
         for raw_chat in raw_chats:

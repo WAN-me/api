@@ -1,4 +1,4 @@
-from methods import utils, db, groups, users, pool
+from methods import utils, db, groups, account, pool
 from methods.utils import secure
 
 
@@ -7,7 +7,7 @@ def get(args: dict):
     if ss == True:
         token = args['accesstoken']
         id = args.get('id', 0)
-        user = account._gett(token,)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
         bug = _get(id)
@@ -25,13 +25,12 @@ def get(args: dict):
         return ss
 
 
-def _get(id):
+def _get(id, cursor):
     if False == utils.validr(id, utils.IDR):
         return utils.error(400, "'id' is invalid")
-    bug = (
-        db.exec(
-            '''select id, title, priority, steps, actual, expected, user_id, status, product from bugs where id = :id ''', {
-                'id': id}))
+    cursor.execute('''select id, title, priority, steps, actual, expected, user_id, status, product from bugs where id = :id ''', {
+                'id': id})
+    bug = cursor.fetchall()
     if len(bug) == 0:
         return utils.error(404, "This bug not exists(yet)")
     else:
@@ -58,10 +57,10 @@ def new(args):
                          'product'])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        product = groups._get(args['product'])
+        product = groups._get(args['product'], args['cursor'])
         if "error" in product:
             return product
         elif(product['type'] < 1):
@@ -69,7 +68,7 @@ def new(args):
                    in product['admins'] or user[0] == product['owner_id']):
                 return utils.error(403, "you are not tester for this product")
             else:
-                db.exec(
+                args['cursor'].execute(
                     '''insert into bugs (title, priority, steps, actual, expected, user_id, product)
                 values (?,?,?,?,?,?,?)''',
                     (args['title'],
@@ -80,8 +79,10 @@ def new(args):
                     user[0],
                     args['product'],
                      ))
-                bug_id = db.exec(
-                    '''select seq from sqlite_sequence where name="bugs"''')[0][0]
+                args['connection'].commit()
+                args['cursor'].execute('''select seq from sqlite_sequence where name="bugs"''')[0][0]
+                bug_id = args['cursor'].fetchall
+                    
                 return {'id': bug_id}
     else:
         return ss
@@ -91,22 +92,23 @@ def comment(args):
     ss = utils.notempty(args, ['accesstoken', 'id', ])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
         text = args.get("text", "")
-        bug = _get(id)
+        bug = _get(id, args['cursor'])
         product = groups._get(bug['product'])
         if "error" in product:
             return product
         elif(product['type'] < 1):
             if args.get("status", None) is not None:
                 if user[0] in product['admins'] or user[0] == product['owner_id']:
-                    db.exec(
+                    args['cursor'].execute(
                         '''insert into comments (from_id, post_id, text, status)
                         values (?,?,?,?)''', (user[0], args['id'], text, args["status"],))
-                    comment_id = db.exec(
-                        '''select seq from sqlite_sequence where name="comments"''')[0][0]
+                    args['connection'].commit()
+                    args['cursor'].execute('''select seq from sqlite_sequence where name="comments"''')
+                    comment_id = args['cursor'].fetchall()[0][0]
                     if not bug['user_id'] == user[0]:
                         pool._set(
                             3, bug['id'], bug['user_id'], {
@@ -114,11 +116,13 @@ def comment(args):
                     return {"id": comment_id}
                 elif user[0] in product['users'] and bug['user_id'] == user[0]:
                     if args['status'] in [5, 6, 11]:
-                        db.exec(
+                        args['cursor'].execute(
                             '''insert into comments (from_id, post_id, text, status)
                         values (?,?,?,?)''', (user[0], args['id'], text, args["status"],))
-                        comment_id = db.exec(
-                            '''select seq from sqlite_sequence where name="comments"''')[0][0]
+                        args['connection'].commit
+                        args['cursor'].execute(
+                            '''select seq from sqlite_sequence where name="comments"''')
+                        comment_id = args['cursor'].fetchall()[0][0]
                         if not bug['user_id'] == user[0]:
                             pool._set(3,
                                       bug['id'],
@@ -135,10 +139,12 @@ def comment(args):
                         403, "You are havn't access to this bug")
             elif text != "":
                 if user[0] in product['users']:
-                    db.exec('''insert into comments (from_id, post_id, text)
+                    args['cursor'].execute('''insert into comments (from_id, post_id, text)
                     values (?,?,?)''', (user[0], args['id'], text,))
-                    comment_id = db.exec(
-                        '''select seq from sqlite_sequence where name="comments"''')[0][0]
+                    args['connection'].commit
+                    args['cursor'].execute(
+                        '''select seq from sqlite_sequence where name="comments"''')
+                    comment_id = args['cursor'].fetchall()[0][0]
                     if not bug['user_id'] == user[0]:
                         pool._set(
                             3, bug['id'], bug['user_id'], {
@@ -160,10 +166,10 @@ def getcomments(args):
     if ss == True:
         token = args['accesstoken']
         bug_id = args['id']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        bug = _get(id)
+        bug = _get(id, args['cursor'])
         if 'error' in bug:
             return bug
         product = groups._get(bug['product'])
@@ -174,10 +180,11 @@ def getcomments(args):
                 return utils.error(403, "You are not tester for this product")
             else:
                 comments = []
-                raw_comments = db.exec(
+                args['cursor'].execute(
                     '''select text, from_id, id, etxra from comments where post_id=:id
                         order by id''', {
                         'id': bug_id, })
+                raw_comments = args['cursor'].fetchall()
                 if len(raw_comments) < 1:
                     return {[]}
                 for raw_comment in raw_comments:
@@ -199,10 +206,10 @@ def changestat(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        bug = _get(id)
+        bug = _get(id, args['cursor'])
         if 'error' in bug:
             return bug
         product = groups._get(bug['product'])
@@ -210,15 +217,17 @@ def changestat(args):
             return product
         elif(product['type'] < 1):
             if user[0] == product['owner_id']:
-                db.exec('''UPDATE bugs
+                args['cursor'].execute('''UPDATE bugs
                 SET status = :st
                 WHERE id = :id''', {'id': id, 'st': args['status']})
+                args['connection'].commit()
                 return {'state': 'ok'}
             elif user[0] in product['users'] and bug['user_id'] == user[0]:
                 if args['status'] in [5, 6, 11]:
-                    db.exec('''UPDATE bugs
+                    args['cursor'].execute('''UPDATE bugs
                     SET status = :st
                     WHERE id = :id''', {'id': id, 'st': args['status']})
+                    args['connection'].commit()
                     return {'state': 'ok'}
                 else:
                     return utils.error(403, "You can't set this status")
@@ -235,10 +244,10 @@ def edit(args):
     if ss == True:
         token = args['accesstoken']
         id = args['id']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        bug = _get(id)
+        bug = _get(id, args['cursor'])
         if 'error' in bug:
             return bug
         title = args.get("title", bug['title'])
@@ -251,7 +260,7 @@ def edit(args):
             return product
         elif(product['type'] < 1):
             if user[0] in product['admins'] or user[0] == product['owner_id']:
-                db.exec('''UPDATE bugs
+                args['cursor'].execute('''UPDATE bugs
                 SET title = :title 
                 ,priority = :priority 
                 ,steps = :steps 
@@ -269,9 +278,10 @@ def edit(args):
                             'expected': expected
                         }
                         )
+                args['connection'].commit()
                 return {'state': 'ok'}
             elif user[0] in product['users'] and bug['user_id'] == user[0]:
-                db.exec('''UPDATE bugs
+                args['cursor'].execute('''UPDATE bugs
                 SET title = :title, 
                 priority = :priority, 
                 steps = :steps, 
@@ -289,6 +299,7 @@ def edit(args):
                             'expected': expected
                         }
                         )
+                args['connection'].commit()
                 return {'state': 'ok'}
             else:
                 return utils.error(403, "You are havn't access to this bug")

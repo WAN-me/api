@@ -10,7 +10,9 @@ import methods.groups
 import methods.account
 import methods.achive
 from flask import request
-from werkzeug import utils
+
+from sqlite3 import connect
+import cfg
 
 ERRORS = {
     "404": 'Page not found',
@@ -38,6 +40,8 @@ def method_handler(method, submethod):
     args = ((params | form))
     method = method.lower()
     submethod = submethod.lower()
+    args['connection'] = connect(cfg.dataBaseFile)
+    args['cursor'] = args['connection'].cursor()
     res = "Unknown", 200
     if method.startswith("user"):
         if submethod.startswith('get'):
@@ -132,7 +136,7 @@ def method_handler(method, submethod):
             res = methods.pool.read(args)
     else:
         res = methods.utils.error(400, ERRORS['400']), 400
-
+    args['connection'].close()
     if "error" in res:
         return res, res["error"]["code"]
 

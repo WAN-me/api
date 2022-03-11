@@ -13,11 +13,11 @@ def auth(args):
         ss = utils.notempty(args, ['email', 'password'])
         if ss == True:
             # time.sleep(1)
-            user = (
-                db.exec(
-                    '''select id,token from users where email = :email and password = :pass''', {
-                        'email': args['email'], 'pass': utils.dohash(
-                            args['password'])}))
+            args['cursor'].execute(
+            '''select id,token from users where email = :email and password = :pass''', {
+                'email': args['email'], 'pass': utils.dohash(
+                    args['password'])})
+            user = args['cursor'].fetchall()
             if not user or len(user) == 0:
                 return utils.error(401, "Login or password is incorrect")
             else:
@@ -33,14 +33,20 @@ def auth(args):
                     f"https://api.vk.com/method/users.get?access_token={token}&v=5.101").content)
                 if 'response' in response:
                     user = response['response'][0]
-                    user_id = db.exec(
+
+                    args['cursor'].execute(
                         f'''select (user) from accounts where ac_id = {user['id']}''')
+                    user_id = args['cursor'].fetchall()
+
                     if len(user_id) < 1:
                         return utils.error(
                             401, "Access denided for this account")
-                    user = (db.exec(
+
+                    args['cursor'].execute(
                         '''select id,token from users where id = :id''',
-                        {'id': user_id[0]}))
+                        {'id': user_id[0]})
+                    user = args['cursor'].fetchall()
+
                     return {'id': user[0][0], 'token': user[0][1]}
                 return utils.error(
                     400, f'Error while get data from token: {response}')
@@ -55,11 +61,12 @@ def delete(args):
     ss = utils.notempty(args, ['accesstoken'])
     if ss == True:
         token = args['accesstoken']
-        user = _gett(token)
+        user = _gett(token, cursor=args['cursor'])
         if 'error' in user:
             return user
-        db.exec('''DELETE FROM users
+        args['cursor'].execute('''DELETE FROM users
             WHERE token = ?;''', (token,))
+        args['connection'].commit()
         return {'state': 'ok'}
     else:
         return ss
@@ -106,7 +113,7 @@ def reg(args):
         password = utils.dohash(f"{args['password']}")
         token = utils.dohash(f'{name}_{time.time()}_{password}')
         if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
-            db.exec(f'''insert into users (name, token, email, password, image, verifi)
+            args['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi)
             values (:name, :token, :email, :password, :image, :verifi)''',
                     {'name': secure(name),
                     'token': token,
@@ -117,7 +124,7 @@ def reg(args):
             sc = "verifi level set on 3(maximum)"
         else:
             code = utils.random_string(6)
-            db.exec(f'''insert into users (name, token, email, password, image, code)
+            args['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
             values (:name, :token, :email, :password, :image, :code)''',
                     {'name': secure(name),
                     'token': token,
@@ -126,7 +133,8 @@ def reg(args):
                     'password': password,
                     'image': args.get('image','default.png')})
             sc = _sendcode(code, args)
-        user = get({'accesstoken': token})
+        args['connection'].commit()
+        user = get({'accesstoken': token, 'cursor': args['cursor']})
         user['advanced'] = sc
         user['token'] = token
         return user
@@ -134,8 +142,9 @@ def reg(args):
         return ss
 
 
-def _gett(token, needVerif=0):
-    user = (db.exec(f'''select id, verifi from users where token = ? ''', (token,)))
+def _gett(token, needVerif=0,cursor=None):
+    cursor.execute(f'''select id, verifi from users where token = ? ''', (token,))
+    user = cursor.fetchall()
     if not user or len(user) != 1:
         return utils.error(400, "'accesstoken' is invalid")
     elif user[0][1] < needVerif:
@@ -148,27 +157,30 @@ def changepass(args):
     ss = utils.notempty(args, ['accesstoken', 'oldpass', 'newpass'])
     if ss == True:
         oldtoken = args['accesstoken']
-        user = _gett(oldtoken)
+        user = _gett(oldtoken,cursor=args['cursor'])
         if 'error' in user:
             return user
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
-        result = db.exec('''select id, verifi from users where token = :token and password = :pass''', {
+        args['cursor'].execute('''select id, verifi from users where token = :token and password = :pass''', {
                         'token': oldtoken, 'pass': oldpass})
+        result = args['cursor'].fetchall()
         if len(result) == 0:
             return utils.error(401, "password is incorrect")
         token = utils.dohash(f'{time.time()}_{newpass}')
-        db.exec(
+        args['cursor'].execute(
             f'''update users set token = :token, password = :newpass where token = :oldtoken''', {
                         'token': token, 'newpass': newpass, 'oldtoken': oldtoken})
+        args['connection'].commit()
         return {"token": token}
     else:
         return ss
 
 
-def _verif(id, level):
+def _verif(id, level,args):
     try:
-        db.exec(f'''update users set verifi = {level} where id={id}''')
+        args['cursor'].execute(f'''update users set verifi = {level} where id={id}''')
+        args['connection'].commit()
         return {'state': 'ok'}
     except Exception as ex:
         return utils.error(500, ex)
@@ -178,16 +190,17 @@ def verif(args):
     ss = utils.notempty(args, ['accesstoken', 'code'])
     if ss == True:
         token = args['accesstoken']
-        user = _gett(token)
+        user = _gett(token, cursor=args['cursor'])
         if 'error' in user:
             return user
         if user[1] != 0:
             return utils.error(208, 'Already verifed')
-        result = db.exec(
-            f'''select code from users where token = ?''', (token,))
+        args['cursor'].execute(f'''select code from users where token = ?''', (token,))
+        result = args['cursor'].fetchall()
+            
         code = result[0]
         if code == args["code"]:
-            return _verif(user, 1)
+            return _verif(user, 1,args)
         else:
             return utils.error(401, "Incorrect verify code")
     else:
@@ -198,7 +211,7 @@ def addsocial(args):
     ss = utils.notempty(args, ['accesstoken', 'social_token', 'social_name'])
     if ss == True:
         token = args['accesstoken']
-        user = _gett(token, 1)
+        user = _gett(token, 1,args['cursor'])
         if 'error' in user:
             return user
         social_name = str(args['social_name']).lower()
@@ -208,9 +221,10 @@ def addsocial(args):
                 f"https://api.vk.com/method/users.get?access_token={social_token}&v=5.101").content)
             if 'response' in response:
                 user = response['response'][0]
-                db.exec(
+                args['cursor'].execute(
                     f'''inert into accounts (user, ac_token, ac_id, ac_email, social_name)
                     values ({user[0]},"{social_token}",{user['id']},"{user.get('email','none@wan-group.ru')}","{user['first_name']} {user['last_name']}")''')
+                args['connection'].commit()
                 return {'state': "ok"}
             return utils.error(
                 400, f'Error while get data from token: "{response}"')

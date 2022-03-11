@@ -8,33 +8,34 @@ def send(args):
         token = args['accesstoken']
         text = args['text']
         to_id = args['to_id']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
         if False == utils.validr(str(to_id), utils.IDR):
             return utils.error(400, "'to_id' is invalid")
         to_id = int(to_id)
-        db.exec('''insert into messages (from_id, to_id, text)
+        args['cursor'].execute('''insert into messages (from_id, to_id, text)
         values (?,?,?)''', (user[0], to_id, text,))
-        msg_id = db.exec(
-            '''select seq from sqlite_sequence where name="messages"''')[0][0]
+        args['connection'].commit()
+        args['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
+        msg_id = args['cursor'].fetchall()[0][0]
         pool._set(1,
                   to_id,
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)})  # добавляем события
+                   'text': secure(text)}, args)  # добавляем события
         pool._set(2,
                   user[0],
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)})
-        chats._set(user[0], to_id, users._get(to_id)[
-                   'name'])  # Добавляем в список чатов
-        chats._set(to_id, user[0], users._get(user[0])['name'])
+                   'text': secure(text)}, args)
+        chats._set(user[0], to_id, users._get(to_id, args['cursor'])[
+                   'name'],args)  # Добавляем в список чатов
+        chats._set(to_id, user[0], users._get(user[0], args['cursor'])['name'],args)
         return {'id': msg_id}
     else:
         return ss
@@ -55,17 +56,19 @@ def gethistory(args):
             return utils.error(400, "'count' is invalid")
         if False == utils.validr(ofset, utils.IDR):
             return utils.error(400, "'ofset' is invalid")
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
         messages = []
-        raw_messages = db.exec(
+        args['cursor'].execute(
             '''select id, from_id, to_id, text, time from messages where
                 (to_id=:this and from_id=:userid)
                 or
                 (to_id=:userid and from_id=:this)
                 order by id desc limit :ofset,:count''', {
                 'this': user[0], 'count': count, 'ofset': ofset, 'userid': user_id})
+        
+        raw_messages = args['cursor'].fetchall()
         if len(raw_messages) < 1:
             return {'count': len(raw_messages), 'items': raw_messages}
         for raw_message in raw_messages:
@@ -89,8 +92,8 @@ def get(args):
             return utils.error(400, "'accesstoken' is invalid")
         if False == utils.validr(id, utils.IDR):
             return utils.error(400, "'id' is invalid")
-        user = account._gett(token, 1)
-        msg = _get(id)
+        user = account._gett(token, 1, cursor=args['cursor'])
+        msg = _get(id, args['cursor'])
         print(msg)
         if msg['from_id'] != user[0] and msg['to_id'] != user[0]:
             return utils.error(403, 'Access denided for this action')
@@ -101,9 +104,10 @@ def get(args):
         return ss
 
 
-def _get(id):
-    msg = db.exec(
+def _get(id, cursor):
+    cursor.execute(
         '''select from_id, text, to_id from messages where id = ?''', (id,))
+    msg = cursor.fetchall()
     if not msg or len(msg) != 1:
         return utils.error(400, "This message not exists")
     msg = msg[0]
@@ -114,15 +118,15 @@ def edit(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        message = _get(args['id'])
+        message = _get(args['id'], args['cursor'])
         if "error" in message:
             return message
         text = args.get("text", message['text'])
         if user[0] == message['from_id']:
-            db.exec('''UPDATE messages
+            args['cursor'].execute('''UPDATE messages
                 SET text = :text
                 WHERE id = :id''',
 
@@ -131,6 +135,7 @@ def edit(args):
                         'text': text,
                     }
                     )
+            args['connection'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -140,20 +145,21 @@ def delete(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1)
+        user = account._gett(token, 1, cursor=args['cursor'])
         if 'error' in user:
             return user
-        message = _get(args['id'])
+        message = _get(args['id'], args['cursor'])
         if "error" in message:
             return message
         if user[0] == message['from_id']:
-            db.exec('''DELETE FROM messages
+            args['cursor'].execute('''DELETE FROM messages
                 WHERE id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
+            args['connection'].commit()
             return {'state': 'ok'}
     else:
         return ss
