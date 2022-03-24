@@ -1,8 +1,7 @@
-import queue
+
 import sbeaver
 import cfg
 from sqlite3 import connect
-from queue import Queue
 import tmp
 
 from methods import messages, utils, users, poll, chats, bugs, groups, account, achive
@@ -27,10 +26,10 @@ def poll_handler(request, method):
     args = ((params | form))
     if method == "get":
         res = poll.get(args)
-        return res.get('error', {'code': 200})['code'], res
-    if method == "read":
+    elif method == "read":
         res = poll.read(args)
-        return res.get('error', {'code': 200})['code'], res
+    return res.get('error', {'code': 200})['code'], res
+    
 
 @server.code404()
 def page_not_found(error):
@@ -40,111 +39,71 @@ def page_not_found(error):
 def ISE(req, error):
     return utils.error(500, ERRORS['500'])
 
+method_list = {
+    'user': {
+        'get':users.get,
+        'reg': account.reg,
+        'auth': account.auth,
+        'del': account.delete
+        }, 
+    'message': {
+        'get': messages.get,
+        'send': messages.send,
+        'gethistory': messages.gethistory,
+        'del': messages.delete,
+        'delete': messages.delete,
+        'edit': messages.edit,
+        'chats': chats.get
+        }, 
+    'achive': {
+        'give': achive.give,
+        'get': achive.get,
+        'new': achive.new
+    },
+    'group': {
+        'get': groups.get,
+        'new': groups.new,
+        'join': groups.join,
+        'del': groups.delete,
+        'delete': groups.delete,
+        'getbyname': groups.getbyname,
+        'adduser': groups.adduser,
+        'leave': groups.leave,
+        'addadmin': groups.addadmin,
+        'edit': groups.edit
+    }, 
+    'account': {
+        'changepass': account.changepass,
+        'addsocial': account.addsocial,
+        'reg': account.reg,
+        'auth': account.auth,
+        'del': account.delete,
+        'delete': account.delete,
+        'verif': account.verif,
+    }
+}
+
 @server.ebind(r'/method/<method>[/|\.]<submethod>$')
 def method_handler(request, method, submethod):
     request.parse_all()
     params = request.args
     form = request.data
     args = ((params | form))
-    method = method.lower()
+    res = utils.error(400, ERRORS['400'])
     submethod = submethod.lower()
-    res = "Unknown", 200
-    if method.startswith("user"):
-        if submethod.startswith('get'):
-            res = users.get(args)
+    method = str(method.lower())
+    method = method[:-1] if method.endswith('s') else method
+    print(submethod,method)
+    if method in method_list:
+        if submethod in method_list[method]:
+            res = method_list[method][submethod](args)
         else:
-            res = utils.error(400, ERRORS['400']), 400
-    elif method.startswith("mess"):  # messages section #
-        if submethod.startswith('send'): #
-            res = messages.send(args)
-        elif submethod == 'get': # 
-            res = messages.get(args)
-        elif submethod.startswith('gethistory'):# 
-            res = messages.gethistory(args)
-        elif submethod.startswith('del'): #
-            res = messages.delete(args)
-        elif submethod.startswith('edit'): #
-            res = messages.edit(args) 
-        elif submethod.startswith('chats'): #
-            res = chats.get(args)
-        else:
-            res = utils.error(400, ERRORS['400']), 400
-
-    elif method.startswith("ach"):  # achive section
-        if submethod.startswith('give'):
-            res = achive.give(args)
-        elif submethod.startswith('get'):
-            res = achive.get(args)
-        elif submethod.startswith('new'):
-            res = achive.new(args)
-        else:
-            res = utils.error(400, ERRORS['400']), 400
-
-    elif method.startswith("group"):  # groups section #
-        if submethod == 'get': #
-            res = groups.get(args)
-        elif submethod.startswith('new'): #
-            res = groups.new(args)
-        elif submethod.startswith('join'): #
-            res = groups.join(args)
-        elif submethod.startswith('del'): #
-            res = groups.delete(args)
-        elif submethod.startswith('getbyname'): #
-            res = groups.getbyname(args)
-        elif submethod.startswith('adduser'): #
-            res = groups.adduser(args)
-        elif submethod.startswith('leave'): #
-            res = groups.leave(args)
-        elif submethod.startswith('addadmin'): #
-            res = groups.addadmin(args)
-        elif submethod.startswith('edit'): #
-            res = groups.edit(args)
-        else:
-            res = utils.error(400, ERRORS['400']), 400
-
-    elif method.startswith("acc"):  # accounts section
-        if submethod.startswith('changepass'): #
-            res = account.changepass(args)
-        elif submethod.startswith('addsocial'):
-            res = account.addsocial(args)
-        elif submethod.startswith('reg'): #
-            res = account.reg(args)
-        elif submethod.startswith('auth'): #
-            res = account.auth(args)
-        elif submethod.startswith('del'): #
-            res = account.delete(args)
-        elif submethod.startswith('verif'):
-            res = account.verif(args)
-        else:
-            res = utils.error(400, ERRORS['400']), 400
-
-    elif method.startswith("bug"):  # bugs section
-        if submethod.startswith('new'):
-            res = bugs.new(args)
-        elif submethod.startswith('get'):
-            res = bugs.get(args)
-        elif submethod.startswith('comment'):
-            res = bugs.new(args)
-        elif submethod.startswith('getcomments'):
-            res = bugs.get(args)
-        elif submethod.startswith('changestat'):
-            res = bugs.changestat(args)
-        elif submethod.startswith('edit'):
-            res = bugs.edit(args)
-        else:
-            res = utils.error(400, ERRORS['400']), 400
-
-    elif method.startswith("poll") or method.startswith("pool"):  # poll section #
+            res = utils.error(400, ERRORS['400'])
+    elif method in ("poll", "pool"):  # poll section #
         return sbeaver.redirect(307,f'/poll/{submethod}')
-        if submethod.startswith('get'): #
-            res = poll.get(args)
-        elif submethod.startswith('read'): #
-            res = poll.read(args)
-    else:
-        res = utils.error(400, ERRORS['400']), 400
+
     if "error" in res:
         return res["error"]["code"], res
-
     else:
         return 200, res
 

@@ -273,7 +273,7 @@ if __name__ == "__main__":
             }, 'get group')
             ok.append(len(result[0]['users']) == 2 and len(result[0]['admins']) == 1)
 
-            dell = test(api.groups.dell,{
+            dell = test(api.groups.delete,{
                 'accesstoken': user1[0]['token'],
                 'id': group_id
             }, 'del group')
