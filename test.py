@@ -27,7 +27,7 @@ class Api(object):
         for k, v in kwargs.items():
             if isinstance(v, (list, tuple)):
                 kwargs[k] = ','.join(str(x) for x in v)
-        result = requests.post(api_uri+"/method/"+str(self._method), data = kwargs | params)
+        result = requests.post(api_uri+"/method/"+str(self._method), data = kwargs | params, timeout=11)
         try:
             return result.json()
         except:
@@ -40,11 +40,12 @@ RED= "\033[91m"
 ENDC= "\033[0m"
 
 api = Api()
-need = ['account','users',"messages",'groups','pool']
+need = ['account','users',"messages",'groups','poll']
 if __name__ == "__main__":
+    os.system('fuser 3000/tcp -k')
     os.system('rm db.sqlite3')
     os.system('python3 initdb.py &')
-    os.system("python3 test_start.py >> api.log &")
+    os.system("python3 main.py &> api.log &")
     time.sleep(2)
     try:    
 
@@ -81,7 +82,10 @@ if __name__ == "__main__":
                     'accesstoken': token
                     },"del user")
             ok.append(user[1])
-            print(f"account - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
+            if ok.count(False) > 0:
+                print(f"{RED}account - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            else:
+                print(f"{GREEN}account - {ok.count(True)}/{ok.count(False)}{ENDC}")
         # start account test
         if 'users' in need:
             ok = []
@@ -109,7 +113,10 @@ if __name__ == "__main__":
                 print(f"{RED}no right user getted{ENDC}")
             else:
                 ok.append(getuser[1])
-            print(f"users - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
+            if ok.count(False) > 0:
+                print(f"{RED}users - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            else:
+                print(f"{GREEN}users - {ok.count(True)}/{ok.count(False)}{ENDC}")
 
         if 'messages' in need:
             ok = []
@@ -159,7 +166,7 @@ if __name__ == "__main__":
 
             for item in history1[0]['items']:
                 if (item['from_id'] == msg1[0]['from_id'] and item['to_id'] == msg1[0]['to_id'] and item['text'] == msg1[0]['text']) or (item['from_id'] == msg2[0]['from_id'] and item['to_id'] == msg2[0]['to_id'] and item['text'] == msg2[0]['text']):
-                    print(f"{GREEN}msg gethistory{ENDC}")
+                    print(f"{GREEN}msg gethistory correct{ENDC}")
                     ok.append(True)
                 else:
                     print(f"{GREEN}msg gethistory failed{ENDC}")
@@ -196,7 +203,11 @@ if __name__ == "__main__":
                 'accesstoken': user1[0]['token'],
                 "id": message1[0]['id']},'del msg')
             ok.append(dell[1])
-            print(f"messages - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
+            if ok.count(False) > 0:
+                print(f"{RED}messages - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            else:
+                print(f"{GREEN}messages - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            
         
         if 'groups' in need:
             ok = []
@@ -268,27 +279,33 @@ if __name__ == "__main__":
             }, 'del group')
             ok.append(dell[1])
 
+            
+            if ok.count(False) > 0:
+                print(f"{RED}groups - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            else:
+                print(f"{GREEN}groups - {ok.count(True)}/{ok.count(False)}{ENDC}")
 
-            print(f"groups - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
-
-        if "pool" in need:
+        if "poll" in need:
             ok = []
-            get = test(api.pool.get, {
+            get = test(api.poll.get, {
                 "accesstoken": user1[0]['token']
-            },'get pool')
+            },'get poll')
             ok.append(get[1] and get[0]['count'] == 2)
 
-            read = test(api.pool.read, {
+            read = test(api.poll.read, {
                 "accesstoken": user1[0]['token']
-            },'read pool')
+            },'read poll')
             ok.append(read[1])
 
-            get = test(api.pool.get, {
+            get = test(api.poll.get, {
                 "accesstoken": user1[0]['token']
-            },'get pool')
+            },'get poll')
             ok.append(get[1] and get[0]['count'] == 0)
 
-            print(f"pool - {GREEN}{ok.count(True)}{ENDC}/{RED}{ok.count(False)}{ENDC}")
+            if ok.count(False) > 0:
+                print(f"{RED}poll - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            else:
+                print(f"{GREEN}poll - {ok.count(True)}/{ok.count(False)}{ENDC}")
     except Exception as e:
         raise e
 

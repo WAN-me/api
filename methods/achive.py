@@ -1,12 +1,12 @@
-from methods import utils, db, groups, pool, account
+from methods import utils, db, groups, poll, account
 from methods.utils import secure
+import tmp
 
-
-def _get(id,cursor):
-    cursor.execute(
+def _get(id):
+    tmp.vars['cursor'].execute(
         '''select id, name, description, image, groupid from achivs where id = :id ''', {
             'id': id})
-    ach = cursor.fetchall()
+    ach = tmp.vars['cursor'].fetchall()
     if len(ach) == 0:
         return utils.error(404, "This achivment not exists")
     else:
@@ -17,13 +17,13 @@ def _get(id,cursor):
                 ach[2]), 'image': ach[3], 'group': ach[4]}
 
 
-def _new(name, description, image, group,args):
-    args['cursor'].execute(f'''insert into achivs (name, description, groupid, image)
+def _new(name, description, image, group):
+    tmp.vars['cursor'].execute(f'''insert into achivs (name, description, groupid, image)
         values (:name, :desc, :group, :image)''', {'name': name, 'desc': description, 'group': group, 'image': image})
-    args['connection'].commit()
-    args['cursor'].execute(
+    tmp.vars['db'].commit()
+    tmp.vars['cursor'].execute(
         '''select seq from sqlite_sequence where name="achivs"''')
-    achvieid = args['cursor'].fetchall()[0][0]
+    achvieid = tmp.vars['cursor'].fetchall()[0][0]
     return {'id': achvieid}
 
 
@@ -34,12 +34,12 @@ def get(args):
         id = args['id']
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(id, utils.IDR):
             return utils.error(400, "'id' is invalid")
-        achive = _get(id, args['cursor'])
+        achive = _get(id)
         if 'error' in achive:
             return achive
 
@@ -59,7 +59,7 @@ def new(args):
             "https://cloud.wan-group.ru/upload/achive.png")
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(id, utils.IDR):
@@ -85,7 +85,7 @@ def give(args):
         ach = _get(args['id'])
         if False == utils.validr(token, utils.TOKENR):
             return utils.error(400, "'accesstoken' is invalid")
-        thisuser = account._gett(token, 1, cursor=args['cursor'])
+        thisuser = account._gett(token, 1)
         if 'error' in thisuser:
             return thisuser
         if 'error' in ach:
@@ -95,7 +95,7 @@ def give(args):
             return group
         if userid in group['users']:
             if thisuser[0] in group['admins'] or thisuser[0] == group['owner_id']:
-                pool._set(4, userid, group['id'], ach)
+                poll._set(4, userid, group['id'], ach)
                 return {'state': 'ok'}
             else:
                 return utils.error(403, "You are not admin for this group")

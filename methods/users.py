@@ -1,23 +1,23 @@
 from methods.utils import secure
 from methods import utils, db, account
-
+import tmp
 
 def get(args):
     ss = utils.notempty(args, ['accesstoken'])
     if ss == True:
         token = args['accesstoken']
-        res = account._gett(token, cursor=args['cursor'])
+        res = account._gett(token)
         id = args.get('id', res[0])
-        return res if 'error' in res else _get(id, args['cursor'])
+        return res if 'error' in res else _get(id)
     else:
         return ss
 
 
-def _get(id, cursor):
-    cursor.execute(
+def _get(id):
+    tmp.vars['cursor'].execute(
             '''select id, name, online_state, image, verifi from users where id = :id ''', {
                 'id': id})
-    user = cursor.fetchall()
+    user = tmp.vars['cursor'].fetchall()
     if len(user) == 0:
         return utils.error(404, "This user not exists")
     else:

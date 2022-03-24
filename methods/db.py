@@ -39,7 +39,7 @@ NEW_TBL_COMMENTS = '''CREATE TABLE IF NOT EXISTS comments(
         text TEXT);
         '''
 
-NEW_TBL_POOL = '''CREATE TABLE IF NOT EXISTS pool(
+NEW_TBL_poll = '''CREATE TABLE IF NOT EXISTS poll(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INT NOT NULL,
         type INT NOT NULL,
@@ -116,7 +116,7 @@ def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
     # exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
-    exec(NEW_TBL_POOL)
+    exec(NEW_TBL_poll)
     exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)

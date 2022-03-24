@@ -1,6 +1,6 @@
-from methods import utils, db, pool, chats, account, users
+from methods import utils, db, poll, chats, account, users
 from methods.utils import secure
-
+import tmp
 
 def send(args):
     ss = utils.notempty(args, ['accesstoken', 'text', 'to_id'])
@@ -8,34 +8,34 @@ def send(args):
         token = args['accesstoken']
         text = args['text']
         to_id = args['to_id']
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         if False == utils.validr(str(to_id), utils.IDR):
             return utils.error(400, "'to_id' is invalid")
         to_id = int(to_id)
-        args['cursor'].execute('''insert into messages (from_id, to_id, text)
+        tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
         values (?,?,?)''', (user[0], to_id, text,))
-        args['connection'].commit()
-        args['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
-        msg_id = args['cursor'].fetchall()[0][0]
-        pool._set(1,
+        tmp.vars['db'].commit()
+        tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
+        msg_id = tmp.vars['cursor'].fetchall()[0][0]
+        poll._set(1,
                   to_id,
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)}, args)  # добавляем события
-        pool._set(2,
+                   'text': secure(text)})  # добавляем события
+        poll._set(2,
                   user[0],
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)}, args)
-        chats._set(user[0], to_id, users._get(to_id, args['cursor'])[
-                   'name'],args)  # Добавляем в список чатов
-        chats._set(to_id, user[0], users._get(user[0], args['cursor'])['name'],args)
+                   'text': secure(text)})
+        chats._set(user[0], to_id, users._get(to_id)[
+                   'name'])  # Добавляем в список чатов
+        chats._set(to_id, user[0], users._get(user[0])['name'])
         return {'id': msg_id}
     else:
         return ss
@@ -56,11 +56,11 @@ def gethistory(args):
             return utils.error(400, "'count' is invalid")
         if False == utils.validr(ofset, utils.IDR):
             return utils.error(400, "'ofset' is invalid")
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
         messages = []
-        args['cursor'].execute(
+        tmp.vars['cursor'].execute(
             '''select id, from_id, to_id, text, time from messages where
                 (to_id=:this and from_id=:userid)
                 or
@@ -68,7 +68,7 @@ def gethistory(args):
                 order by id desc limit :ofset,:count''', {
                 'this': user[0], 'count': count, 'ofset': ofset, 'userid': user_id})
         
-        raw_messages = args['cursor'].fetchall()
+        raw_messages = tmp.vars['cursor'].fetchall()
         if len(raw_messages) < 1:
             return {'count': len(raw_messages), 'items': raw_messages}
         for raw_message in raw_messages:
@@ -92,8 +92,8 @@ def get(args):
             return utils.error(400, "'accesstoken' is invalid")
         if False == utils.validr(id, utils.IDR):
             return utils.error(400, "'id' is invalid")
-        user = account._gett(token, 1, cursor=args['cursor'])
-        msg = _get(id, args['cursor'])
+        user = account._gett(token, 1)
+        msg = _get(id)
         print(msg)
         if msg['from_id'] != user[0] and msg['to_id'] != user[0]:
             return utils.error(403, 'Access denided for this action')
@@ -104,10 +104,10 @@ def get(args):
         return ss
 
 
-def _get(id, cursor):
-    cursor.execute(
+def _get(id):
+    tmp.vars['cursor'].execute(
         '''select from_id, text, to_id from messages where id = ?''', (id,))
-    msg = cursor.fetchall()
+    msg = tmp.vars['cursor'].fetchall()
     if not msg or len(msg) != 1:
         return utils.error(400, "This message not exists")
     msg = msg[0]
@@ -118,15 +118,15 @@ def edit(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
-        message = _get(args['id'], args['cursor'])
+        message = _get(args['id'])
         if "error" in message:
             return message
         text = args.get("text", message['text'])
         if user[0] == message['from_id']:
-            args['cursor'].execute('''UPDATE messages
+            tmp.vars['cursor'].execute('''UPDATE messages
                 SET text = :text
                 WHERE id = :id''',
 
@@ -135,7 +135,7 @@ def edit(args):
                         'text': text,
                     }
                     )
-            args['connection'].commit()
+            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -145,21 +145,21 @@ def delete(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
         token = args['accesstoken']
-        user = account._gett(token, 1, cursor=args['cursor'])
+        user = account._gett(token, 1)
         if 'error' in user:
             return user
-        message = _get(args['id'], args['cursor'])
+        message = _get(args['id'])
         if "error" in message:
             return message
         if user[0] == message['from_id']:
-            args['cursor'].execute('''DELETE FROM messages
+            tmp.vars['cursor'].execute('''DELETE FROM messages
                 WHERE id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
-            args['connection'].commit()
+            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
