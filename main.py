@@ -17,6 +17,9 @@ server = sbeaver.Server("0.0.0.0", port=3000, sync=False)
 tmp.vars['db'] = connect(cfg.dataBaseFile, check_same_thread=False)
 tmp.vars['cursor'] = tmp.vars['db'].cursor()
 
+@server.sbind('/info')
+def info(req):
+    return 200, req.dict
 
 @server.ebind(r'/poll[/|\.]<method>')
 def poll_handler(request, method):
