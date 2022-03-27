@@ -3,7 +3,9 @@ import sbeaver
 import cfg
 from sqlite3 import connect
 import tmp
+import jdb
 
+block = jdb.Db('blacklist.json').data
 from methods import messages, utils, users, poll, chats, bugs, groups, account, achive
 
 ERRORS = {
@@ -88,22 +90,24 @@ method_list = {
 
 @server.ebind(r'/method/<method>[/|\.]<submethod>$')
 def method_handler(request, method, submethod):
-    request.parse_all()
     params = request.args
     form = request.data
     args = ((params | form))
     res = utils.error(400, ERRORS['400'])
-    submethod = submethod.lower()
-    method = str(method.lower())
-    method = method[:-1] if method.endswith('s') else method
-    print(submethod,method)
-    if method in method_list:
-        if submethod in method_list[method]:
-            res = method_list[method][submethod](args)
-        else:
-            res = utils.error(400, ERRORS['400'])
-    elif method in ("poll", "pool"):  # poll section #
-        return sbeaver.redirect(307,f'/poll/{submethod}')
+    if request.ip in block:
+        res = utils.error(403, 'Ip in blacklist')
+    else:
+        submethod = submethod.lower()
+        method = str(method.lower())
+        method = method[:-1] if method.endswith('s') else method
+        print(submethod,method)
+        if method in method_list:
+            if submethod in method_list[method]:
+                res = method_list[method][submethod](args)
+            else:
+                res = utils.error(400, ERRORS['400'])
+        elif method in ("poll", "pool"):  # poll section #
+            return sbeaver.redirect(307,f'/poll/{submethod}')
 
     if "error" in res:
         return res["error"]["code"], res

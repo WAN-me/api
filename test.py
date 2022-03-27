@@ -55,14 +55,14 @@ if __name__ == "__main__":
             # account reg
             user = test(api.account.reg,{
                     'name': 'test_user',
-                    'email': 'email',
+                    'email': 'email@server.ru',
                     'password': 'password'
                     },"reg user")
             ok.append(user[1])
 
             # account auth
             user = test(api.account.auth,{
-                    'email': 'email',
+                    'email': 'email@server.ru',
                     'password': 'password'
                     },"auth user")
             ok.append(user[1])
@@ -92,14 +92,14 @@ if __name__ == "__main__":
             # tmp reg
             user1 = test(api.account.reg,{
                     'name': 'tmp',
-                    'email': 'email',
+                    'email': 'email1@server.ru',
                     'password': 'password'
                     },"reg tmp user")
             ok.append(user1[1])
             # tmp2 reg
             user2 = test(api.account.reg,{
                     'name': 'tmp2',
-                    'email': 'email2',
+                    'email': 'email2@server.ru',
                     'password': 'password'
                     },"reg 2 tmp user")
             ok.append(user2[1])

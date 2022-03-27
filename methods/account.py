@@ -6,7 +6,7 @@ import json
 import requests
 import cfg
 import tmp
-
+import re
 
 def auth(args):
     type = args.get('type', 'pass')
@@ -111,34 +111,42 @@ def reg(args):
     ss = utils.notempty(args, ['name', 'email', 'password'])
     if ss == True:
         name = args['name']
-        password = utils.dohash(f"{args['password']}")
-        token = utils.dohash(f'{name}_{time.time()}_{password}')
-        if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
-            tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi)
-            values (:name, :token, :email, :password, :image, :verifi)''',
-                    {'name': secure(name),
-                    'token': token,
-                    'email': args['email'],
-                    'verifi': 3,
-                    'password': password,
-                    'image': args.get('image','default.png')})
-            sc = "verifi level set on 3(maximum)"
-        else:
-            code = utils.random_string(6)
-            tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
-            values (:name, :token, :email, :password, :image, :code)''',
-                    {'name': secure(name),
-                    'token': token,
-                    'email': args['email'],
-                    'code': code,
-                    'password': password,
-                    'image': args.get('image','default.png')})
-            sc = _sendcode(code, args)
-        tmp.vars['db'].commit()
-        user = get({'accesstoken': token})
-        user['advanced'] = sc
-        user['token'] = token
-        return user
+        email = str(args['email']).strip()
+        
+        if len(re.findall(r'[a-z0-9]+@[a-z]+\.[a-z]{2,3}',email)) > 0:
+            password = utils.dohash(f"{args['password']}")
+            tmp.vars['cursor'].execute('''select email from users where email=:email''', {'email': email})
+            if len(tmp.vars['cursor'].fetchall()) < 1:
+                token = utils.dohash(f'{name}_{time.time()}_{password}')
+                if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
+                    tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi)
+                    values (:name, :token, :email, :password, :image, :verifi)''',
+                            {'name': secure(name),
+                            'token': token,
+                            'email': email,
+                            'verifi': 3,
+                            'password': password,
+                            'image': args.get('image','default.png')})
+                    sc = "verifi level set on 3(maximum)"
+                else:
+                    code = utils.random_string(6)
+                    tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
+                    values (:name, :token, :email, :password, :image, :code)''',
+                            {'name': secure(name),
+                            'token': token,
+                            'email': email,
+                            'code': code,
+                            'password': password,
+                            'image': args.get('image','default.png')})
+                    sc = _sendcode(code, args)
+                tmp.vars['db'].commit()
+                user = get({'accesstoken': token})
+                user['advanced'] = sc
+                user['token'] = token
+                return user
+            else:
+                return utils.error(400, 'Email already used')
+        else: return utils.error(400, 'Invalid email')
     else:
         return ss
 
@@ -206,7 +214,6 @@ def verif(args):
             return utils.error(401, "Incorrect verify code")
     else:
         return ss
-
 
 def addsocial(args):
     ss = utils.notempty(args, ['accesstoken', 'social_token', 'social_name'])
