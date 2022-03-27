@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 import sbeaver
 import cfg
 from sqlite3 import connect
@@ -19,7 +19,7 @@ tmp.vars['cursor'] = tmp.vars['db'].cursor()
 
 @server.sbind('/info')
 def info(req):
-    return 200, req.dict
+     return 200, req.dict
 
 @server.ebind(r'/poll[/|\.]<method>')
 def poll_handler(request, method):
