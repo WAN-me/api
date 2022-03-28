@@ -2,7 +2,7 @@ from methods import utils, db, account
 import json
 import time
 import tmp
-
+import cfg
 def _set(type: int, user, id: int = None, object: dict = None):
     tmp.vars['cursor'].execute('''insert into poll(type, object_id, user_id, object)
             values(?,?,?,?)''', (type, id, user, json.dumps(object),))
@@ -34,8 +34,8 @@ def get(args):
                                     'object': json.loads(raw_update[3])})
 
                 return {'count': len(updates), 'items': updates}
-            timeout -= 0.5
-            time.sleep(0.5)
+            timeout -= cfg.poll_step
+            time.sleep(cfg.poll_step)
         return {'count': 0, 'items': []}
     else:
         return ss

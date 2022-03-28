@@ -52,11 +52,32 @@ if __name__ == "__main__":
         # start account test
         if 'account' in need:
             ok = []
+
+            _invite = test(api.account.invite,{
+                    'accesstoken': 'fgfqwgg23fgxoz66fgryuiqwe'
+                    },"invite")
+            ok.append(_invite[1])
+
+            _invite = _invite[0]['hash']
+
+            invite1 = test(api.account.invite,{
+                    'accesstoken': 'fgfqwgg23fgxoz66fgryuiqwe'
+                    },"invite2")
+
+            invite1 = invite1[0]['hash']
+
+            invite2 = test(api.account.invite,{
+                    'accesstoken': 'fgfqwgg23fgxoz66fgryuiqwe'
+                    },"invite2")
+
+            invite2 = invite2[0]['hash']
+
             # account reg
             user = test(api.account.reg,{
                     'name': 'test_user',
                     'email': 'email@server.ru',
-                    'password': 'password'
+                    'password': 'password',
+                    'invitation': _invite
                     },"reg user")
             ok.append(user[1])
 
@@ -93,14 +114,16 @@ if __name__ == "__main__":
             user1 = test(api.account.reg,{
                     'name': 'tmp',
                     'email': 'email1@server.ru',
-                    'password': 'password'
+                    'password': 'password',
+                    'invitation': invite1
                     },"reg tmp user")
             ok.append(user1[1])
             # tmp2 reg
             user2 = test(api.account.reg,{
                     'name': 'tmp2',
                     'email': 'email2@server.ru',
-                    'password': 'password'
+                    'password': 'password',
+                    'invitation': invite2
                     },"reg 2 tmp user")
             ok.append(user2[1])
             # users get

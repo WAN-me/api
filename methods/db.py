@@ -10,6 +10,7 @@ NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         password TEXT,
         code TEXT,
         verifi INT default 0,
+        invited_by INT default 1,
         online_state TEXT);
         '''
 
@@ -48,7 +49,10 @@ NEW_TBL_poll = '''CREATE TABLE IF NOT EXISTS poll(
         readed BOOLEAN default 0,
         object_id INT);
         '''
-
+NEW_TBL_invites = '''CREATE TABLE IF NOT EXISTS invites(
+        user_id INTEGER NOT NULL,
+        invite_hash TEXT NOT NULL);
+'''
 NEW_TBL_CHATS = '''CREATE TABLE IF NOT EXISTS chats(
         id INTEGER NOT NULL,
         name TEXT NOT NULL,
@@ -89,8 +93,8 @@ NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
         image TEXT);
         '''
 
-INIT_ADMIN = '''insert into users (id,name,token)
-    values (0,'admin','{token}')'''
+INIT_ADMIN = '''insert into users (id, name, token, verifi)
+    values (0,'admin','{token}', 3)'''
 
 
 def exec(query, s=""):
@@ -114,9 +118,10 @@ def drop(yes: str):
 
 def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    # exec(INIT_ADMIN.replace("{token}",admintoken))
+    exec(INIT_ADMIN.replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_poll)
+    exec(NEW_TBL_invites)
     exec(NEW_TBL_ACH)
     exec(NEW_TBL_CHATS)
     exec(NEW_TBL_BUGS)

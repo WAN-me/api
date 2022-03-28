@@ -118,27 +118,39 @@ def reg(args):
             tmp.vars['cursor'].execute('''select email from users where email=:email''', {'email': email})
             if len(tmp.vars['cursor'].fetchall()) < 1:
                 token = utils.dohash(f'{name}_{time.time()}_{password}')
-                if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
-                    tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi)
-                    values (:name, :token, :email, :password, :image, :verifi)''',
-                            {'name': secure(name),
-                            'token': token,
-                            'email': email,
-                            'verifi': 3,
-                            'password': password,
-                            'image': args.get('image','default.png')})
-                    sc = "verifi level set on 3(maximum)"
+                invite_hash = args.get('invitation','')
+                tmp.vars['cursor'].execute('''select invite_hash, user_id from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
+                res = tmp.vars['cursor'].fetchall() # manage invite
+                if len(res) > 0:
+                    if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
+
+                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi, invited_by)
+                        values (:name, :token, :email, :password, :image, :verifi, :invited_by)''',
+                                {'name': secure(name),
+                                'token': token,
+                                'email': email,
+                                'verifi': 3,
+                                'invited_by': res[0][1],
+                                'password': password,
+                                'image': args.get('image','default.png')})
+                        sc = "verifi level set on 3(maximum)"
+
+                    else:
+                        code = utils.random_string(6)
+                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
+                        values (:name, :token, :email, :password, :image, :verifi, :invited_by)''',
+                                {'name': secure(name),
+                                'token': token,
+                                'email': email,
+                                'code': code,
+                                'invited_by': res[0][1],
+                                'password': password,
+                                'image': args.get('image','default.png')})
+                        sc = _sendcode(code, args)
+                    tmp.vars['cursor'].execute(f'''delete from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
+
                 else:
-                    code = utils.random_string(6)
-                    tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
-                    values (:name, :token, :email, :password, :image, :code)''',
-                            {'name': secure(name),
-                            'token': token,
-                            'email': email,
-                            'code': code,
-                            'password': password,
-                            'image': args.get('image','default.png')})
-                    sc = _sendcode(code, args)
+                    return utils.error(400, 'Incorrect invitation')
                 tmp.vars['db'].commit()
                 user = get({'accesstoken': token})
                 user['advanced'] = sc
@@ -214,6 +226,24 @@ def verif(args):
             return utils.error(401, "Incorrect verify code")
     else:
         return ss
+
+def invite(args):
+    ss = utils.notempty(args, ['accesstoken'])
+    if ss == True:
+        token = args['accesstoken']
+        user = _gett(token, 1)
+        if 'error' in user:
+            return user
+        hash = utils.dohash(f'{str(user)}_{time.time_ns()}')
+        tmp.vars['cursor'].execute(f'''insert into invites (user_id, invite_hash)
+                    values (:user_id, :invite_hash)''',
+                            {'user_id': user[0],
+                            'invite_hash': hash})
+        tmp.vars['db'].commit()
+        return {'hash': hash}
+    else:
+        return ss
+        
 
 def addsocial(args):
     ss = utils.notempty(args, ['accesstoken', 'social_token', 'social_name'])
