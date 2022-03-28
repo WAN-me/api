@@ -3,7 +3,7 @@ import tmp
 
 
 def _set(user, id: int, name="dialog"):
-    tmp.vars['cursor'].execute('''insert into chats(id, user_id, name)
+    tmp.vars['cursor'].execute('''insert OR IGNORE into chats(id, user_id, name)
             values(?,?,?)''', (id, user, name))
     tmp.vars['db'].commit()
 
