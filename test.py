@@ -66,11 +66,6 @@ if __name__ == "__main__":
 
             invite1 = invite1[0]['hash']
 
-            invite2 = test(api.account.invite,{
-                    'accesstoken': 'fgfqwgg23fgxoz66fgryuiqwe'
-                    },"invite2")
-
-            invite2 = invite2[0]['hash']
 
             # account reg
             user = test(api.account.reg,{
@@ -118,6 +113,14 @@ if __name__ == "__main__":
                     'invitation': invite1
                     },"reg tmp user")
             ok.append(user1[1])
+
+            invite2 = test(api.account.invite,{
+                    'accesstoken': user1[0]['token']
+                    },"invite2")
+
+            ok.append(user1[1])
+            invite2 = invite2[0]['hash']
+
             # tmp2 reg
             user2 = test(api.account.reg,{
                     'name': 'tmp2',

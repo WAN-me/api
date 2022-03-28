@@ -8,3 +8,4 @@ cfg.py
 *.log
 .sqlite_history
 db.sqlite3
+blacklist.json
