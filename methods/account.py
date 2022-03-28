@@ -137,8 +137,8 @@ def reg(args):
 
                     else:
                         code = utils.random_string(6)
-                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code)
-                        values (:name, :token, :email, :password, :image, :verifi, :invited_by)''',
+                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code, invited_by)
+                        values (:name, :token, :email, :password, :image, :code, :invited_by)''',
                                 {'name': secure(name),
                                 'token': token,
                                 'email': email,
