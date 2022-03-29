@@ -3,7 +3,7 @@ import re
 import random
 
 TOKENR = r"^([a-f]|[0-9]){1,}$"
-IDR = r"^\d{0,}$"
+IDR = r"^(|-?\d*[1-9])$"
 NAMER = r"^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,30}$"
 letters = "abcdefghijklmnopqrstwxzyuv"
 

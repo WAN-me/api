@@ -5,9 +5,10 @@ from sqlite3 import connect
 import tmp
 import jdb
 
+
+
 block = jdb.Db('blacklist.json').data
 from methods import messages, utils, users, poll, chats, bugs, groups, account, achive
-
 ERRORS = {
     "404": 'Page not found',
     "500": 'Internal server error',

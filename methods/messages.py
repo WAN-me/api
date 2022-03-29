@@ -1,4 +1,4 @@
-from methods import utils, db, poll, chats, account, users
+from methods import utils, db, poll, chats, account, users, groups
 from methods.utils import secure
 import tmp
 
@@ -13,29 +13,53 @@ def send(args):
             return user
         if False == utils.validr(str(to_id), utils.IDR):
             return utils.error(400, "'to_id' is invalid")
+
         to_id = int(to_id)
         tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
         values (?,?,?)''', (user[0], to_id, text,))
         tmp.vars['db'].commit()
         tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
         msg_id = tmp.vars['cursor'].fetchall()[0][0]
-        poll._set(1,
+        text = secure(text)
+        if to_id < 0: # сообщение в чат
+            group = groups._get(-to_id)
+            if 'error' in group:
+                return group
+            if not user[0] in group['users']: # пользователь не учатсник чата
+                return utils.error(403,"access denided for this chat")
+
+            tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
+                select 1, user_id, {msg_id}, ?
+                from members
+                where object_id = {-to_id} and user_id != {user[0]};''', ({'id': msg_id,
+                    'from_id': user[0],
+                    'to_id': to_id,
+                    'text': text}))
+
+            tmp.vars['cursor'].execute(f'''insert or ignore into chats (id, user_id, name)
+                select user_id, {to_id}, ?
+                from members
+                where object_id = {-to_id};''', (group['name']))
+
+            tmp.vars['db'].commit()
+        else:
+            poll._set(1,
                   to_id,
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)})  # добавляем события
+                   'text': text})  # добавляем события
+            chats._set(to_id, user[0], users._get(user[0])['name'])
         poll._set(2,
                   user[0],
                   msg_id,
                   {'id': msg_id,
                    'from_id': user[0],
                    'to_id': to_id,
-                   'text': secure(text)})
-        chats._set(user[0], to_id, users._get(to_id)[
-                   'name'])  # Добавляем в список чатов
-        chats._set(to_id, user[0], users._get(user[0])['name'])
+                   'text': secure(text)}) # Сообщение доставленно
+
+        # Добавляем в список чатов
         return {'id': msg_id}
     else:
         return ss
