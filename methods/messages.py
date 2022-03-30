@@ -1,3 +1,4 @@
+import json
 from methods import utils, db, poll, chats, account, users, groups
 from methods.utils import secure
 import tmp
@@ -31,10 +32,10 @@ def send(args):
             tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
                 select 1, user_id, {msg_id}, ?
                 from members
-                where object_id = {-to_id} and user_id != {user[0]};''', ({'id': msg_id,
+                where object_id = {-to_id} and user_id != {user[0]};''', (json.dumps({'id': msg_id,
                     'from_id': user[0],
                     'to_id': to_id,
-                    'text': text}))
+                    'text': text})))
 
             tmp.vars['cursor'].execute(f'''insert or ignore into chats (id, user_id, name)
                 select user_id, {to_id}, ?
