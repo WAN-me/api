@@ -35,12 +35,12 @@ def send(args):
                 where object_id = {-to_id} and user_id != {user[0]};''', (json.dumps({'id': msg_id,
                     'from_id': user[0],
                     'to_id': to_id,
-                    'text': text})))
+                    'text': text}),))
 
             tmp.vars['cursor'].execute(f'''insert or ignore into chats (id, user_id, name)
                 select user_id, {to_id}, ?
                 from members
-                where object_id = {-to_id};''', (group['name']))
+                where object_id = {-to_id};''', (group['name'], ))
 
             tmp.vars['db'].commit()
         else:
