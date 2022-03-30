@@ -38,7 +38,7 @@ def send(args):
                     'text': text}),))
 
             tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
-                select user_id, {to_id}, ?
+                select {to_id}, user_id, ?
                 from members
                 where object_id = {-to_id};''', (group['name'], ))
 
