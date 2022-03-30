@@ -85,12 +85,12 @@ def gethistory(args):
             return user
 
         messages = []
-        if user_id < 0: # this chat!
+        if int(user_id) < 0: # this chat!
             tmp.vars['cursor'].execute(
             '''select id, from_id, to_id, text, time from messages where
                 (to_id=:userid)
                 order by id desc limit :ofset,:count''', {
-                'this': user[0], 'count': count, 'ofset': ofset, 'userid': user_id})
+                'count': count, 'ofset': ofset, 'userid': user_id})
         else:
             tmp.vars['cursor'].execute(
                 '''select id, from_id, to_id, text, time from messages where
