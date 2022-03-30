@@ -37,7 +37,7 @@ def send(args):
                     'to_id': to_id,
                     'text': text}),))
 
-            tmp.vars['cursor'].execute(f'''insert or ignore into chats (id, user_id, name)
+            tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
                 select user_id, {to_id}, ?
                 from members
                 where object_id = {-to_id};''', (group['name'], ))
