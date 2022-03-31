@@ -1,6 +1,6 @@
 from methods import utils, db
 import json
-from methods import users
+from methods import users as uusers
 from methods.account import _gett
 from methods.utils import secure
 import tmp
@@ -210,13 +210,13 @@ def join(args):
                 values (?, ?, ?)''', (user[0], id, group['type'],))
 
                 if group['type'] == 1:
-                    username = users._get(user[0])['name']
+                    username = uusers._get(user[0])['name']
 
                     tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
                         values (?,?,?)''', (-1, -id, f'Пользователь {username} вступил в группу.',))
 
                     tmp.vars['db'].commit()
-                    
+
                     tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
                     msg_id = tmp.vars['cursor'].fetchall()[0][0]
 
