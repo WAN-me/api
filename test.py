@@ -242,7 +242,7 @@ if __name__ == "__main__":
             group = test(api.groups.new,{
                 'accesstoken': user1[0]['token'],
                 'name': 'test_group',
-                "type":0
+                "type":1
             },'new group')
             ok.append(group[1])
             group_id = group[0]['id']
@@ -316,7 +316,7 @@ if __name__ == "__main__":
             get = test(api.poll.get, {
                 "accesstoken": user1[0]['token']
             },'get poll')
-            ok.append(get[1] and get[0]['count'] == 2)
+            ok.append(get[1] and get[0]['count'] == 3)
 
             read = test(api.poll.read, {
                 "accesstoken": user1[0]['token']
