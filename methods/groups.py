@@ -1,8 +1,10 @@
 from methods import utils, db
 import json
+from methods import users
 from methods.account import _gett
 from methods.utils import secure
 import tmp
+
 
 def get(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
@@ -200,11 +202,37 @@ def join(args):
         if 'error' in user:
             return user
         group = _get(id)
+        id = int(id)
         if group['type'] >= 0:
             users = group['users']
             if not user[0] in users:
                 tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type)
                 values (?, ?, ?)''', (user[0], id, group['type'],))
+
+                if group['type'] == 1:
+                    username = users._get(user[0])['name']
+
+                    tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
+                        values (?,?,?)''', (-1, -id, f'Пользователь {username} вступил в группу.',))
+
+                    tmp.vars['db'].commit()
+                    
+                    tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
+                    msg_id = tmp.vars['cursor'].fetchall()[0][0]
+
+                    tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
+                        select 1, user_id, {msg_id}, ?
+                        from members
+                        where object_id = {id} and user_id != {user[0]};''', (json.dumps({'id': msg_id,
+                            'from_id': -1,
+                            'to_id': -id,
+                            'text': f'Пользователь {username} вступил в группу.'}),))
+
+                    tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
+                        select {id}, user_id, ?
+                        from members
+                        where object_id = {id};''', (group['name'], ))
+
                 tmp.vars['db'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
