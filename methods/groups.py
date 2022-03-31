@@ -190,7 +190,7 @@ def leave(args):
             tmp.vars['db'].commit()
             if group['type'] == 1:
                     username = uusers._get(user[0])['name']
-                    _send_admin(id, f'Пользователь {username} покинул группу.', group['name'])
+                    _send_admin(int(id), f'Пользователь {username} покинул группу.', group['name'])
             return {'state': 'ok'}
         return utils.error(403, "You are not member this group")
     else:
