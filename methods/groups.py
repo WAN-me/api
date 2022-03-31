@@ -229,7 +229,7 @@ def join(args):
                             'text': f'Пользователь {username} вступил в группу.'}),))
 
                     tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
-                        select {id}, user_id, ?
+                        select {-id}, user_id, ?
                         from members
                         where object_id = {id};''', (group['name'], ))
 
