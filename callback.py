@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import cfg
 import requests
 def send(ip, event, args):
