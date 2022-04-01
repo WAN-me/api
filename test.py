@@ -316,7 +316,7 @@ if __name__ == "__main__":
             get = test(api.poll.get, {
                 "accesstoken": user1[0]['token']
             },'get poll')
-            ok.append(get[1] and get[0]['count'] == 3)
+            ok.append(get[1] and get[0]['count'] == 4)
 
             read = test(api.poll.read, {
                 "accesstoken": user1[0]['token']

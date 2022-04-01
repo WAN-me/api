@@ -1,6 +1,7 @@
 from methods import utils, db, mail
 from methods.utils import TOKENR, secure
 from methods.users import get
+from callback import send
 import time
 import json
 import requests
@@ -68,12 +69,14 @@ def delete(args):
         tmp.vars['cursor'].execute('''DELETE FROM users
             WHERE token = ?;''', (token,))
         tmp.vars['db'].commit()
+        send(args['ip'], 'user_del', args)
         return {'state': 'ok'}
     else:
         return ss
 
 
 def _sendcode(code, args):
+    send(args['ip'], 'send_code', args)
     response = requests.get(
         'http://rd.wan-group.ru:3555/method/utils.capcha', {
             'data': code, 'file': utils.dohash(
@@ -155,6 +158,7 @@ def reg(args):
                 user = get({'accesstoken': token})
                 user['advanced'] = sc
                 user['token'] = token
+                send(args['ip'], 'user_reg', args)
                 return user
             else:
                 return utils.error(400, 'Email already used')

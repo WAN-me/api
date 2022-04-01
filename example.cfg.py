@@ -4,3 +4,6 @@ SecretKeyForReg = "SecretKeyForReg"
 mail_admin_user = "admin@wan-group.ru"
 mail_admin_pass = "pass"
 poll_step = 1.0
+callback_server = 'localhost:3030'
+tg_token = "TOKEN"
+tg_chat = 1010101

@@ -99,6 +99,7 @@ def method_handler(request, method, submethod):
     params = request.args
     form = request.data
     args = ((params | form))
+    args['ip'] = request.ip
     res = utils.error(400, ERRORS['400'])
     if request.ip in block:
         res = utils.error(403, 'Ip in blacklist')
