@@ -7,8 +7,11 @@ def send(ip, event, args):
     
     if 'accesstoken' in args:
         args['accesstoken'] = "TOKEN"
-    print(requests.post(cfg.callback_server, {'ip': ip, 'args':str(args), 'event':event}).text)
+    try:
 
+        print(requests.post(cfg.callback_server, {'ip': ip, 'args':str(args), 'event':event}).text)
+    except:
+        ...
 
 if __name__ == "__main__":
     import sbeaver

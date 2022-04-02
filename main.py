@@ -18,7 +18,7 @@ server = sbeaver.Server("0.0.0.0", port=3000, sync=False)
 
 
 tmp.vars['db'] = connect(cfg.dataBaseFile, check_same_thread=False)
-tmp.vars['cursor'] = tmp.vars['db'].cursor()
+tmp.vars['cursor'] = tmp.cursor(tmp.vars['db'])
 
 @server.sbind('/info')
 def info(req):
@@ -90,7 +90,7 @@ method_list = {
     },
     'poll': {
         'get': poll.get,
-        'read': poll.read,
+#        'read': poll.read,
     }
 }
 

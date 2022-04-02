@@ -22,48 +22,64 @@ def send(args):
         tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
         msg_id = tmp.vars['cursor'].fetchall()[0][0]
         text = secure(text)
-        if to_id < 0: # сообщение в чат
-            group = groups._get(-to_id)
-            if 'error' in group:
-                return group
-            if not user[0] in group['users']: # пользователь не учатсник чата
-                return utils.error(403,"access denided for this chat")
-
-            tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
-                select 1, user_id, {msg_id}, ?
-                from members
-                where object_id = {-to_id} and user_id != {user[0]};''', (json.dumps({'id': msg_id,
-                    'from_id': user[0],
-                    'to_id': to_id,
-                    'text': text}),))
-
-            tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
-                select {to_id}, user_id, ?
-                from members
-                where object_id = {-to_id};''', (group['name'], ))
-
-            tmp.vars['db'].commit()
-        else:
-            poll._set(1,
-                  to_id,
-                  msg_id,
-                  {'id': msg_id,
-                   'from_id': user[0],
-                   'to_id': to_id,
-                   'text': text})  # добавляем события
-            chats._set(to_id, user[0], users._get(user[0])['name'])
-        poll._set(2,
-                  user[0],
-                  msg_id,
-                  {'id': msg_id,
-                   'from_id': user[0],
-                   'to_id': to_id,
-                   'text': secure(text)}) # Сообщение доставленно
-
-        # Добавляем в список чатов
-        return {'id': msg_id}
+        
+        return _send(user[0], to_id, text)
     else:
         return ss
+
+
+def _send(from_id, to_id, text):
+    tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
+    values (?,?,?)''', (from_id, to_id, text,))
+    tmp.vars['db'].commit()
+
+
+    tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
+    msg_id = tmp.vars['cursor'].fetchall()[0][0]
+
+    if to_id < 0: # сообщение в чат
+        group = groups._get(-to_id)
+        if 'error' in group:
+            return group
+        group['users'].append(-1)
+        if not from_id in group['users']: # пользователь не учатсник чата
+            return utils.error(403,"access denided for this chat")
+
+        tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
+            select 1, user_id, {msg_id}, ?
+            from members
+            where object_id = {-to_id} and not user_id = {from_id};''', (json.dumps({'id': msg_id,
+                'from_id': from_id,
+                'to_id': to_id,
+                'text': text}),))
+
+        tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
+            select {to_id}, user_id, ?
+            from members
+            where object_id = {-to_id} and 
+        not user_id in (
+            select user_id from chats 
+            where id={to_id});''', (group['name'], ))
+
+        tmp.vars['db'].commit()
+    else:
+        poll._set(1,
+                to_id,
+                msg_id,
+                {'id': msg_id,
+                'from_id': from_id,
+                'to_id': to_id,
+                'text': text})  # добавляем события
+        chats._set(to_id, from_id, users._get(from_id)['name'])
+    poll._set(2,
+                from_id,
+                msg_id,
+                {'id': msg_id,
+                'from_id': from_id,
+                'to_id': to_id,
+                'text': text}) # Сообщение доставленно
+
+    return {'id': msg_id}
 
 
 def gethistory(args):

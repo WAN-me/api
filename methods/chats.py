@@ -3,8 +3,9 @@ import tmp
 
 
 def _set(user, id: int, name="dialog"):
-    tmp.vars['cursor'].execute('''insert OR IGNORE into chats(id, user_id, name)
-            values(?,?,?)''', (id, user, name))
+    tmp.vars['cursor'].execute('''insert into chats(id, user_id, name)
+            select :id,:user,:name
+        WHERE NOT EXISTS(SELECT 1 FROM chats WHERE id = :id AND user_id = :user);''', {'id': id, 'user': user, 'name': name})
     tmp.vars['db'].commit()
 
 

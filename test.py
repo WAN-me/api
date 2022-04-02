@@ -1,4 +1,5 @@
 
+from methods import db
 import requests
 import os
 import time
@@ -314,18 +315,18 @@ if __name__ == "__main__":
         if "poll" in need:
             ok = []
             get = test(api.poll.get, {
-                "accesstoken": user1[0]['token']
+                "accesstoken": user1[0]['token'],
+                "id": 0
             },'get poll')
-            ok.append(get[1] and get[0]['count'] == 4)
+            print(get[0])
 
-            read = test(api.poll.read, {
-                "accesstoken": user1[0]['token']
-            },'read poll')
-            ok.append(read[1])
+            ok.append(get[1] and get[0]['count'] == 3)
 
             get = test(api.poll.get, {
-                "accesstoken": user1[0]['token']
+                "accesstoken": user1[0]['token'],
+                "id": get[0]['items'][-1]['event_id']
             },'get poll')
+            print(get[0])
             ok.append(get[1] and get[0]['count'] == 0)
 
             if ok.count(False) > 0:
@@ -339,5 +340,6 @@ if __name__ == "__main__":
 
 
     print(f"{BLUE}tests ended{ENDC}")
+    print(db.exec('select * from chats'))
     os.system("fuser 3000/tcp -k >> /dev/null")
-    os.remove('db.sqlite3')
+    #os.remove('db.sqlite3')

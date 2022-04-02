@@ -15,44 +15,36 @@ def get(args):
         token = args['accesstoken']
         timeout = args.get("timeout", 10)
         count = args.get('count', 10)
+        id = args.get('id', None)
         user = account._gett(token, 1)
         if 'error' in user:
             return user
         updates = []
-        while timeout > 0:
+        if id is None:
             tmp.vars['cursor'].execute(
-                '''select type, object_id, time, object, id from poll where user_id=:userId and readed=0
-                    order by id limit :count''', {
-                    'userId': user[0], 'count': count})
-            raw_updates = tmp.vars['cursor'].fetchall()
-            if len(raw_updates) > 0:
-                for raw_update in raw_updates:
-                    updates.append({'event_id': raw_update[4],
-                                    'type': raw_update[0],
-                                    'object_id': raw_update[1],
-                                    'time': raw_update[2],
-                                    'object': json.loads(raw_update[3])})
+                '''select id from poll where user_id=:user_id
+                    order by id DESC limit :count''', {
+                    'user_id': user[0], 'count': 1})
+            return {"id":tmp.vars['cursor'].fetchall()[0][0]}
+        else:
+            while timeout > 0:
+                tmp.vars['cursor'].execute(
+                    '''select type, object_id, time, object, id from poll where user_id=:userId and id>:id
+                        order by id limit :count''', {
+                        'userId': user[0], 'count': count, 'id':id})
+                raw_updates = tmp.vars['cursor'].fetchall()
+                if len(raw_updates) > 0:
+                    for raw_update in raw_updates:
+                        updates.append({'event_id': raw_update[4],
+                                        'type': raw_update[0],
+                                        'object_id': raw_update[1],
+                                        'time': raw_update[2],
+                                        'object': json.loads(raw_update[3])})
 
-                return {'count': len(updates), 'items': updates}
-            timeout -= cfg.poll_step
-            time.sleep(cfg.poll_step)
-        return {'count': 0, 'items': []}
+                    return {'count': len(updates), 'items': updates}
+                timeout -= cfg.poll_step
+                time.sleep(cfg.poll_step)
+            return {'count': 0, 'items': []}
     else:
         return ss
 
-
-def read(args):
-    ss = utils.notempty(args, ['accesstoken'])
-    if ss == True:
-        token = args['accesstoken']
-        id = args.get('id', 9223372036854775807) # Число - максимальное интовское значение в бд
-        user = account._gett(token, 1)
-        if 'error' in user:
-            return user
-        tmp.vars['cursor'].execute(
-            '''update poll set readed = 1 where user_id=:user_id and id<:id''', {
-                'user_id': user[0], 'id': id})
-        tmp.vars['db'].commit()
-        return {'state': 'ok'}
-    else:
-        return ss

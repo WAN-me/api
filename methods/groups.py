@@ -1,4 +1,4 @@
-from methods import utils, db
+from methods import utils, db, messages
 import json
 from methods import users as uusers
 from methods.account import _gett
@@ -81,8 +81,8 @@ def new(args):
         values (?, ?, ?)''', (user[0], name, args['type'],))
         tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="groups"''')
         group_id = tmp.vars['cursor'].fetchall()[0][0]
-        tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type)
-        values (?, ?, ?)''', (user[0], group_id, args['type']))
+        tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type) 
+        values (?, ?, ?)''', (user[0], group_id, args['type'])) # в список членов групп добавляем создателя
         tmp.vars['db'].commit()
             
         return {'id': group_id}
@@ -190,34 +190,11 @@ def leave(args):
             tmp.vars['db'].commit()
             if group['type'] == 1:
                     username = uusers._get(user[0])['name']
-                    _send_admin(int(id), f'Пользователь {username} покинул группу.', group['name'])
+                    messages._send(-1, int(id), f'Пользователь {username} покинул группу.')
             return {'state': 'ok'}
         return utils.error(403, "You are not member this group")
     else:
         return ss
-
-def _send_admin(to_id, text, group_name):
-    tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
-        values (?,?,?)''', (-1, -to_id, text,))
-
-    tmp.vars['db'].commit()
-
-    tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
-    msg_id = tmp.vars['cursor'].fetchall()[0][0]
-
-    tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
-        select 1, user_id, {msg_id}, ?
-        from members
-        where object_id = {to_id} ;''', (json.dumps({'id': msg_id,
-            'from_id': -1,
-            'to_id': -to_id,
-            'text': text}),))
-
-    tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
-        select {-to_id}, user_id, ?
-        from members
-        where object_id = {to_id};''', (group_name, ))
-
 def join(args):
     ss = utils.notempty(args, ['accesstoken', 'id'])
     if ss == True:
@@ -232,14 +209,13 @@ def join(args):
             users = group['users']
             if not user[0] in users:
                 tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type)
-                values (?, ?, ?)''', (user[0], id, group['type'],))
+                values (?, ?, ?)''', (user[0], id, group['type'],)) # записываем в список членов
+                tmp.vars['db'].commit()
 
                 if group['type'] == 1:
-                    username = uusers._get(user[0])['name']
-                    _send_admin(id, f'Пользователь {username} вступил в группу.', group['name'])
-                    
+                    username = uusers._get(user[0])['name'] # получаем доп инфу о пользователе
+                    messages._send(-1, -id, f'Пользователь {username} вступил в группу.')
 
-                tmp.vars['db'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:

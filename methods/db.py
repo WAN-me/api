@@ -46,7 +46,6 @@ NEW_TBL_poll = '''CREATE TABLE IF NOT EXISTS poll(
         type INT NOT NULL,
         time integer(6) not null default (strftime('%s','now')),
         object JSON,
-        readed BOOLEAN default 0,
         object_id INT);
         '''
 NEW_TBL_invites = '''CREATE TABLE IF NOT EXISTS invites(
