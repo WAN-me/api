@@ -25,7 +25,10 @@ def get(args):
                 '''select id from poll where user_id=:user_id
                     order by id DESC limit :count''', {
                     'user_id': user[0], 'count': 1})
-            return {"id":tmp.vars['cursor'].fetchall()[0][0]}
+            res = tmp.vars['cursor'].fetchall()
+            if len(res) == 0:
+                return {"id": 0}
+            return {"id":res[0][0]}
         else:
             while timeout > 0:
                 tmp.vars['cursor'].execute(

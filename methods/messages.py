@@ -16,11 +16,6 @@ def send(args):
             return utils.error(400, "'to_id' is invalid")
 
         to_id = int(to_id)
-        tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
-        values (?,?,?)''', (user[0], to_id, text,))
-        tmp.vars['db'].commit()
-        tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
-        msg_id = tmp.vars['cursor'].fetchall()[0][0]
         text = secure(text)
         
         return _send(user[0], to_id, text)
