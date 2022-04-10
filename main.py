@@ -27,6 +27,24 @@ def info(req):
 @server.ebind(r'/web[/|\.]<method>')
 def web(request: sbeaver.Request, method):
     args = request.args
+
+    if method == 'index':
+        name = "test2"; #name - имя пользователя
+        email = "NekoAlecsSan@ya.ru"; #email - электронная почта
+        password = "password"; #password - пароль
+        invitation = "6777b1b8c807a92be9e9e036bf8bc7316ffedc4b3a83774f78eb3a1a55cfc4e0"; #invitation - строка-приглашеие, которую нужно указтать новому пользователю при регистрации
+
+        request_params = {
+		'name': name, 
+		'email': email, 
+		'password': password, 
+		'invitation': invitation
+        }
+
+        info_g = account.reg(request_params)
+
+        return 200, str(info_g)
+        
     if method == 'reg':
         res = account.reg(args)
         if "error" in res:
