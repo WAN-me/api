@@ -22,7 +22,20 @@ tmp.vars['cursor'] = tmp.cursor(tmp.vars['db'])
 
 @server.sbind('/info')
 def info(req):
-     return 200, req.dict
+    return 200, req.dict
+
+@server.ebind(r'/web[/|\.]<method>')
+def web(request: sbeaver.Request, method):
+    args = request.args
+    if method == 'reg':
+        res = account.reg(args)
+        if "error" in res:
+            return res["error"]["code"], res
+        else:
+            return 200, res
+    else:
+        return utils.error(400, ERRORS['400'])
+
 
 @server.ebind(r'/poll[/|\.]<method>')
 def poll_handler(request, method):
