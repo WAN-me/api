@@ -41,6 +41,8 @@ def web(request: sbeaver.Request, method):
 		'invitation': invitation
         }
 
+        request_params['ip'] = request.ip
+
         info_g = account.reg(request_params)
 
         return 200, str(info_g)
