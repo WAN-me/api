@@ -180,13 +180,16 @@ def reg(args):
 
 
 def _gett(token, needVerif=0):
-    "аовзвращает список (id, verif)"
-    tmp.vars['cursor'].execute(f'''select id, verifi from users where id in (select user_id from auth where token = ? )''', (token,))
+    "аовзвращает список (id, verif, expire_in)"
+    tmp.vars['cursor'].execute(f'''select id, verifi, expire_in from users, auth where id == auth.user_id and token = ?;''', (token,))
     user = tmp.vars['cursor'].fetchall()
+    
     if not user or len(user) != 1:
         return utils.error(400, "'accesstoken' is invalid")
     elif user[0][1] < needVerif:
         return utils.error(403, "You need to confirm your email")
+    elif user[0][2] < time.time():
+        return utils.error(401, "The token is expired")
     else:
         return user[0]
 
@@ -200,7 +203,7 @@ def changepass(args):
             return user
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
-        tmp.vars['cursor'].execute('''select id, verifi from users where password = :pass and id in (select user_id from auth where token = :token)''', {
+        tmp.vars['cursor'].execute('''select id, verifi from users, auth where users.password = :pass and users.id == auth.user_id and auth.token = :token''', {
                         'token': oldtoken, 'pass': oldpass})
         result = tmp.vars['cursor'].fetchall()
         if len(result) == 0:
