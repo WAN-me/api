@@ -1,6 +1,6 @@
 from methods import utils, db, mail
 from methods.utils import TOKENR, secure
-from methods.users import get
+from methods.users import get, _get
 from callback import send
 import time
 import json
@@ -168,6 +168,7 @@ def reg(args):
 
 
 def _gett(token, needVerif=0):
+    "аовзвращает список (id, verif)"
     tmp.vars['cursor'].execute(f'''select id, verifi from users where token = ? ''', (token,))
     user = tmp.vars['cursor'].fetchall()
     if not user or len(user) != 1:
@@ -230,6 +231,36 @@ def verif(args):
             return utils.error(401, "Incorrect verify code")
     else:
         return ss
+
+
+def edit(args):
+    ss = utils.notempty(args, ['accesstoken'])
+    if ss == True:
+        token = args['accesstoken']
+        user = _gett(token, 1)
+        if 'error' in user:
+            return user
+        user = _get(user[0])
+        if 'error' in user:
+            return user
+        name = args.get("name", user['name'])
+        image = args.get("image", user['image'])
+        tmp.vars['cursor'].execute('''UPDATE users
+            SET name = :name,
+            image = :image
+            WHERE id = :id''',
+
+                {
+                    'id': user['id'],
+                    'name': name,
+                    'image': image,
+                }
+                )
+        tmp.vars['db'].commit()
+        return {'state': 'ok'}
+    else:
+        return ss
+
 
 def invite(args):
     ss = utils.notempty(args, ['accesstoken'])
