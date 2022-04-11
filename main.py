@@ -22,7 +22,7 @@ tmp.vars['cursor'] = tmp.cursor(tmp.vars['db'])
 
 @server.sbind('/info')
 def info(req):
-     return 200, req.dict
+    return 200, req.dict
 
 @server.ebind(r'/poll[/|\.]<method>')
 def poll_handler(request, method):
@@ -84,6 +84,7 @@ method_list = {
         'reg': account.reg,
         'auth': account.auth,
         'del': account.delete,
+        'edit': account.edit,
         'delete': account.delete,
         'verif': account.verif,
         'invite': account.invite
