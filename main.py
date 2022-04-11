@@ -24,39 +24,6 @@ tmp.vars['cursor'] = tmp.cursor(tmp.vars['db'])
 def info(req):
     return 200, req.dict
 
-@server.ebind(r'/web[/|\.]<method>')
-def web(request: sbeaver.Request, method):
-    args = request.args
-
-    if method == 'index':
-        name = "test2"; #name - имя пользователя
-        email = "NekoAlecsSan@ya.ru"; #email - электронная почта
-        password = "password"; #password - пароль
-        invitation = "6777b1b8c807a92be9e9e036bf8bc7316ffedc4b3a83774f78eb3a1a55cfc4e0"; #invitation - строка-приглашеие, которую нужно указтать новому пользователю при регистрации
-
-        request_params = {
-		'name': name, 
-		'email': email, 
-		'password': password, 
-		'invitation': invitation
-        }
-
-        request_params['ip'] = request.ip
-
-        info_g = account.reg(request_params)
-
-        return 200, str(info_g)
-        
-    if method == 'reg':
-        res = account.reg(args)
-        if "error" in res:
-            return res["error"]["code"], res
-        else:
-            return 200, res
-    else:
-        return utils.error(400, ERRORS['400'])
-
-
 @server.ebind(r'/poll[/|\.]<method>')
 def poll_handler(request, method):
     request.parse_all()
@@ -117,6 +84,7 @@ method_list = {
         'reg': account.reg,
         'auth': account.auth,
         'del': account.delete,
+        'edit': account.edit,
         'delete': account.delete,
         'verif': account.verif,
         'invite': account.invite
