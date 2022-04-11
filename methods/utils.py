@@ -21,8 +21,8 @@ def secure(text: str):
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def dohash(input):
-    return hashlib.sha256(input.encode()).hexdigest()
+def dohash(input, len=64):
+    return hashlib.sha256(input.encode()).hexdigest()[:len]
 
 
 def notempty(args, need):

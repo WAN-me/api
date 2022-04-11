@@ -269,7 +269,7 @@ def invite(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
-        hash = utils.dohash(f'{str(user)}_{time.time_ns()}')
+        hash = utils.dohash(f'{str(user)}_{time.time_ns()}', 10)
         tmp.vars['cursor'].execute(f'''insert into invites (user_id, invite_hash)
                     values (:user_id, :invite_hash)''',
                             {'user_id': user[0],
