@@ -30,10 +30,10 @@ NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         text TEXT);
         '''
 
-NEW_TBL_AUTH = '''CREATE TABLE IF NOT EXISTS auth(
+NEW_TBL_AUTH = f'''CREATE TABLE IF NOT EXISTS auth(
         user_id INTEGER,
         device TEXT,
-        expire_in integer(6) not null default (strftime('%s', 'now', '+1 month')),
+        expire_in integer(6) not null default (strftime('%s', 'now', '+{cfg.TokenLifeTime}')),
         token TEXT);
         '''
 
