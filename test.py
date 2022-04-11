@@ -78,21 +78,37 @@ if __name__ == "__main__":
             ok.append(user[1])
 
             # account auth
-            user = test(api.account.auth,{
+            auser = test(api.account.auth,{
                     'email': 'email@server.ru',
                     'password': 'password'
                     },"auth user")
-            ok.append(user[1])
-            token = user[0]['token']
+            ok.append(auser[1])
+            token = auser[0]['token']
 
             # account changepass
-            user = test(api.account.changepass, {
+            chpass = test(api.account.changepass, {
                     'oldpass': 'password',
                     'newpass': 'password1',
                     'accesstoken': token
                     },"changepass user")
-            ok.append(user[1])
-            token = user[0]['token']
+            ok.append(chpass[1])
+            token = chpass[0]['token']
+            
+            print(user[0])
+
+            # account edit
+            edit = test(api.account.edit,{
+                'accesstoken': token,
+                "name": user[0]['name']+'_edited',
+                "image": user[0]['image']+'_edited'
+                }, 'edit account')
+            ok.append(edit[1])
+            newusr = test(api.user.get,{
+                'accesstoken': token,
+                "id": user[0]['id']
+                }, 'get edited user')
+            ok.append(newusr[0]["name"] == user[0]['name']+'_edited')
+
 
             # account del
             user = test(api.account.delete,{
