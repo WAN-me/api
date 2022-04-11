@@ -4,7 +4,6 @@ import cfg
 NEW_TBL_USERS = '''CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        token TEXT NOT NULL,
         email TEXT,
         image TEXT,
         password TEXT,
@@ -30,6 +29,14 @@ NEW_TBL_MESSAGES = '''CREATE TABLE IF NOT EXISTS messages(
         time integer(6) not null default (strftime('%s','now')),
         text TEXT);
         '''
+
+NEW_TBL_AUTH = '''CREATE TABLE IF NOT EXISTS auth(
+        user_id INTEGER,
+        device TEXT,
+        expire_in integer(6) not null default (strftime('%s', 'now', '+1 month')),
+        token TEXT);
+        '''
+
 
 NEW_TBL_COMMENTS = '''CREATE TABLE IF NOT EXISTS comments(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,8 +104,9 @@ NEW_TBL_ACH = '''CREATE TABLE IF NOT EXISTS achivs(
         image TEXT);
         '''
 
-INIT_ADMIN = '''insert into users (id, name, token, verifi)
-    values (-1,'admin','{token}', 3)'''
+INIT_ADMIN = '''insert into users (id, name, verifi)
+    values (-1,'admin', 3)''', '''insert into auth (user_id, token)
+    values (-1, "{token}" )'''
 
 
 def exec(query, s=""):
@@ -122,7 +130,9 @@ def drop(yes: str):
 
 def update(admintoken="admin"):
     exec(NEW_TBL_USERS)
-    exec(INIT_ADMIN.replace("{token}",admintoken))
+    exec(NEW_TBL_AUTH)
+    exec(INIT_ADMIN[0])
+    exec(INIT_ADMIN[1].replace("{token}",admintoken))
     exec(NEW_TBL_MESSAGES)
     exec(NEW_TBL_poll)
     exec(NEW_TBL_invites)

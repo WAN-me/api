@@ -138,7 +138,6 @@ def get(args):
             return utils.error(400, "'id' is invalid")
         user = account._gett(token, 1)
         msg = _get(id)
-        print(msg)
         if msg['from_id'] != user[0] and msg['to_id'] != user[0]:
             return utils.error(403, 'Access denided for this action')
         if 'error' in user:

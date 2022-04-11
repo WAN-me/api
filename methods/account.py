@@ -16,16 +16,28 @@ def auth(args):
         if ss == True:
             time.sleep(1.5)
             tmp.vars['cursor'].execute(
-            '''select id,token from users where email = :email and password = :pass''', {
-                'email': args['email'], 'pass': utils.dohash(
-                    args['password'])})
+            '''select id from users where email = :email and password = :pass''', {
+                'email': args['email'], 'pass': utils.dohash(args['password'])})
+
             user = tmp.vars['cursor'].fetchall()
+
             if not user or len(user) == 0:
                 return utils.error(401, "Login or password is incorrect")
-            else:
-                return {'id': user[0][0], 'token': user[0][1]}
+
+            device = args.get('ip', 'unknown')
+            token = utils.dohash(f"{args['password']}_{device}_{time.time_ns()}")
+            tmp.vars['cursor'].execute(
+            '''insert into auth (user_id, device, token) values(:user_id, :device, :token)''', {
+                'user_id': user[0][0], 'device': device, 'token': token})
+            tmp.vars['db'].commit()
+            
+            res = get({'accesstoken':token})
+            res['token'] = token
+            return res
         else:
             return ss
+
+
     elif type == 'vk':
         ss = utils.notempty(args, ['token'])
         if ss == True:
@@ -67,7 +79,7 @@ def delete(args):
         if 'error' in user:
             return user
         tmp.vars['cursor'].execute('''DELETE FROM users
-            WHERE token = ?;''', (token,))
+            WHERE id = ?;''', (user[0],))
         tmp.vars['db'].commit()
         send(args['ip'], 'user_del', args)
         return {'state': 'ok'}
@@ -122,28 +134,29 @@ def reg(args):
             if len(tmp.vars['cursor'].fetchall()) < 1:
                 token = utils.dohash(f'{name}_{time.time()}_{password}')
                 invite_hash = args.get('invitation','')
+                device = args.get('ip', 'unknown')
+
                 tmp.vars['cursor'].execute('''select invite_hash, user_id from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
                 res = tmp.vars['cursor'].fetchall() # manage invite
                 if len(res) > 0:
                     if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
 
-                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, verifi, invited_by)
-                        values (:name, :token, :email, :password, :image, :verifi, :invited_by)''',
+                        tmp.vars['cursor'].execute(f'''insert into users (name, email, password, image, verifi, invited_by)
+                        values (:name, :email, :password, :image, :verifi, :invited_by)''',
                                 {'name': secure(name),
-                                'token': token,
                                 'email': email,
                                 'verifi': 3,
                                 'invited_by': res[0][1],
                                 'password': password,
                                 'image': args.get('image','default.png')})
+                        
                         sc = "verifi level set on 3(maximum)"
 
                     else:
                         code = utils.random_string(6)
-                        tmp.vars['cursor'].execute(f'''insert into users (name, token, email, password, image, code, invited_by)
-                        values (:name, :token, :email, :password, :image, :code, :invited_by)''',
+                        tmp.vars['cursor'].execute(f'''insert into users (name, email, password, image, code, invited_by)
+                        values (:name, :email, :password, :image, :code, :invited_by)''',
                                 {'name': secure(name),
-                                'token': token,
                                 'email': email,
                                 'code': code,
                                 'invited_by': res[0][1],
@@ -155,9 +168,8 @@ def reg(args):
                 else:
                     return utils.error(400, 'Incorrect invitation')
                 tmp.vars['db'].commit()
-                user = get({'accesstoken': token})
+                user = auth(args)
                 user['advanced'] = sc
-                user['token'] = token
                 send(args['ip'], 'user_reg', args)
                 return user
             else:
@@ -169,7 +181,7 @@ def reg(args):
 
 def _gett(token, needVerif=0):
     "аовзвращает список (id, verif)"
-    tmp.vars['cursor'].execute(f'''select id, verifi from users where token = ? ''', (token,))
+    tmp.vars['cursor'].execute(f'''select id, verifi from users where id in (select user_id from auth where token = ? )''', (token,))
     user = tmp.vars['cursor'].fetchall()
     if not user or len(user) != 1:
         return utils.error(400, "'accesstoken' is invalid")
@@ -188,15 +200,18 @@ def changepass(args):
             return user
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
-        tmp.vars['cursor'].execute('''select id, verifi from users where token = :token and password = :pass''', {
+        tmp.vars['cursor'].execute('''select id, verifi from users where password = :pass and id in (select user_id from auth where token = :token)''', {
                         'token': oldtoken, 'pass': oldpass})
         result = tmp.vars['cursor'].fetchall()
         if len(result) == 0:
             return utils.error(401, "password is incorrect")
         token = utils.dohash(f'{time.time()}_{newpass}')
         tmp.vars['cursor'].execute(
-            f'''update users set token = :token, password = :newpass where token = :oldtoken''', {
-                        'token': token, 'newpass': newpass, 'oldtoken': oldtoken})
+            f'''update users set password = :newpass where id = :id''', {
+                        'token': token, 'newpass': newpass, 'id': user[0]})
+        tmp.vars['cursor'].execute(
+            f'''insert into auth (user_id, token, device) values(:user_id, :token, :device)''', {
+                        'token': token, 'user_id': user[0], 'device': args.get('ip', 'unknown'),})
         tmp.vars['db'].commit()
         return {"token": token}
     else:
