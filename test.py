@@ -3,6 +3,7 @@ from methods import db
 import requests
 import os
 import time
+import sys
 
 def test(method,params={},msg='task'):
     result = (method(params))
@@ -11,8 +12,9 @@ def test(method,params={},msg='task'):
     else: 
         print(f"{GREEN}ok {msg}{ENDC}")
     return result,'error' not in result
-
-api_uri = "http://localhost:3000"
+port = int(sys.argv[1]) or 3000
+print(port)
+api_uri = f"http://localhost:{port}"
 class Api(object):
     __slots__ = ('_method')
 
@@ -43,7 +45,7 @@ ENDC= "\033[0m"
 api = Api()
 need = ['account','users',"messages",'groups','poll']
 if __name__ == "__main__":
-    os.system('fuser 3000/tcp -k')
+    os.system(f'fuser {port}/tcp -k')
     os.system('rm db.sqlite3')
     os.system('python3 initdb.py &')
     os.system("python3 main.py &> api.log &")
@@ -365,7 +367,7 @@ if __name__ == "__main__":
 
     print(f"{BLUE}tests ended{ENDC}")
     print(db.exec('select * from chats'))
-    os.system("fuser 3000/tcp -k >> /dev/null")
+    os.system(f"fuser {port}/tcp -k >> /dev/null")
     #os.remove('db.sqlite3')
     print(aok)
     for ok in aok:
