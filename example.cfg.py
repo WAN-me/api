@@ -1,10 +1,12 @@
 admintoken = "fgfqwgg23fgxoz66fgryuiqwe"
-dataBaseFile = "/databases/db.sqlite3"
+dataBaseFile = "db.sqlite3"
 SecretKeyForReg = "SecretKeyForReg"
 TokenLifeTime = "1 month" # in sql format
 mail_admin_user = "admin@wan-group.ru"
 mail_admin_pass = "pass"
 poll_step = 1.0
 callback_server = 'localhost:3030'
+api_server = '0.0.0.0'
+api_port = 3000
 tg_token = "TOKEN"
 tg_chat = 1010101
