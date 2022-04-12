@@ -9,6 +9,11 @@ import cfg
 import tmp
 import re
 
+def _overdue_token(user_id):
+    tmp.vars['cursor'].execute('''update auth set expire_in = strftime('%s', 'now') where user_id == ?;''', (user_id,))
+    tmp.vars['db'].commit()
+
+
 def auth(args):
     type = args.get('type', 'pass')
     if type == 'pass':
@@ -212,6 +217,7 @@ def changepass(args):
         tmp.vars['cursor'].execute(
             f'''update users set password = :newpass where id = :id''', {
                         'token': token, 'newpass': newpass, 'id': user[0]})
+        _overdue_token(user[0])
         tmp.vars['cursor'].execute(
             f'''insert into auth (user_id, token, device) values(:user_id, :token, :device)''', {
                         'token': token, 'user_id': user[0], 'device': args.get('ip', 'unknown'),})
