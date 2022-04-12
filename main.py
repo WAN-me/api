@@ -14,7 +14,7 @@ ERRORS = {
     "500": 'Internal server error',
     "400": 'Unknown method passed'}
 
-server = sbeaver.Server("0.0.0.0", port=3000, sync=False)
+server = sbeaver.Server(cfg.api_server, port=cfg.api_port, sync=False)
 
 
 tmp.vars['db'] = connect(cfg.dataBaseFile, check_same_thread=False)

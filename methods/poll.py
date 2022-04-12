@@ -13,7 +13,7 @@ def get(args):
     ss = utils.notempty(args, ['accesstoken'])
     if ss == True:
         token = args['accesstoken']
-        timeout = args.get("timeout", 10)
+        timeout = int(args.get("timeout", 10))
         count = args.get('count', 10)
         id = args.get('id', None)
         user = account._gett(token, 1)

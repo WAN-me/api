@@ -7,8 +7,7 @@ def get(args):
     if ss == True:
         token = args['accesstoken']
         res = account._gett(token)
-        id = args.get('id', res[0])
-        return res if 'error' in res else _get(id)
+        return res if 'error' in res else _get(args.get('id', res[0]))
     else:
         return ss
 

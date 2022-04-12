@@ -48,6 +48,7 @@ if __name__ == "__main__":
     os.system('python3 initdb.py &')
     os.system("python3 main.py &> api.log &")
     time.sleep(2)
+    aok = []
     try:    
 
         # start account test
@@ -119,6 +120,7 @@ if __name__ == "__main__":
                 print(f"{RED}account - {ok.count(True)}/{ok.count(False)}{ENDC}")
             else:
                 print(f"{GREEN}account - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            aok.append(ok)
         # start account test
         if 'users' in need:
             ok = []
@@ -160,6 +162,7 @@ if __name__ == "__main__":
                 print(f"{RED}users - {ok.count(True)}/{ok.count(False)}{ENDC}")
             else:
                 print(f"{GREEN}users - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            aok.append(ok)
 
         if 'messages' in need:
             ok = []
@@ -250,6 +253,7 @@ if __name__ == "__main__":
                 print(f"{RED}messages - {ok.count(True)}/{ok.count(False)}{ENDC}")
             else:
                 print(f"{GREEN}messages - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            aok.append(ok)
             
         
         if 'groups' in need:
@@ -327,6 +331,7 @@ if __name__ == "__main__":
                 print(f"{RED}groups - {ok.count(True)}/{ok.count(False)}{ENDC}")
             else:
                 print(f"{GREEN}groups - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            aok.append(ok)
 
         if "poll" in need:
             ok = []
@@ -340,7 +345,8 @@ if __name__ == "__main__":
 
             get = test(api.poll.get, {
                 "accesstoken": user1[0]['token'],
-                "id": get[0]['items'][-1]['event_id']
+                "id": get[0]['items'][-1]['event_id'],
+                'timeout': 1
             },'get poll')
             print(get[0])
             ok.append(get[1] and get[0]['count'] == 0)
@@ -349,6 +355,8 @@ if __name__ == "__main__":
                 print(f"{RED}poll - {ok.count(True)}/{ok.count(False)}{ENDC}")
             else:
                 print(f"{GREEN}poll - {ok.count(True)}/{ok.count(False)}{ENDC}")
+            aok.append(ok)
+
     except Exception as e:
         raise e
 
@@ -359,3 +367,8 @@ if __name__ == "__main__":
     print(db.exec('select * from chats'))
     os.system("fuser 3000/tcp -k >> /dev/null")
     #os.remove('db.sqlite3')
+    print(aok)
+    for ok in aok:
+        if False in ok:
+            exit(1)
+    exit(0)
