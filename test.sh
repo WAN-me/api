@@ -16,16 +16,18 @@ fuser $PORT/tcp -k
 
 cat example.cfg.py | sed "s,^api_port = .*,api_port = $PORT,g" > cfg.py
 
-TGTOKEN=`cat cfg.py |grep tg_token | cut -d '"' -f 2`
-TGCHAT=`cat cfg.py |grep tg_chat | cut -d '"' -f 2`
+TGTOKEN="TG TOKEN"
+TGCHAT="TG CHAT"
 
 
 python3 test.py $PORT 1> /dev/null \
 && ( 
     echo 'test successful!' 
-    curl "https://api.telegram.org/bot$TGTOKEN}/sendMessage?chat_id=$TGCHAT&text=test+succesful"
+    curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+succesful+on+branch+$BRANCH"
     ) || ( 
     echo 'Test failed' 
+    curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+fail+on+branch+$BRANCH"
+    
     )
 
 
