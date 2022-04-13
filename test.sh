@@ -46,7 +46,7 @@ TGTOKEN="TG TOKEN"
 TGCHAT="TG CHAT"
 
 
-$STD=python3 test.py $PORT 2> testes.txt \
+STD=python3 test.py $PORT 2> testes.txt \
 && ( 
     echo 'test successful!' 
     curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+succesful+on+branch+$BRANCH"
