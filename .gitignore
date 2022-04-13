@@ -9,3 +9,4 @@ cfg.py
 .sqlite_history
 db.sqlite3
 blacklist.json
+test.sh

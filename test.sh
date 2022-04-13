@@ -1,4 +1,11 @@
 #!/bin/bash
+
+send() {
+    local text="${1}"
+    local msg=$( phpurlencode "$text" )
+    curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&parse_mode=HTML&text=$msg"
+}
+
 phpurlencode() {
   local hexchars="0123456789ABCDEF"
   local string="${1}"
@@ -34,7 +41,7 @@ rm ~/test.out
 mkdir ~/.apitemp 2>> ~/test.out
 cd ~/.apitemp 2>> ~/test.out
 
-git clone https://github.com/WAN-me/api 2>> ~/test.out
+git clone git@github.com:wan-me/api.git 2>> ~/test.out
 
 cd api 2>> ~/test.out
 git checkout $BRANCH 2>> ~/test.out
@@ -43,31 +50,29 @@ fuser $PORT/tcp -k
 
 cat example.cfg.py | sed "s,^api_port = .*,api_port = $PORT,g" > cfg.py 2>> ~/test.out
 
-TGTOKEN="TG TOKEN"
-TGCHAT="TG CHAT"
+TGTOKEN="5213806122:AAEGsk8oKYiB9NJx_BZpJ33LkPHlG67BxLw"
+TGCHAT="-650801396"
 
 
 STDt=`python3 test.py $PORT 2>> ~/test.out` \
 && ( 
     echo 'test successful!' 
-    curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+succesful+on+branch+$BRANCH"
+    send "test succesful on branch $BRANCH"
     cd ~/$BRANCH/api  2>> ~/test.out
     ( 
-        STDp=`git pull 2> ~/test.out` && curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=ok+pull"
+        STDp=`git pull 2> ~/test.out` && systemctl restart api && send "ok pull"
     ) || ( 
             ERROR="failed pull on branch $BRANCH
-                <code>$(cat ~/test.out)</code>
-                "
-                MSG=$( phpurlencode "$ERROR" )
-            curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&parse_mode=HTML&text=$MSG" 
+<code>$(cat ~/test.out)</code>
+"
+            send "$ERROR"
         ) 
     ) || ( 
     echo 'Test failed' 
-    TEXT="testing fail on branch $BRANCH
-    <code>$(cat ~/test.out)</code>
-    "
-    MSG=$( phpurlencode "$TEXT" )
-    curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&parse_mode=HTML&text=$MSG"
+    send "testing fail on branch $BRANCH
+<code>$(cat ~/test.out)</code>
+"
+    
     
     )
 
@@ -77,4 +82,3 @@ STDt=`python3 test.py $PORT 2>> ~/test.out` \
 # rm temp
 cd ~
 rm -rf ~/.apitemp
-
