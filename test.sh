@@ -24,6 +24,9 @@ python3 test.py $PORT 1> /dev/null \
 && ( 
     echo 'test successful!' 
     curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+succesful+on+branch+$BRANCH"
+    cd ~/$BRANCH/api
+    ( git pull && curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+ok+pull"
+    ) || ( curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=failed+pull" ) 
     ) || ( 
     echo 'Test failed' 
     curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+fail+on+branch+$BRANCH"
