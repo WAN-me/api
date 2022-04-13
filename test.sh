@@ -29,6 +29,7 @@ BRANCH=$1
 PORT=33030
 # Pre tasks
 echo "branch $BRANCH"
+rm ~/test.out
 # download repo
 mkdir ~/.apitemp 2>> ~/test.out
 cd ~/.apitemp 2>> ~/test.out
