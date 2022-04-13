@@ -6,5 +6,5 @@
 
 api.wan-group.ru
 
-wan-group.ru:5000
+wan-group.ru:3000
  
