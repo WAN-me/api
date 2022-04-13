@@ -51,13 +51,18 @@ STDt=`python3 test.py $PORT 2>> ~/test.out` \
     echo 'test successful!' 
     curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+succesful+on+branch+$BRANCH"
     cd ~/$BRANCH/api  2>> ~/test.out
-    ( STDp=`git pull 2>> ~/test.out` && curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=test+ok+pull"
-    ) || ( curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=failed+pull" ) 
+    ( 
+        STDp=`git pull 2> ~/test.out` && curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&text=ok+pull"
+    ) || ( 
+            ERROR="failed pull on branch $BRANCH
+                <code>$(cat ~/test.out)</code>
+                "
+                MSG=$( phpurlencode "$ERROR" )
+            curl "https://api.telegram.org/bot$TGTOKEN/sendMessage?chat_id=$TGCHAT&parse_mode=HTML&text=$MSG" 
+        ) 
     ) || ( 
     echo 'Test failed' 
     TEXT="testing fail on branch $BRANCH
-    <code>$STDt</code>
-    <code>$STDp</code>
     <code>$(cat ~/test.out)</code>
     "
     MSG=$( phpurlencode "$TEXT" )
