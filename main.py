@@ -34,16 +34,16 @@ def poll_handler(request, method):
         res = poll.get(args)
     elif method == "read":
         res = poll.read(args)
-    return res.get('error', {'code': 200})['code'], res
+    return res.get('error', {'code': 200})['code'], res, 'application/json', {"Access-Control-Allow-Origin": "*"}
     
 
 @server.code404()
 def page_not_found(error):
-    return utils.error(404, ERRORS['404'])
+    return *utils.error(404, ERRORS['404']), 'application/json', {"Access-Control-Allow-Origin": "*"}
 
 @server.code500()
 def ISE(req, error):
-    return utils.error(500, ERRORS['500'])
+    return *utils.error(500, ERRORS['500']), 'application/json', {"Access-Control-Allow-Origin": "*"}
 
 method_list = {
     'user': {
@@ -115,11 +115,11 @@ def method_handler(request, method, submethod):
             else:
                 res = utils.error(400, ERRORS['400'])
         elif method in ("poll", "pool"):  # poll section #
-            return sbeaver.redirect(307,f'/poll/{submethod}')
+            return *sbeaver.redirect(307,f'/poll/{submethod}'), 'application/json', {"Access-Control-Allow-Origin": "*"}
 
     if "error" in res:
-        return res["error"]["code"], res
+        return res["error"]["code"], res, 'application/json', {"Access-Control-Allow-Origin": "*"}
     else:
-        return 200, res
+        return 200, res, 'application/json', {"Access-Control-Allow-Origin": "*"}
 
 server.start()
