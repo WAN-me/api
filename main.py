@@ -34,16 +34,16 @@ def poll_handler(request, method):
         res = poll.get(args)
     elif method == "read":
         res = poll.read(args)
-    return res.get('error', {'code': 200})['code'], res, 'application/json', {"Access-Control-Allow-Origin": "*"}
+    return res.get('error', {'code': 200})['code'], res
     
 
 @server.code404()
 def page_not_found(error):
-    return *utils.error(404, ERRORS['404']), 'application/json', {"Access-Control-Allow-Origin": "*"}
+    return utils.error(404, ERRORS['404'])
 
 @server.code500()
 def ISE(req, error):
-    return *utils.error(500, ERRORS['500']), 'application/json', {"Access-Control-Allow-Origin": "*"}
+    return utils.error(500, ERRORS['500'])
 
 method_list = {
     'user': {
