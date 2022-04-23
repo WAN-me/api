@@ -115,11 +115,11 @@ def method_handler(request, method, submethod):
             else:
                 res = utils.error(400, ERRORS['400'])
         elif method in ("poll", "pool"):  # poll section #
-            return *sbeaver.redirect(307,f'/poll/{submethod}'), 'application/json', {"Access-Control-Allow-Origin": "*"}
+            return sbeaver.redirect(307,f'/poll/{submethod}')
 
     if "error" in res:
-        return res["error"]["code"], res, 'application/json', {"Access-Control-Allow-Origin": "*"}
+        return res["error"]["code"], res
     else:
-        return 200, res, 'application/json', {"Access-Control-Allow-Origin": "*"}
+        return 200, res
 
 server.start()
