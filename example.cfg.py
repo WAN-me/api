@@ -10,3 +10,4 @@ api_server = '0.0.0.0'
 api_port = 3000
 tg_token = "TOKEN"
 tg_chat = 1010101
+eternal_invite = 'assaas'
