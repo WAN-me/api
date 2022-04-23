@@ -143,7 +143,9 @@ def reg(args):
 
                 tmp.vars['cursor'].execute('''select invite_hash, user_id from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
                 res = tmp.vars['cursor'].fetchall() # manage invite
-                if len(res) > 0 or invite_hash == cfg.eternal_invite:
+                if invite_hash == cfg.eternal_invite:
+                    res = [[],[-1]]
+                if len(res) > 0:
                     if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
 
                         tmp.vars['cursor'].execute(f'''insert into users (name, email, password, image, verifi, invited_by)
