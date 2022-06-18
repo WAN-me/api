@@ -12,7 +12,7 @@ def test(method,params={},msg='task'):
     else: 
         print(f"{GREEN}ok {msg}{ENDC}")
     return result,'error' not in result
-port = int(sys.argv[1]) or 3000
+port = int(sys.argv[1] if len(sys.argv) > 1 else "3000")
 print(port)
 api_uri = f"http://localhost:{port}"
 class Api(object):

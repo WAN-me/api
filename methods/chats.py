@@ -1,12 +1,10 @@
 from methods import utils, db, account
-import tmp
 
 
 def _set(user, id: int, name="dialog"):
-    tmp.vars['cursor'].execute('''insert into chats(id, user_id, name)
+    db.exec('''insert into chats(id, user_id, name)
             select :id,:user,:name
         WHERE NOT EXISTS(SELECT 1 FROM chats WHERE id = :id AND user_id = :user);''', {'id': id, 'user': user, 'name': name})
-    tmp.vars['db'].commit()
 
 
 def get(args):
@@ -19,10 +17,9 @@ def get(args):
         if 'error' in user:
             return user
         chats = []
-        tmp.vars['cursor'].execute('''select DISTINCT id, name from chats where user_id=:user_id
+        raw_chats = db.exec('''select DISTINCT id, name from chats where user_id=:user_id
                     order by id desc limit :ofset,:count''', {
                 'user_id': user[0], 'count': count, 'ofset': ofset})
-        raw_chats = tmp.vars['cursor'].fetchall()
             
         if len(raw_chats) < 1:
             return {'count': len(raw_chats), 'items': raw_chats}

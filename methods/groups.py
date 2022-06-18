@@ -3,7 +3,6 @@ import json
 from methods import users as uusers
 from methods.account import _gett
 from methods.utils import secure
-import tmp
 
 
 def get(args):
@@ -20,16 +19,14 @@ def get(args):
 def _get(id):
     if False == utils.validr(id, utils.IDR):
         return utils.error(400, "'id' is invalid")
-    tmp.vars['cursor'].execute('''select id, name, owner_id, type, admins from groups where id = :id ''', {
+    raw_group = db.exec('''select id, name, owner_id, type, admins from groups where id = :id ''', {
                 'id': id})
-    raw_group = tmp.vars['cursor'].fetchall()
     if len(raw_group) == 0:
         return utils.error(404, "This group not exists")
     else:
         raw_group = raw_group[0]
-        tmp.vars['cursor'].execute('''select user_id from members where object_id = :id ''', {
+        userss = db.exec('''select user_id from members where object_id = :id ''', {
                 'id': id})
-        userss = tmp.vars['cursor'].fetchall()
         users = [x[0] for x in userss]
         return {
             'id': raw_group[0], 
@@ -48,16 +45,14 @@ def getbyname(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
-        tmp.vars['cursor'].execute('''select id, name, owner_id, type from groups where name = :name ''', {
+        raw_group = db.exec('''select id, name, owner_id, type from groups where name = :name ''', {
                     'name': name})
-        raw_group = tmp.vars['cursor'].fetchall()
         if len(raw_group) == 0:
             return utils.error(404, "This group not exists")
         else:
             raw_group = raw_group[0]
-            tmp.vars['cursor'].execute('''select user_id from members where object_id = :id ''', {
-                'id': raw_group[0]})
-            users = tmp.vars['cursor'].fetchall()[0]
+            users = db.exec('''select user_id from members where object_id = :id ''', {
+                'id': raw_group[0]})[0]
             return {
                 'id': raw_group[0],
                 'name': secure(
@@ -77,13 +72,11 @@ def new(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
-        tmp.vars['cursor'].execute('''insert into groups (owner_id, name, type)
+        db.exec('''insert into groups (owner_id, name, type)
         values (?, ?, ?)''', (user[0], name, args['type'],))
-        tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="groups"''')
-        group_id = tmp.vars['cursor'].fetchall()[0][0]
-        tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type) 
+        group_id = db.exec('''select seq from sqlite_sequence where name="groups"''')[0][0]
+        db.exec('''insert into members (user_id, object_id, type) 
         values (?, ?, ?)''', (user[0], group_id, args['type'])) # в список членов групп добавляем создателя
-        tmp.vars['db'].commit()
             
         return {'id': group_id}
     else:
@@ -103,7 +96,7 @@ def edit(args):
         name = args.get("name", group['name'])
         type = args.get("type", group['type'])
         if user[0] == group['owner_id']:
-            tmp.vars['cursor'].execute('''UPDATE groups
+            db.exec('''UPDATE groups
                 SET name = :name 
                 ,type = :type
 
@@ -115,7 +108,6 @@ def edit(args):
                         'type': type,
                     }
                     )
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -132,21 +124,20 @@ def delete(args):
         if "error" in group:
             return group
         if user[0] == group['owner_id']:
-            tmp.vars['cursor'].execute('''DELETE FROM groups
+            db.exec('''DELETE FROM groups
                 WHERE id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
-            tmp.vars['cursor'].execute('''DELETE FROM members
+            db.exec('''DELETE FROM members
                 WHERE object_id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -166,10 +157,9 @@ def adduser(args):
             users = list(group['users'])
             if user_id not in users:
                 users.append(int(user_id))
-            tmp.vars['cursor'].execute('''insert OR IGNORE into members
+            db.exec('''insert OR IGNORE into members
             (user_id, object_id, type)
             values (?, ?, ?)''', (user_id, id, group['type']))
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:
@@ -185,9 +175,8 @@ def leave(args):
             return user
         group = _get(id)
         if user[0] in group['users']:
-            tmp.vars['cursor'].execute('''delete from members
+            db.exec('''delete from members
             where user_id = ? and object_id = ?''', (user[0], id,))
-            tmp.vars['db'].commit()
             if group['type'] == 1:
                     username = uusers._get(user[0])['name']
                     messages._send(-1, int(id), f'Пользователь {username} покинул группу.')
@@ -208,9 +197,8 @@ def join(args):
         if group['type'] >= 0:
             users = group['users']
             if not user[0] in users:
-                tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type)
+                db.exec('''insert into members (user_id, object_id, type)
                 values (?, ?, ?)''', (user[0], id, group['type'],)) # записываем в список членов
-                tmp.vars['db'].commit()
 
                 if group['type'] == 1:
                     username = uusers._get(user[0])['name'] # получаем доп инфу о пользователе
@@ -238,12 +226,11 @@ def addadmin(args):
                 admins.append(user_id)
             users = list(group['users'])
             if user_id not in users:
-                tmp.vars['cursor'].execute('''insert into members (user_id, object_id, type)
+                db.exec('''insert into members (user_id, object_id, type)
                 values (?, ?, ?)''', (user_id, id, group['type'],))
-            tmp.vars['cursor'].execute('''UPDATE groups
+            db.exec('''UPDATE groups
                     SET admins = :nadmins
                     WHERE id = :id''', {'id': id, 'nadmins': str(admins)})
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
         return utils.error(403, "Access denided for this group")
     else:

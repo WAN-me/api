@@ -1,12 +1,11 @@
 from methods import utils, db, account
 import json
 import time
-import tmp
 import cfg
-def _set(type: int, user, id: int = None, object: dict = None):
-    tmp.vars['cursor'].execute('''insert into poll(type, object_id, user_id, object)
-            values(?,?,?,?)''', (type, id, user, json.dumps(object),))
-    tmp.vars['db'].commit()
+def _set(event_type: int, user, id: int = None, object: dict = None):
+    print(id)
+    db.exec('''insert into poll(type, object_id, user_id, object)
+            values(?,?,?,?)''', (event_type, id, user, json.dumps(object),))
 
 
 def get(args):
@@ -21,21 +20,20 @@ def get(args):
             return user
         updates = []
         if id is None:
-            tmp.vars['cursor'].execute(
+            res = db.exec(
                 '''select id from poll where user_id=:user_id
                     order by id DESC limit :count''', {
                     'user_id': user[0], 'count': 1})
-            res = tmp.vars['cursor'].fetchall()
             if len(res) == 0:
                 return {"id": 0}
             return {"id":res[0][0]}
         else:
             while timeout > 0:
-                tmp.vars['cursor'].execute(
+                
+                raw_updates = db.exec(
                     '''select type, object_id, time, object, id from poll where user_id=:userId and id>:id
                         order by id limit :count''', {
                         'userId': user[0], 'count': count, 'id':id})
-                raw_updates = tmp.vars['cursor'].fetchall()
                 if len(raw_updates) > 0:
                     for raw_update in raw_updates:
                         updates.append({'event_id': raw_update[4],

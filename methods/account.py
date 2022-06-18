@@ -6,12 +6,10 @@ import time
 import json
 import requests
 import cfg
-import tmp
 import re
 
 def _overdue_token(user_id):
-    tmp.vars['cursor'].execute('''update auth set expire_in = strftime('%s', 'now') where user_id == ?;''', (user_id,))
-    tmp.vars['db'].commit()
+    db.exec('''update auth set expire_in = strftime('%s', 'now') where user_id == ?;''', (user_id,))
 
 
 def auth(args):
@@ -20,21 +18,19 @@ def auth(args):
         ss = utils.notempty(args, ['email', 'password'])
         if ss == True:
             time.sleep(1.5)
-            tmp.vars['cursor'].execute(
+            user = db.exec(
             '''select id from users where email = :email and password = :pass''', {
                 'email': args['email'], 'pass': utils.dohash(args['password'])})
 
-            user = tmp.vars['cursor'].fetchall()
 
             if not user or len(user) == 0:
                 return utils.error(401, "Login or password is incorrect")
 
             device = args.get('ip', 'unknown')
             token = utils.dohash(f"{args['password']}_{device}_{time.time_ns()}")
-            tmp.vars['cursor'].execute(
+            db.exec(
             '''insert into auth (user_id, device, token) values(:user_id, :device, :token)''', {
                 'user_id': user[0][0], 'device': device, 'token': token})
-            tmp.vars['db'].commit()
             
             res = get({'accesstoken':token})
             res['token'] = token
@@ -53,18 +49,18 @@ def auth(args):
                 if 'response' in response:
                     user = response['response'][0]
 
-                    tmp.vars['cursor'].execute(
+                    
+                    user_id = db.exec(
                         f'''select (user) from accounts where ac_id = {user['id']}''')
-                    user_id = tmp.vars['cursor'].fetchall()
 
                     if len(user_id) < 1:
                         return utils.error(
                             401, "Access denided for this account")
 
-                    tmp.vars['cursor'].execute(
+                    
+                    user = db.exec(
                         '''select id,token from users where id = :id''',
                         {'id': user_id[0]})
-                    user = tmp.vars['cursor'].fetchall()
 
                     return {'id': user[0][0], 'token': user[0][1]}
                 return utils.error(
@@ -83,9 +79,8 @@ def delete(args):
         user = _gett(token)
         if 'error' in user:
             return user
-        tmp.vars['cursor'].execute('''DELETE FROM users
+        db.exec('''DELETE FROM users
             WHERE id = ?;''', (user[0],))
-        tmp.vars['db'].commit()
         send(args['ip'], 'user_del', args)
         return {'state': 'ok'}
     else:
@@ -135,20 +130,20 @@ def reg(args):
         
         if len(re.findall(r'[a-z0-9]+@[a-z]+\.[a-z]{2,3}',email)) > 0:
             password = utils.dohash(f"{args['password']}")
-            tmp.vars['cursor'].execute('''select email from users where email=:email''', {'email': email})
-            if len(tmp.vars['cursor'].fetchall()) < 1:
+            
+            if len(db.exec('''select email from users where email=:email''', {'email': email})) < 1:
                 token = utils.dohash(f'{name}_{time.time()}_{password}')
                 invite_hash = args.get('invitation','')
                 device = args.get('ip', 'unknown')
 
-                tmp.vars['cursor'].execute('''select invite_hash, user_id from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
-                res = tmp.vars['cursor'].fetchall() # manage invite
+                
+                res = db.exec('''select invite_hash, user_id from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash}) # manage invite
                 if invite_hash == cfg.eternal_invite:
                     res = [[0,-1],]
                 if len(res) > 0:
                     if args.get('secret','SecretKeyForReg') == cfg.SecretKeyForReg:
 
-                        tmp.vars['cursor'].execute(f'''insert into users (name, email, password, image, verifi, invited_by)
+                        db.exec(f'''insert into users (name, email, password, image, verifi, invited_by)
                         values (:name, :email, :password, :image, :verifi, :invited_by)''',
                                 {'name': secure(name),
                                 'email': email,
@@ -161,7 +156,7 @@ def reg(args):
 
                     else:
                         code = utils.random_string(6)
-                        tmp.vars['cursor'].execute(f'''insert into users (name, email, password, image, code, invited_by)
+                        db.exec(f'''insert into users (name, email, password, image, code, invited_by)
                         values (:name, :email, :password, :image, :code, :invited_by)''',
                                 {'name': secure(name),
                                 'email': email,
@@ -170,11 +165,10 @@ def reg(args):
                                 'password': password,
                                 'image': args.get('image','default.png')})
                         sc = _sendcode(code, args)
-                    tmp.vars['cursor'].execute(f'''delete from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
+                    db.exec(f'''delete from invites where invite_hash=:invite_hash''', {'invite_hash': invite_hash})
 
                 else:
                     return utils.error(400, 'Incorrect invitation')
-                tmp.vars['db'].commit()
                 user = auth(args)
                 user['advanced'] = sc
                 send(args['ip'], 'user_reg', args)
@@ -188,8 +182,8 @@ def reg(args):
 
 def _gett(token, needVerif=0):
     "аовзвращает список (id, verif, expire_in)"
-    tmp.vars['cursor'].execute(f'''select id, verifi, expire_in from users, auth where id == auth.user_id and token = ?;''', (token,))
-    user = tmp.vars['cursor'].fetchall()
+    
+    user = db.exec(f'''select id, verifi, expire_in from users, auth where id == auth.user_id and token = ?;''', (token,))
     
     if not user or len(user) != 1:
         return utils.error(400, "'accesstoken' is invalid")
@@ -210,20 +204,18 @@ def changepass(args):
             return user
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
-        tmp.vars['cursor'].execute('''select id, verifi from users, auth where users.password = :pass and users.id == auth.user_id and auth.token = :token''', {
+        result = db.exec('''select id, verifi from users, auth where users.password = :pass and users.id == auth.user_id and auth.token = :token''', {
                         'token': oldtoken, 'pass': oldpass})
-        result = tmp.vars['cursor'].fetchall()
         if len(result) == 0:
             return utils.error(401, "password is incorrect")
         token = utils.dohash(f'{time.time()}_{newpass}')
-        tmp.vars['cursor'].execute(
+        db.exec(
             f'''update users set password = :newpass where id = :id''', {
                         'token': token, 'newpass': newpass, 'id': user[0]})
         _overdue_token(user[0])
-        tmp.vars['cursor'].execute(
+        db.exec(
             f'''insert into auth (user_id, token, device) values(:user_id, :token, :device)''', {
                         'token': token, 'user_id': user[0], 'device': args.get('ip', 'unknown'),})
-        tmp.vars['db'].commit()
         return {"token": token}
     else:
         return ss
@@ -231,8 +223,7 @@ def changepass(args):
 
 def _verif(id, level):
     try:
-        tmp.vars['cursor'].execute(f'''update users set verifi = {level} where id={id}''')
-        tmp.vars['db'].commit()
+        db.exec(f'''update users set verifi = {level} where id={id}''')
         return {'state': 'ok'}
     except Exception as ex:
         return utils.error(500, ex)
@@ -247,8 +238,7 @@ def verif(args):
             return user
         if user[1] != 0:
             return utils.error(208, 'Already verifed')
-        tmp.vars['cursor'].execute(f'''select code from users where token = ?''', (token,))
-        result = tmp.vars['cursor'].fetchall()
+        result = db.exec(f'''select code from users where token = ?''', (token,))
             
         code = result[0]
         if code == args["code"]:
@@ -271,7 +261,7 @@ def edit(args):
             return user
         name = args.get("name", user['name'])
         image = args.get("image", user['image'])
-        tmp.vars['cursor'].execute('''UPDATE users
+        db.exec('''UPDATE users
             SET name = :name,
             image = :image
             WHERE id = :id''',
@@ -282,7 +272,6 @@ def edit(args):
                     'image': image,
                 }
                 )
-        tmp.vars['db'].commit()
         return {'state': 'ok'}
     else:
         return ss
@@ -296,11 +285,10 @@ def invite(args):
         if 'error' in user:
             return user
         hash = utils.dohash(f'{str(user)}_{time.time_ns()}', 10)
-        tmp.vars['cursor'].execute(f'''insert into invites (user_id, invite_hash)
+        db.exec(f'''insert into invites (user_id, invite_hash)
                     values (:user_id, :invite_hash)''',
                             {'user_id': user[0],
                             'invite_hash': hash})
-        tmp.vars['db'].commit()
         return {'hash': hash}
     else:
         return ss
@@ -320,10 +308,9 @@ def addsocial(args):
                 f"https://api.vk.com/method/users.get?access_token={social_token}&v=5.101").content)
             if 'response' in response:
                 user = response['response'][0]
-                tmp.vars['cursor'].execute(
+                db.exec(
                     f'''inert into accounts (user, ac_token, ac_id, ac_email, social_name)
                     values ({user[0]},"{social_token}",{user['id']},"{user.get('email','none@wan-group.ru')}","{user['first_name']} {user['last_name']}")''')
-                tmp.vars['db'].commit()
                 return {'state': "ok"}
             return utils.error(
                 400, f'Error while get data from token: "{response}"')

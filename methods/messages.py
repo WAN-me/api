@@ -1,7 +1,6 @@
 import json
 from methods import utils, db, poll, chats, account, users, groups
 from methods.utils import secure
-import tmp
 
 def send(args):
     ss = utils.notempty(args, ['accesstoken', 'text', 'to_id'])
@@ -24,13 +23,11 @@ def send(args):
 
 
 def _send(from_id, to_id, text):
-    tmp.vars['cursor'].execute('''insert into messages (from_id, to_id, text)
+    db.exec('''insert into messages (from_id, to_id, text)
     values (?,?,?)''', (from_id, to_id, text,))
-    tmp.vars['db'].commit()
 
 
-    tmp.vars['cursor'].execute('''select seq from sqlite_sequence where name="messages"''')
-    msg_id = tmp.vars['cursor'].fetchall()[0][0]
+    msg_id = db.exec('''select seq from sqlite_sequence where name="messages"''')[0][0]
 
     if to_id < 0: # сообщение в чат
         group = groups._get(-to_id)
@@ -40,7 +37,7 @@ def _send(from_id, to_id, text):
         if not from_id in group['users']: # пользователь не учатсник чата
             return utils.error(403,"access denided for this chat")
 
-        tmp.vars['cursor'].execute(f'''insert into poll (type, user_id, object_id, object)
+        db.exec(f'''insert into poll (type, user_id, object_id, object)
             select 1, user_id, {msg_id}, ?
             from members
             where object_id = {-to_id} and not user_id = {from_id};''', (json.dumps({'id': msg_id,
@@ -48,7 +45,7 @@ def _send(from_id, to_id, text):
                 'to_id': to_id,
                 'text': text}),))
 
-        tmp.vars['cursor'].execute(f'''insert into chats (id, user_id, name)
+        db.exec(f'''insert into chats (id, user_id, name)
             select {to_id}, user_id, ?
             from members
             where object_id = {-to_id} and 
@@ -56,7 +53,6 @@ def _send(from_id, to_id, text):
             select user_id from chats 
             where id={to_id});''', (group['name'], ))
 
-        tmp.vars['db'].commit()
     else:
         poll._set(1,
                 to_id,
@@ -97,14 +93,15 @@ def gethistory(args):
             return user
 
         messages = []
+        raw_messages = []
         if int(user_id) < 0: # this chat!
-            tmp.vars['cursor'].execute(
+            raw_messages = db.exec(
             '''select id, from_id, to_id, text, time from messages where
                 (to_id=:userid)
                 order by id desc limit :ofset,:count''', {
                 'count': count, 'ofset': ofset, 'userid': user_id})
         else:
-            tmp.vars['cursor'].execute(
+            raw_messages = db.exec(
                 '''select id, from_id, to_id, text, time from messages where
                     (to_id=:this and from_id=:userid)
                     or
@@ -112,7 +109,6 @@ def gethistory(args):
                     order by id desc limit :ofset,:count''', {
                     'this': user[0], 'count': count, 'ofset': ofset, 'userid': user_id})
         
-        raw_messages = tmp.vars['cursor'].fetchall()
         if len(raw_messages) < 1:
             return {'count': len(raw_messages), 'items': raw_messages}
         for raw_message in raw_messages:
@@ -148,9 +144,8 @@ def get(args):
 
 
 def _get(id):
-    tmp.vars['cursor'].execute(
+    msg = db.exec(
         '''select from_id, text, to_id from messages where id = ?''', (id,))
-    msg = tmp.vars['cursor'].fetchall()
     if not msg or len(msg) != 1:
         return utils.error(400, "This message not exists")
     msg = msg[0]
@@ -169,7 +164,7 @@ def edit(args):
             return message
         text = args.get("text", message['text'])
         if user[0] == message['from_id']:
-            tmp.vars['cursor'].execute('''UPDATE messages
+            db.exec('''UPDATE messages
                 SET text = :text
                 WHERE id = :id''',
 
@@ -178,7 +173,6 @@ def edit(args):
                         'text': text,
                     }
                     )
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
@@ -195,14 +189,13 @@ def delete(args):
         if "error" in message:
             return message
         if user[0] == message['from_id']:
-            tmp.vars['cursor'].execute('''DELETE FROM messages
+            db.exec('''DELETE FROM messages
                 WHERE id = :id''',
 
                     {
                         'id': args['id']
                     }
                     )
-            tmp.vars['db'].commit()
             return {'state': 'ok'}
     else:
         return ss
