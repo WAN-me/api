@@ -8,7 +8,7 @@ import jdb
 
 
 block = jdb.Db('blacklist.json').data
-from methods import messages, utils, users, poll, chats, bugs, groups, account, achive
+from methods import messages, utils, users, poll, chats, groups, account, achive
 ERRORS = {
     "404": 'Page not found',
     "500": 'Internal server error',
