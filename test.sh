@@ -38,6 +38,7 @@ PORT=33030
 echo "branch $BRANCH"
 rm ~/test.out
 # download repo
+rm -rf ~/.apitemp
 mkdir -p ~/.apitemp 2>> ~/test.out
 cd ~/.apitemp 2>> ~/test.out
 
