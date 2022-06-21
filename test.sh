@@ -38,7 +38,7 @@ PORT=33030
 echo "branch $BRANCH"
 rm ~/test.out
 # download repo
-mkdir ~/.apitemp 2>> ~/test.out
+mkdir -p ~/.apitemp 2>> ~/test.out
 cd ~/.apitemp 2>> ~/test.out
 
 git clone git@github.com:wan-me/api.git 2>> ~/test.out
