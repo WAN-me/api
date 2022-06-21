@@ -1,5 +1,5 @@
 import json
-from methods import utils, db, poll, chats, account, users, groups
+from methods import utils, db, poll, chats, account, users, groups, online
 from methods.utils import secure
 
 def send(args):
@@ -11,6 +11,7 @@ def send(args):
         user = account._gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         if False == utils.validr(str(to_id), utils.IDR):
             return utils.error(400, "'to_id' is invalid")
 
@@ -91,7 +92,7 @@ def gethistory(args):
         user = account._gett(token, 1)
         if 'error' in user:
             return user
-
+        online._set(user[0])
         messages = []
         raw_messages = []
         if int(user_id) < 0: # this chat!
@@ -133,11 +134,12 @@ def get(args):
         if False == utils.validr(id, utils.IDR):
             return utils.error(400, "'id' is invalid")
         user = account._gett(token, 1)
+        if 'error' in user:
+            return user
+        online._set(user[0])
         msg = _get(id)
         if msg['from_id'] != user[0] and msg['to_id'] != user[0]:
             return utils.error(403, 'Access denided for this action')
-        if 'error' in user:
-            return user
         return msg
     else:
         return ss
@@ -159,6 +161,7 @@ def edit(args):
         user = account._gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         message = _get(args['id'])
         if "error" in message:
             return message

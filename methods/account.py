@@ -1,4 +1,4 @@
-from methods import utils, db, mail
+from methods import utils, db, mail, online
 from methods.utils import TOKENR, secure
 from methods.users import get, _get
 from callback import send
@@ -34,6 +34,7 @@ def auth(args):
             
             res = get({'accesstoken':token})
             res['token'] = token
+            online._set(user[0][0])
             return res
         else:
             return ss
@@ -61,6 +62,7 @@ def auth(args):
                     user = db.exec(
                         '''select id,token from users where id = :id''',
                         {'id': user_id[0]})
+                    online._set(user[0][0])
 
                     return {'id': user[0][0], 'token': user[0][1]}
                 return utils.error(
@@ -202,6 +204,8 @@ def changepass(args):
         user = _gett(oldtoken)
         if 'error' in user:
             return user
+        online._set(user[0])
+        
         oldpass = utils.dohash(f"{args['oldpass']}")
         newpass = utils.dohash(f"{args['newpass']}")
         result = db.exec('''select id, verifi from users, auth where users.password = :pass and users.id == auth.user_id and auth.token = :token''', {
@@ -259,6 +263,8 @@ def edit(args):
         user = _get(user[0])
         if 'error' in user:
             return user
+        online._set(user['id'])
+        
         name = args.get("name", user['name'])
         image = args.get("image", user['image'])
         db.exec('''UPDATE users
@@ -284,6 +290,8 @@ def invite(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
+        
         hash = utils.dohash(f'{str(user)}_{time.time_ns()}', 10)
         db.exec(f'''insert into invites (user_id, invite_hash)
                     values (:user_id, :invite_hash)''',

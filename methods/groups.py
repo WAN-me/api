@@ -1,4 +1,4 @@
-from methods import utils, db, messages
+from methods import utils, db, messages, online
 import json
 from methods import users as uusers
 from methods.account import _gett
@@ -45,6 +45,7 @@ def getbyname(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         raw_group = db.exec('''select id, name, owner_id, type from groups where name = :name ''', {
                     'name': name})
         if len(raw_group) == 0:
@@ -72,6 +73,7 @@ def new(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         db.exec('''insert into groups (owner_id, name, type)
         values (?, ?, ?)''', (user[0], name, args['type'],))
         group_id = db.exec('''select seq from sqlite_sequence where name="groups"''')[0][0]
@@ -90,6 +92,7 @@ def edit(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         group = _get(args['id'])
         if "error" in group:
             return group
@@ -120,6 +123,7 @@ def delete(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         group = _get(args['id'])
         if "error" in group:
             return group
@@ -152,6 +156,7 @@ def adduser(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         group = _get(args['id'])
         if user[0] in group['admins'] or user[0] == group['owner_id']:
             users = list(group['users'])
@@ -173,6 +178,7 @@ def leave(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         group = _get(id)
         if user[0] in group['users']:
             db.exec('''delete from members
@@ -192,6 +198,7 @@ def join(args):
         user = _gett(token, 1)
         if 'error' in user:
             return user
+        online._set(user[0])
         group = _get(id)
         id = int(id)
         if group['type'] >= 0:
@@ -217,6 +224,7 @@ def addadmin(args):
         id = args['id']
         user_id = int(args['user_id'])
         user = _gett(token, 1)
+        online._set(user[0])
         if 'error' in user:
             return user
         group = _get(id)

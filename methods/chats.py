@@ -1,4 +1,4 @@
-from methods import utils, db, account
+from methods import utils, db, account, online
 
 
 def _set(user, id: int, name="dialog"):
@@ -20,7 +20,8 @@ def get(args):
         raw_chats = db.exec('''select DISTINCT id, name from chats where user_id=:user_id
                     order by id desc limit :ofset,:count''', {
                 'user_id': user[0], 'count': count, 'ofset': ofset})
-            
+        online._set(user[0])
+        
         if len(raw_chats) < 1:
             return {'count': len(raw_chats), 'items': raw_chats}
         for raw_chat in raw_chats:
