@@ -88,6 +88,18 @@ def delete(args):
     else:
         return ss
 
+def setonline(args):
+    ss = utils.notempty(args, ['accesstoken'])
+    if ss == True:
+        token = args['accesstoken']
+        user = _gett(token)
+        if 'error' in user:
+            return user
+        online._set(user[0])
+        return {'state': 'ok'}
+    else:
+        return ss
+
 
 def _sendcode(code, args):
     send(args['ip'], 'send_code', args)

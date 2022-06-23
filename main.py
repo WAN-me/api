@@ -87,7 +87,8 @@ method_list = {
         'edit': account.edit,
         'delete': account.delete,
         'verif': account.verif,
-        'invite': account.invite
+        'invite': account.invite,
+        'setonline': account.setonline
     },
     'poll': {
         'get': poll.get,
