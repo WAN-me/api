@@ -56,7 +56,7 @@ TGCHAT="-650801396"
 
 
 STDt=`python3 test.py $PORT 2>> ~/test.out` \
-&& ( 
+&& ( ( 
     echo 'test successful!' 
     send "test succesful on branch $BRANCH"
     cd ~/$BRANCH/api  2>> ~/test.out
@@ -67,17 +67,16 @@ STDt=`python3 test.py $PORT 2>> ~/test.out` \
 <code>$(cat ~/test.out)</code>
 "
             send "$ERROR"
-        ) && ( (cp test.sh ~/apitest.sh && bash update.sh 2> ~/update.out && send "update ok 
-        <code>$(cat ~/update.out)</code>
-"))
-    ) || ( 
+        ) ) || ( 
     echo 'Test failed' 
     send "testing fail on branch $BRANCH
 <code>$(cat ~/test.out)</code>
 "
     
     
-    )
+    ) ) && ( (cp test.sh ~/apitest.sh && bash update.sh 2> ~/update.out && send "update ok 
+        <code>$(cat ~/update.out)</code>
+"))
 
 
 # post tasks
