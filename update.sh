@@ -1,0 +1,1 @@
+sqlite3 /databases/db.sqlite3 "ALTER TABLE groups ADD COLUMN image TEXT;"
