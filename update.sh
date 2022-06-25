@@ -1,1 +1,1 @@
-exho ok
+echo ok
