@@ -1,1 +1,1 @@
-echo oke
+python3 -c "print(3/0)"
