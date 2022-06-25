@@ -1,1 +1,1 @@
-python3 -c "print(3/0)"
+python3 -c "print(4/0)"
