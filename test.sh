@@ -67,7 +67,7 @@ STDt=`python3 test.py $PORT 2>> ~/test.out` \
 <code>$(cat ~/test.out)</code>
 "
             send "$ERROR"
-        ) 
+        ) && (cp text.sh ~/apitest.sh && bash update.sh) 
     ) || ( 
     echo 'Test failed' 
     send "testing fail on branch $BRANCH
