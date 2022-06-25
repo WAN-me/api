@@ -86,6 +86,7 @@ NEW_TBL_GROUPS = '''CREATE TABLE IF NOT EXISTS groups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         owner_id INT NOT NULL,
         name TEXT NOT NULL,
+        image TEXT,
         users TEXT NOT NULL default "[]",
         admins TEXT NOT NULL default "[]",
         type INT NOT NULL);

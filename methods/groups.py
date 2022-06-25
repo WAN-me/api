@@ -19,7 +19,7 @@ def get(args):
 def _get(id):
     if False == utils.validr(id, utils.IDR):
         return utils.error(400, "'id' is invalid")
-    raw_group = db.exec('''select id, name, owner_id, type, admins from groups where id = :id ''', {
+    raw_group = db.exec('''select id, name, owner_id, type, admins, image from groups where id = :id ''', {
                 'id': id})
     if len(raw_group) == 0:
         return utils.error(404, "This group not exists")
@@ -34,6 +34,7 @@ def _get(id):
             'owner_id': raw_group[2], 
             'users': users, 
             'admins': json.loads(str(raw_group[4])), 
+            'image': raw_group[5], 
             'type': raw_group[3]}
 
 
@@ -70,12 +71,13 @@ def new(args):
     if ss == True:
         token = args['accesstoken']
         name = args['name']
+        image = args.get('image', 'default.png')
         user = _gett(token, 1)
         if 'error' in user:
             return user
         online._set(user[0])
-        db.exec('''insert into groups (owner_id, name, type)
-        values (?, ?, ?)''', (user[0], name, args['type'],))
+        db.exec('''insert into groups (owner_id, name, type, image)
+        values (?, ?, ?, ?)''', (user[0], name, args['type'], image,))
         group_id = db.exec('''select seq from sqlite_sequence where name="groups"''')[0][0]
         db.exec('''insert into members (user_id, object_id, type) 
         values (?, ?, ?)''', (user[0], group_id, args['type'])) # в список членов групп добавляем создателя
@@ -98,16 +100,19 @@ def edit(args):
             return group
         name = args.get("name", group['name'])
         type = args.get("type", group['type'])
+        image = args.get("image", group['image'])
         if user[0] == group['owner_id']:
             db.exec('''UPDATE groups
                 SET name = :name 
                 ,type = :type
+                ,image = :image
 
                 WHERE id = :id''',
 
                     {
                         'id': args['id'],
                         'name': name,
+                        'image': image,
                         'type': type,
                     }
                     )
