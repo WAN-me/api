@@ -51,8 +51,7 @@ fuser $PORT/tcp -k
 
 cat example.cfg.py | sed "s,^api_port = .*,api_port = $PORT,g" > cfg.py 2>> ~/test.out
 
-TGTOKEN="5213806122:AAEGsk8oKYiB9NJx_BZpJ33LkPHlG67BxLw"
-TGCHAT="-650801396"
+
 
 
 STDt=`python3 test.py $PORT 2>> ~/test.out` \
@@ -74,7 +73,7 @@ STDt=`python3 test.py $PORT 2>> ~/test.out` \
 "
     
     
-    ) ) && ( (cp test.sh ~/apitest.sh && bash update.sh 2> ~/update.out && send "update ok 
+    )) && ( (cp test.sh ~/apitest.sh && bash update.sh 2> ~/update.out && send "update ok 
         <code>$(cat ~/update.out)</code>
 "))
 
