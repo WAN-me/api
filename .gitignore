@@ -10,3 +10,4 @@ cfg.py
 db.sqlite3
 blacklist.json
 test.sh
+.vscode
