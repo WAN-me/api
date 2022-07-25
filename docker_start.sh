@@ -1,1 +1,1 @@
-docker run -d --name api -v /root/prod/api/cfg.py:/usr/src/app/cfg.py -v /databases/db.sqlite3:/satabases/db.sqlite3 -p 3020:3000 -it wex335/api
+docker run -d --name api -v /root/prod/api/cfg.py:/usr/src/app/cfg.py -v /databases/db.sqlite3:/databases/db.sqlite3 -p 3020:3000 -it wex335/api

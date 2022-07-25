@@ -11,4 +11,4 @@ class Db():
 
     def save(self):
         with open(self.file,'w') as f:
-            json.dump(self.data,f)
+            json.dump(self.data,f, indent=1)

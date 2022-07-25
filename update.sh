@@ -1,1 +1,1 @@
-python3 -c "print(4/0)"
+sudo pip3 install --upgrade sbeaver

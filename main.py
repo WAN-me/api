@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sbeaver
+from sbeaver import Response
 import cfg
 from sqlite3 import connect
 import tmp
@@ -121,6 +122,9 @@ def method_handler(request, method, submethod):
     if "error" in res:
         return res["error"]["code"], res
     else:
-        return 200, res
+        cookies= {}
+        if 'token' in res:
+            cookies = {'token': res['token']}
+        return Response(200, res, cookies=cookies)
 
 server.start()
